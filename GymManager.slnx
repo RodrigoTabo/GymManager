@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="GymManager.Api/GymManager.Api.csproj" />
+  <Project Path="GymManager.Client/GymManager.Client.csproj" />
+  <Project Path="GymManager.Shared/GymManager.Shared.csproj" />
+</Solution>
