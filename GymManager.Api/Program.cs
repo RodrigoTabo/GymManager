@@ -9,8 +9,8 @@ namespace GymManager.Api
 
             builder.Services.AddControllers();
 
-            // Swagger
             builder.Services.AddEndpointsApiExplorer();
+            // Swagger
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddCors(options =>
