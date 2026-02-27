@@ -1,4 +1,7 @@
 
+using GymManager.Api.Infraestructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace GymManager.Api
 {
     public class Program
@@ -6,6 +9,9 @@ namespace GymManager.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDbContext<GymManagerDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 
             builder.Services.AddControllers();
 
