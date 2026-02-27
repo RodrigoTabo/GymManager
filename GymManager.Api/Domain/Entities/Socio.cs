@@ -11,8 +11,8 @@
         public DateTime? FechaBaja { get; set; }
         public int PlanId { get; set; }
         public Plan Plan { get; set; }
-        public List<Pago> Pagos { get; set; } = new();
+        public DocumentoSocio? Documento { get; set; }
         public List<Asistencia> Asistencias { get; set; } = new();
-        public List<DocumentoSocio> Documentos { get; set; } = new();
+        public List<Pago> Pagos { get; set; } = new();
     }
 }
