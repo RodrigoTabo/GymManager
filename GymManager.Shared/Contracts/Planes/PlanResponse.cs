@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.Planes
 {
-    public record PlanResponse(int Id, string Nombre, DateTime DuracionDias, float Precio);
+    public record PlanResponse(int Id, string Nombre, int? DuracionDias, decimal Precio);
 }

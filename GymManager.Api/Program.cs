@@ -1,4 +1,5 @@
 
+using GymManager.Api.Application.Middleware;
 using GymManager.Api.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ namespace GymManager.Api
             options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 
             builder.Services.AddControllers();
+            builder.Services.AddApiExceptionHandling();
+
 
             builder.Services.AddEndpointsApiExplorer();
             // Swagger
@@ -40,6 +43,9 @@ namespace GymManager.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.UseApiExceptionHandling();
+
 
             app.MapControllers();
 

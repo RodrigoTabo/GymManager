@@ -1,4 +1,4 @@
 ﻿namespace GymManager.Shared.Contracts.Planes
 {
-    public record CreatePlanRequest(string Nombre, DateTime DuracionDias, float Precio);
+    public record CreatePlanRequest(string Nombre, int DuracionDias, decimal Precio);
 }
