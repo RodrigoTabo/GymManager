@@ -8,5 +8,7 @@
         public decimal Precio { get; set; }
         public List<Socio> Socios { get; set; } = new();
 
+        public DateTime? EliminadoEn { get; set; }
+
     }
 }

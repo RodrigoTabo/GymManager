@@ -2,7 +2,6 @@
 
 namespace GymManager.Api.Application.Middleware
 {
-
     //Biblioteca middleware para Rodri.
     public static class ApiExceptionHandling
     {
@@ -43,10 +42,15 @@ namespace GymManager.Api.Application.Middleware
                 : base(StatusCodes.Status422UnprocessableEntity, title, message) { }
         }
 
-
         public sealed class Middleware : IMiddleware
         {
+            private readonly IWebHostEnvironment _env;
             private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+            public Middleware(IWebHostEnvironment env)
+            {
+                _env = env;
+            }
 
             public async Task InvokeAsync(HttpContext context, RequestDelegate next)
             {
@@ -58,10 +62,19 @@ namespace GymManager.Api.Application.Middleware
                 {
                     await WriteProblem(context, ex.StatusCode, ex.Title, ex.Message);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    await WriteProblem(context, StatusCodes.Status500InternalServerError,
-                        "Ocurrió un error inesperado.", "Ocurrió un error inesperado.");
+                    // En Development devolvemos el detalle real para debuggear (Swagger, etc.)
+                    var detail = _env.IsDevelopment()
+                        ? ex.ToString()
+                        : "Ocurrió un error inesperado.";
+
+                    await WriteProblem(
+                        context,
+                        StatusCodes.Status500InternalServerError,
+                        "Ocurrió un error inesperado.",
+                        detail
+                    );
                 }
             }
 
@@ -93,5 +106,4 @@ namespace GymManager.Api.Application.Middleware
             return app.UseMiddleware<Middleware>();
         }
     }
-
 }

@@ -1,5 +1,7 @@
 
+using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Application.Middleware;
+using GymManager.Api.Application.Services;
 using GymManager.Api.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +12,7 @@ namespace GymManager.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 
@@ -32,6 +34,8 @@ namespace GymManager.Api
 
             var app = builder.Build();
 
+            app.UseApiExceptionHandling();
+
             app.UseCors("Client");
 
             if (app.Environment.IsDevelopment())
@@ -44,7 +48,6 @@ namespace GymManager.Api
 
             app.UseAuthorization();
 
-            app.UseApiExceptionHandling();
 
 
             app.MapControllers();

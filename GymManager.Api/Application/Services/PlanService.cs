@@ -5,6 +5,7 @@ using GymManager.Shared.Contracts.Planes;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Formats.Asn1;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
@@ -23,7 +24,7 @@ namespace GymManager.Api.Application.Services
         {
 
             //Optimizamos la consulta que vamos a realizar.
-            var query = _context.Planes.AsNoTracking();
+            var query = _context.Planes.AsNoTracking().Where(p => p.EliminadoEn == null);
 
             //Realizamos la consulta con la query optimizada.
             var listar = await query
@@ -43,25 +44,32 @@ namespace GymManager.Api.Application.Services
             //Validamos que haya cargado el nombre
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
-                throw new InvalidOperationException("El nombre es obligatorio.");
+                throw new BadRequestException("El nombre es obligatorio.");
 
-            //Validamos si ya existe...
-            if (await _context.Planes.AnyAsync(p => p.Nombre == nombre))
-                throw new ConflictException("El plan ya existe.");
             //Validamos que haya colocado duración de dias
             if (request.DuracionDias <= 0)
-                throw new InvalidOperationException("Tenes que agregar los días de duración del plan.");
+                throw new BadRequestException("Tenes que agregar los días de duración del plan.");
             //Validamos que haya colocado precio al plan
             if (request.Precio <= 0)
-                throw new InvalidOperationException("Tenes que agregar un precio al plan.");
+                throw new BadRequestException("Tenes que agregar un precio al plan.");
 
+            //Validamos si existe pero esta eliminado.
+            var existe = await _context.Planes.FirstOrDefaultAsync(p => p.Nombre == nombre);
+
+            if (existe is not null)
+            {
+                if (existe.EliminadoEn != null)
+                    throw new ConflictException("El plan ya existe, pero está deshabilitado.");
+
+                throw new ConflictException("El plan ya existe.");
+            }
 
             //Creamos el plan
             var nuevoPlan = new Plan
             {
                 Nombre = nombre,
                 DuracionDias = request.DuracionDias,
-                Precio = request.Precio
+                Precio = request.Precio,
             };
 
             //Agregamos el nuevo plan
@@ -80,21 +88,28 @@ namespace GymManager.Api.Application.Services
             if (plan is null)
                 throw new NotFoundException("El Plan que desea modificar no existe.");
 
+            if (plan.EliminadoEn != null)
+                throw new ConflictException("El plan ya está deshabilitado.");
+
             //Validamos que haya completado los campos
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
-                throw new InvalidOperationException("El nombre es obligatorio.");
+                throw new BadRequestException("El nombre es obligatorio.");
             if (request.DuracionDias <= 0)
-                throw new InvalidOperationException("Tenes que agregar los días de duración del plan");
+                throw new BadRequestException("Tenes que agregar los días de duración del plan");
             if (request.Precio <= 0)
-                throw new InvalidOperationException("Tenes que agregar un precio al plan");
-
+                throw new BadRequestException("Tenes que agregar un precio al plan");
 
             //Validamos que el plan no exista
-            if (await _context.Planes.AnyAsync(p => p.Nombre == nombre && p.Id != id))
+            var existe = await _context.Planes.FirstOrDefaultAsync(p => p.Nombre == nombre && p.Id != id);
+
+            if (existe is not null)
+            {
+                if (existe.EliminadoEn != null)
+                    throw new ConflictException("El plan ya existe, pero está deshabilitado.");
+
                 throw new ConflictException("El plan ya existe.");
-
-
+            }
 
             plan.Nombre = nombre;
             plan.DuracionDias = request.DuracionDias;
@@ -103,6 +118,41 @@ namespace GymManager.Api.Application.Services
 
         }
 
+        public async Task<PlanResponse> GetByIdAsync(int id)
+        {
+            ///Buscamos el plan.
+            var plan = await _context.Planes
+                .AsNoTracking()
+                .Where(p => p.Id == id && p.EliminadoEn == null)
+                .Select(p => new PlanResponse
+                (
+                    p.Id,
+                    p.Nombre,
+                    p.DuracionDias,
+                    p.Precio
+                )).FirstOrDefaultAsync();
+            ///Si no existe.
+            if (plan is null)
+                throw new NotFoundException("El Plan que deseas ver no existe.");
 
+            return plan;
+
+        }
+
+        public async Task SoftDeleteAsync(int id)
+        {
+            var plan = await _context.Planes.FindAsync(id);
+
+            ///Existe el plan?
+            if (plan is null)
+                throw new NotFoundException("El plan no existe.");
+            ///Esta deshabilitado?
+            if (plan.EliminadoEn != null)
+                throw new ConflictException("El plan ya está deshabilitado.");
+
+            plan.EliminadoEn = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+        }
     }
 }

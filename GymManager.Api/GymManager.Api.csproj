@@ -32,10 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Interfaces\" />
-    <Folder Include="Application\Services\" />
-    <Folder Include="Infraestructure\Data\Migrations\" />
-    <Folder Include="Infraestructure\Data\Seeds\" />
+    <Folder Include="Infrastructure\Data\Migrations\" />
+    <Folder Include="Infrastructure\Data\Seeds\" />
     <Folder Include="Presentations\Middlewares\" />
   </ItemGroup>
 
