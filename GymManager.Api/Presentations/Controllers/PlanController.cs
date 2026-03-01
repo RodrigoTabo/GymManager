@@ -30,8 +30,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CreatePlanRequest request)
         {
-            var id = await _planService.CrearAsync(request);
-            return Created($"/api/planes/{id}", new { id });
+            var Id = await _planService.CrearAsync(request);
+            return Created($"/api/planes/{Id}", new { Id });
         }
 
 
@@ -49,8 +49,8 @@ namespace GymManager.Api.Presentations.Controllers
             return NoContent();
         }
 
-        [HttpGet("{Id:int}")]
-        [ProducesResponseType(typeof(List<PlanResponse>), StatusCodes.Status200OK)]
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(PlanResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PlanResponse>> GetByIdAsync(int id)
         => Ok(await _planService.GetByIdAsync(id));

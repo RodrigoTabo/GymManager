@@ -1,22 +1,30 @@
+using GymManager.Client.ApiClients;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 
-namespace GymManager.Client
+namespace GymManager.Client;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
+        var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+        builder.RootComponents.Add<App>("#app");
+        builder.RootComponents.Add<HeadOutlet>("head::after");
+
+        builder.Services.AddMudServices();
+
+        // HttpClient apuntando a tu API
+        builder.Services.AddScoped(_ => new HttpClient
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
-            builder.Services.AddMudServices();
+            BaseAddress = new Uri("https://localhost:7093/")
+        });
 
-            builder.Services.AddScoped(sp =>
-                new HttpClient { BaseAddress = new Uri("https://localhost:7093/") });
+        // ApiClient
+        builder.Services.AddScoped<PlanApi>();
 
-            await builder.Build().RunAsync();
-        }
+        await builder.Build().RunAsync();
     }
 }

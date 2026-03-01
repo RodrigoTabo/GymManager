@@ -1,0 +1,83 @@
+﻿@page "/planes"
+@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Planes
+@inject IDialogService DialogService
+@inject PlanApi PlanApi
+
+<MudButton @onclick="OpenDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
+    Crear nuevo plan
+</MudButton>
+
+<PlanTable Items="@planes"
+           Loading="@loading"
+           OnEdit="OpenEdit"
+           OnDelete="ConfirmDelete" />
+
+@code {
+    private List<PlanResponse> planes = new();
+    private bool loading;
+
+    //Inicializa la lista llamando al metodo.
+    protected override async Task OnInitializedAsync()
+      => await LoadPlanesAsync();
+
+    private async Task LoadPlanesAsync()
+    {
+        loading = true;
+        planes = await PlanApi.ListarAsync();
+        loading = false;
+    }
+
+    //Llama al modal Crear
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dialog = await DialogService.ShowAsync<PlanDialog>("Crear Plan", options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadPlanesAsync();
+    }
+
+    //Llama al modal Editar
+    private async Task OpenEdit(PlanResponse plan)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters
+        {
+            ["Plan"] = plan
+        };
+
+        var dialog = await DialogService.ShowAsync<PlanDialog>("Editar Plan", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadPlanesAsync();
+
+    }
+
+    private async Task ConfirmDelete(PlanResponse plan)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters
+        {
+            ["Plan"] = plan,
+            ["ContentText"] = $"¿Seguro que querés eliminar el plan \"{plan.Nombre}\"?",
+            ["ButtonText"] = "Eliminar",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<PlanDialogDelete>("Eliminar Plan", parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Canceled)
+            return;
+
+        await LoadPlanesAsync();
+    }
+}

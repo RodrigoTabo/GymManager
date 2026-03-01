@@ -36,6 +36,7 @@ namespace GymManager.Api.Application.Services
                     p.Precio
                 )).ToListAsync();
             //Retornamos la lista de Plan
+
             return listar;
         }
 
@@ -133,7 +134,7 @@ namespace GymManager.Api.Application.Services
                 )).FirstOrDefaultAsync();
             ///Si no existe.
             if (plan is null)
-                throw new NotFoundException("El Plan que deseas ver no existe.");
+                throw new NotFoundException("El plan no existe.");
 
             return plan;
 

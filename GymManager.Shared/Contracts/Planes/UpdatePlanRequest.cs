@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.Planes
 {
-    public record UpdatePlanRequest(int Id, string Nombre, int? DuracionDias, decimal Precio);
+    public record UpdatePlanRequest(string Nombre, int DuracionDias, decimal Precio);
 }

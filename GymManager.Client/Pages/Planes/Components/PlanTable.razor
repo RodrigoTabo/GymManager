@@ -1,0 +1,49 @@
+﻿@using GymManager.Shared.Contracts.Planes
+@using MudBlazor
+
+<MudTable Items="@Items"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          Loading="@Loading"
+          LoadingProgressColor="Color.Info">
+
+    <HeaderContent>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Duración (días)</MudTh>
+        <MudTh>Precio</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="Duración">@context.DuracionDias</MudTd>
+        <MudTd DataLabel="Precio">@context.Precio</MudTd>
+
+        <MudTd>
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Text"
+                       OnClick="@(() => OnEdit.InvokeAsync(context))">
+                Editar
+            </MudButton>
+
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Text"
+                       Color="Color.Error"
+                       OnClick="@(() => OnDelete.InvokeAsync(context))">
+                Eliminar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>No hay planes.</MudText>
+    </NoRecordsContent>
+</MudTable>
+
+@code {
+    [Parameter] public List<PlanResponse> Items { get; set; } = new();
+    [Parameter] public bool Loading { get; set; }
+
+    [Parameter] public EventCallback<PlanResponse> OnEdit { get; set; }
+    [Parameter] public EventCallback<PlanResponse> OnDelete { get; set; }
+}

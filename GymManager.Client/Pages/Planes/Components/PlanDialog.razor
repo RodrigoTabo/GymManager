@@ -1,0 +1,124 @@
+﻿@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Planes
+@inject PlanApi PlanApi
+
+<MudDialog>
+    <TitleContent>
+        @(Plan is null ? "Crear Plan" : "Editar Plan")
+    </TitleContent>
+    <DialogContent>
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <MudAlert Severity="Severity.Error">@Error</MudAlert>
+        }
+
+        <MudTextField Label="Nombre" Placeholder="Por ej, Plan Semanal..." @bind-Value="Model.Nombre" Disabled="@Guardando" />
+        <MudNumericField T="int" Label="Duración (Días)" Placeholder="Por ej, 7 días..." @bind-Value="Model.DuracionDias" Disabled="@Guardando" />
+        <MudNumericField T="decimal" Label="Precio" Placeholder="Por ej, 7000..." @bind-Value="Model.Precio" Disabled="@Guardando" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="@Guardando">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Save" Disabled="@Guardando">
+            @(Plan is null ? "Crear" : "Guardar cambios")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public PlanResponse? Plan { get; set; }  
+
+    private string? Error;
+    private bool Guardando;
+
+    private PlanFormVM Model = new();
+
+    protected override void OnParametersSet()
+    {
+        if (Plan is null)
+        {
+            Model = new PlanFormVM();
+            return;
+        }
+
+        Model.Nombre = Plan.Nombre;
+        Model.DuracionDias = Plan.DuracionDias;
+        Model.Precio = Plan.Precio;
+    }
+
+    private async Task Save()
+    {
+        Error = null;
+
+        var nombre = (Model.Nombre ?? "").Trim();
+
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            Error = "Ingresá un nombre.";
+            return;
+        }
+
+        if (Model.DuracionDias <= 0)
+        {
+            Error = "Debes ingresar cuando dura el Plan.";
+            return;
+        }
+
+        if (Model.Precio <= 0)
+        {
+            Error = "Debes ingresar el precio del Plan";
+            return;
+        }
+
+        Guardando = true;
+
+        try
+        {
+            if (Plan is null)
+            {
+                var request = new CreatePlanRequest(
+                    nombre,
+                    Model.DuracionDias,
+                    Model.Precio
+                );
+
+                await PlanApi.CrearAsync(request);
+            }
+            else
+            {
+                var request = new UpdatePlanRequest(
+                    nombre,
+                    Model.DuracionDias,
+                    Model.Precio
+                );
+
+                await PlanApi.UpdateAsync(Plan.Id, request);
+
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    public class PlanFormVM
+    {
+        public string? Nombre { get; set; }
+        public int DuracionDias { get; set; }
+        public decimal Precio { get; set; }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+}
