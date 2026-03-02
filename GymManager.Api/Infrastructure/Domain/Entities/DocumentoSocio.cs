@@ -1,4 +1,4 @@
-﻿namespace GymManager.Api.Domain.Entities
+﻿namespace GymManager.Api.Infrastructure.Domain.Entities
 {
     public class DocumentoSocio
     {

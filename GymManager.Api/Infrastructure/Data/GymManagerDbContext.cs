@@ -1,4 +1,4 @@
-﻿using GymManager.Api.Domain.Entities;
+﻿using GymManager.Api.Infrastructure.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManager.Api.Infraestructure.Data

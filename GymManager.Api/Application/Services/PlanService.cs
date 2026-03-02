@@ -127,7 +127,7 @@ namespace GymManager.Api.Application.Services
                 .Select(p => new PlanResponse
                 (
                     p.Id,
-                    p.Nombre,
+                    p.Nombre
                     p.DuracionDias,
                     p.Precio
                 )).FirstOrDefaultAsync();

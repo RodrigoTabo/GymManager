@@ -15,6 +15,7 @@ namespace GymManager.Api.Presentations.Controllers
         /// Lista todos los planes
         /// </summary>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(List<PlanResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<PlanResponse>>> Get()
             => Ok(await _planService.ListarAsync());
