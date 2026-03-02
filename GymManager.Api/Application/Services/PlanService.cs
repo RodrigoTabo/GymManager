@@ -2,10 +2,7 @@
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infraestructure.Data;
 using GymManager.Shared.Contracts.Planes;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Formats.Asn1;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
@@ -24,7 +21,9 @@ namespace GymManager.Api.Application.Services
         {
 
             //Optimizamos la consulta que vamos a realizar.
-            var query = _context.Planes.AsNoTracking().Where(p => p.EliminadoEn == null);
+            var query = _context.Planes
+                .AsNoTracking()
+                .Where(p => p.EliminadoEn == null);
 
             //Realizamos la consulta con la query optimizada.
             var listar = await query
@@ -74,7 +73,7 @@ namespace GymManager.Api.Application.Services
             };
 
             //Agregamos el nuevo plan
-            _context.Planes.Add(nuevoPlan);
+            await _context.Planes.AddAsync(nuevoPlan);
             //Guardamos el nuevo plan
             await _context.SaveChangesAsync();
             //Retornamos el Id del plan

@@ -41,9 +41,13 @@
 </MudTable>
 
 @code {
-    [Parameter] public List<PlanResponse> Items { get; set; } = new();
-    [Parameter] public bool Loading { get; set; }
+    [Parameter]
+    public List<PlanResponse> Items { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
 
-    [Parameter] public EventCallback<PlanResponse> OnEdit { get; set; }
-    [Parameter] public EventCallback<PlanResponse> OnDelete { get; set; }
+    [Parameter] 
+    public EventCallback<PlanResponse> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<PlanResponse> OnDelete { get; set; }
 }

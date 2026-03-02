@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.Socios
 {
-    public record CreateSocioRequest(int DNI, string Nombre, string Apellido, DateTime Edad, DateTime? FechaAlta, DateTime? FechaBaja, int PlanId);
+    public record CreateSocioRequest(string DNI, string Nombre, string Apellido, DateTime FechaNacimiento, int PlanId, int? documentoId);
 
 }

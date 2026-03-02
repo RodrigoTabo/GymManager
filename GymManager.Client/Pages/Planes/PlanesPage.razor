@@ -4,7 +4,7 @@
 @inject IDialogService DialogService
 @inject PlanApi PlanApi
 
-<MudButton @onclick="OpenDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
+<MudButton @onclick="OpenCrear" Variant="Variant.Filled" Color="Color.Primary">
     Crear nuevo plan
 </MudButton>
 
@@ -29,7 +29,7 @@
     }
 
     //Llama al modal Crear
-    private async Task OpenDialogAsync()
+    private async Task OpenCrear()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
