@@ -3,6 +3,7 @@ using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infraestructure.Data;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
@@ -27,22 +28,22 @@ namespace GymManager.Api.Application.Services
             //Carga Nombre
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
-                throw new BadRequestException("El nombre es obligatorio");
+                throw new BadRequestException("El Nombre es obligatorio");
             //Carga Apellido
             var apellido = (request.Apellido ?? "").Trim();
             if (string.IsNullOrWhiteSpace(apellido))
-                throw new BadRequestException("El apellido es obligatorio");
+                throw new BadRequestException("El Apellido es obligatorio");
 
             //Existe? Existe Deshabilitado?
-            var socio = await _context.Socios.AnyAsync(s=> s.DNI == request.DNI);
+            var socio = await _context.Socios.AnyAsync(s => s.DNI == request.DNI);
             if (socio)
-                throw new NotFoundException("El socio ya existe.");
+                throw new NotFoundException("El Socio ya existe.");
 
             //Existe? Existe Deshabilitado?
             var plan = await _context.Planes.FindAsync(request.PlanId);
 
             if (plan is null)
-                throw new NotFoundException("Debes agregar un plan.");
+                throw new NotFoundException("Debes agregar un Plan.");
 
             if (plan.EliminadoEn is not null)
                 throw new ConflictException("El plan existe, pero está deshabilitado.");
@@ -74,6 +75,7 @@ namespace GymManager.Api.Application.Services
                 .Where(s => s.Id == id && s.EliminadoEn == null)
                 .Select(s => new SocioResponse
                 (
+                 s.Id,
                  s.DNI,
                  s.Nombre,
                  s.Apellido,
@@ -86,7 +88,7 @@ namespace GymManager.Api.Application.Services
 
             //Validamos existencia.
             if (socio is null)
-                throw new NotFoundException("El socio no existe.");
+                throw new NotFoundException("El Socio no existe.");
             //Retornamos el socio.
             return socio;
         }
@@ -101,6 +103,7 @@ namespace GymManager.Api.Application.Services
                 .Where(s => s.EliminadoEn == null)
                 .Select(s => new SocioResponse
                 (
+                    s.Id,
                     s.DNI,
                     s.Nombre,
                     s.Apellido,
@@ -133,9 +136,52 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public Task UpdateAsync(int id, UpdateSocioRequest request)
+        public async Task UpdateAsync(int id, UpdateSocioRequest request)
         {
-            throw new NotImplementedException();
+            var socio = await _context.Socios.FindAsync(id);
+
+            if (socio is null)
+                throw new NotFoundException("El Socio que desea modificar no existe.");
+
+            if (socio.EliminadoEn != null)
+                throw new ConflictException("El Socio está deshabilitado.");
+
+            //Carga DNI
+            var dni = (request.DNI ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(dni))
+                throw new BadRequestException("El DNI es obligatorio");
+            //Carga Nombre
+            var nombre = (request.Nombre ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new BadRequestException("El Nombre es obligatorio");
+            //Carga Apellido
+            var apellido = (request.Apellido ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(apellido))
+                throw new BadRequestException("El Apellido es obligatorio");
+
+            //Existe? Existe Deshabilitado?
+            var socioExiste = await _context.Socios.AnyAsync(s => s.DNI == request.DNI && s.Id != id);
+            if (socioExiste)
+                throw new NotFoundException("El Socio ya existe.");
+
+            //Existe? Existe Deshabilitado?
+            var plan = await _context.Planes.FindAsync(request.PlanId);
+
+            if (plan is null)
+                throw new NotFoundException("Debes agregar un Plan.");
+
+            if (plan.EliminadoEn is not null)
+                throw new ConflictException("El plan existe, pero está deshabilitado.");
+
+            socio.DNI = dni;
+            socio.Nombre = nombre;
+            socio.Apellido = apellido;
+            socio.FechaNacimiento = request.FechaNacimiento;
+            socio.PlanId = request.PlanId;
+            socio.DocumentoId = request.documentoId;
+
+            await _context.SaveChangesAsync();
+
         }
     }
 }

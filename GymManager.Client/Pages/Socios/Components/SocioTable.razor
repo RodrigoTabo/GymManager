@@ -1,0 +1,59 @@
+﻿@using GymManager.Shared.Contracts.Socios
+@using MudBlazor
+
+<MudTable Items="@Items"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          Loading="@Loading"
+          LoadingProgressColor="Color.Info">
+
+    <HeaderContent>
+        <MudTh>DNI</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Apellido</MudTh>
+        <MudTh>Fecha de Nacimiento</MudTh>
+        <MudTh>Fecha de Alta</MudTh>
+        <MudTh>Plan del Gimnasio</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="DNI">@context.DNI</MudTd>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="Apellido">@context.Apellido</MudTd>
+        <MudTd DataLabel="Fecha de Nacimiento">@context.FechaNacimiento</MudTd>
+        <MudTd DataLabel="Fecha de Alta">@context.FechaAlta</MudTd>
+        <MudTd DataLabel="Plan del Gimnasio">@context.PlanId</MudTd>
+
+        <MudTd>
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Text"
+                       OnClick="@(() => OnEdit.InvokeAsync(context))">
+                Editar
+            </MudButton>
+
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Text"
+                       Color="Color.Error"
+                       OnClick="@(() => OnDelete.InvokeAsync(context))">
+                Eliminar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>No hay socios.</MudText>
+    </NoRecordsContent>
+</MudTable>
+
+@code {
+    [Parameter]
+    public List<SocioResponse> Items { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public EventCallback<SocioResponse> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<SocioResponse> OnDelete { get; set; }
+}

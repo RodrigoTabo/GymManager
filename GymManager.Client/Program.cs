@@ -24,6 +24,7 @@ public class Program
 
         // ApiClient
         builder.Services.AddScoped<PlanApi>();
+        builder.Services.AddScoped<SocioApi>();
 
         await builder.Build().RunAsync();
     }

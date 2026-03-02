@@ -1,20 +1,15 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.Planes;
+using GymManager.Shared.Contracts.Socios;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
 
 namespace GymManager.Client.ApiClients
 {
-    public class PlanApi
+    public class PlanApi (HttpClient HttpClient)
     {
 
-        private readonly HttpClient _HttpClient;
-
-        public PlanApi(HttpClient HttpClient)
-        {
-            _HttpClient = HttpClient;
-        }
-
+        private readonly HttpClient _HttpClient = HttpClient;
 
         public async Task<List<PlanResponse>> ListarAsync()
                 => await _HttpClient.GetJsonOrThrowAsync<List<PlanResponse>>("api/planes");
@@ -26,6 +21,10 @@ namespace GymManager.Client.ApiClients
 
             return crear.Id;
         }
+
+
+        public async Task<PlanResponse> GetByIdAsync(int id)
+            => await _HttpClient.GetJsonOrThrowAsync<PlanResponse>($"api/socios/{id}");
 
         public async Task UpdateAsync(int Id, UpdatePlanRequest request)
             => await _HttpClient.PutJsonOrThrowAsync($"api/planes/{Id}", request);

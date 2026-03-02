@@ -1,0 +1,73 @@
+﻿@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Socios
+@inject SocioApi SocioApi
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <MudAlert Severity="Severity.Error">@Error</MudAlert>
+        }
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="@Guardando">Cancelar</MudButton>
+
+        <MudButton Color="@Color"
+                   Variant="Variant.Filled"
+                   OnClick="Delete"
+                   Disabled="@Guardando">
+            @ButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public string ContentText { get; set; } = "";
+    [Parameter]
+    public string ButtonText { get; set; } = "Confirmar";
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
+
+
+    [Parameter]
+    public SocioResponse? Socio { get; set; }
+
+    private string? Error;
+    private bool Guardando;
+
+
+    public async Task Delete()
+    {
+        Error = null;
+
+        if (Socio is null || Socio.Id <= 0)
+        {
+            Error = "El Socio no existe.";
+            return;
+        }
+
+        Guardando = true;
+
+        try
+        {
+            await SocioApi.SoftDeleteAsync(Socio.Id);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

@@ -1,0 +1,84 @@
+﻿@page "/socios"
+@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Socios
+@inject IDialogService DialogService
+@inject SocioApi SocioApi
+
+<MudButton @onclick="OpenCrear" Variant="Variant.Filled" Color="Color.Primary">
+    Crear nuevo Socio
+</MudButton>
+
+
+<SocioTable Items="@socios"
+            Loading="@loading"
+            OnEdit="OpenEdit"
+            OnDelete="ConfirmDelete"/>
+
+@code {
+
+    private List<SocioResponse> socios = new();
+    private bool loading;
+
+    //Inicializa la lista llamando al metodo.
+    protected override async Task OnInitializedAsync()
+        => await LoadSociosAsync();
+
+    private async Task LoadSociosAsync()
+    {
+        loading = true;
+        socios = await SocioApi.ListarAsync();
+        loading = false;
+    }
+
+    //Llama modal de Crear
+    private async Task OpenCrear()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dialog = await DialogService.ShowAsync<SocioDialog>("Crear Socio", options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadSociosAsync();
+    }
+
+    //Llama modal de Editar
+    private async Task OpenEdit(SocioResponse socio)
+    {
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters { ["Socio"] = socio};
+
+        var dialog = await DialogService.ShowAsync<SocioDialog>("Editar Socio", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadSociosAsync();
+
+    }
+
+    private async Task ConfirmDelete(SocioResponse socio)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters
+        {
+            ["Socio"] = socio,
+            ["ContentText"] = $"¿Seguro que querés eliminar el Socio \"{socio.Nombre} {socio.Apellido}\"?",
+            ["ButtonText"] = "Eliminar",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<SocioDialogDelete>("Eliminar Socio", parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Canceled)
+            return;
+
+        await LoadSociosAsync();
+    }
+
+}
