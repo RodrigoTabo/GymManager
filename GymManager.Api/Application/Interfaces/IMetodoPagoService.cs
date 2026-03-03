@@ -2,7 +2,7 @@
 
 namespace GymManager.Api.Application.Interfaces
 {
-    public interface IMetodoPago
+    public interface IMetodoPagoService
     {
 
         /// <summary>

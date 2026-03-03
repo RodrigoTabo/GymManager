@@ -7,9 +7,9 @@ namespace GymManager.Api.Presentations.Controllers
     [ApiController]
     [Route("api/metodospagos")]
     [Produces("application/json")]
-    public class MetodoPagoController(IMetodoPago metodoPago) : ControllerBase
+    public class MetodoPagoController(IMetodoPagoService metodoPago) : ControllerBase
     {
-        private readonly IMetodoPago _MetodoPago = metodoPago;
+        private readonly IMetodoPagoService _MetodoPago = metodoPago;
 
 
 

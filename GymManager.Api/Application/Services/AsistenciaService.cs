@@ -15,7 +15,7 @@ namespace GymManager.Api.Application.Services
 
         public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI)
         {
-            var hoy = DateTime.Today;
+            var hoy = DateTime.UtcNow;
             var dniNormalizado = new string((DNI ?? "").Trim().Where(char.IsDigit).ToArray());
 
             if (string.IsNullOrWhiteSpace(dniNormalizado))

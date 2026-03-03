@@ -7,7 +7,7 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class MetodoPagoService(GymManagerDbContext context) : IMetodoPago
+    public class MetodoPagoService(GymManagerDbContext context) : IMetodoPagoService
     {
         private readonly GymManagerDbContext _context = context;
 

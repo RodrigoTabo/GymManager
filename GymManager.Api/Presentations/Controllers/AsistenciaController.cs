@@ -18,9 +18,9 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<MarcarAsistenciaResponse>> Post([FromBody] MarcarAsistenciaRequest request)
         {
-            var id = await _asistenciaService.MarcarPorDniAsync(request.DNI);
+            var resp = await _asistenciaService.MarcarPorDniAsync(request.DNI);
 
-            return Created($"/api/asistencias/{id}", new { id });
+            return Created($"/api/asistencias/{resp.Id}", resp);
         }
 
 
