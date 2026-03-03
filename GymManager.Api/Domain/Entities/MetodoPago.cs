@@ -1,4 +1,4 @@
-﻿namespace GymManager.Api.Infrastructure.Domain.Entities
+﻿namespace GymManager.Api.Domain.Entities
 {
     public class MetodoPago
     {

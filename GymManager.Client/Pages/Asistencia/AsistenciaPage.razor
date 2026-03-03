@@ -1,0 +1,80 @@
+﻿@page "/asistencia"
+@using GymManager.Client.ApiClients
+@using GymManager.Client.ApiClients.Common
+@using GymManager.Shared.Contracts.Asistencias
+@using System.Net
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject AsistenciaApi AsistenciaApi;
+
+<AsistenciaCard Error="@Error"
+                Guardando="@Guardando"
+                enviarDNI="MarcarAsistencia" />
+
+@code {
+
+    private string? Error;
+    private bool Guardando;
+
+    private async Task MarcarAsistencia(string dni)
+    {
+        if (Guardando) return;
+
+        Error = null;
+        Guardando = true;
+
+
+        var dniNormalizado = new string((dni ?? "")
+                .Trim()
+                .Where(char.IsDigit)
+                .ToArray());
+
+        if (string.IsNullOrWhiteSpace(dniNormalizado))
+        {
+            Error = "El DNI es obligatorio.";
+            Guardando = false;
+            return;
+        }
+
+        try
+        {
+            var asistencia = new MarcarAsistenciaRequest(dniNormalizado);
+            var resp = await AsistenciaApi.MarcarPorDniAsync(asistencia);
+
+            Snackbar.Add(resp.Mensaje, Severity.Success);
+
+        }
+        catch (HttpApiException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.Conflict)
+            {
+                var parameters = new DialogParameters
+                {
+                    ["Title"] = "Acceso denegado",
+                    ["Description"] = "No se pudo marcar la asistencia.",
+                    ["ContentText"] = ex.Message,
+                    ["Icon"] = Icons.Material.Filled.Block,
+                    ["IconColor"] = Color.Error,
+                    ["OkText"] = "Entendido",
+                    ["CancelText"] = null
+                };
+
+                var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+                await DialogService.ShowAsync<AsistenciaDialog>("", parameters, options);
+            }
+            else
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Ocurrió un error inesperado. Intentá de nuevo.", Severity.Error);
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+}

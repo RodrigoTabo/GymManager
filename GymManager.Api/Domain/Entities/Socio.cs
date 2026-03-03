@@ -1,4 +1,4 @@
-﻿namespace GymManager.Api.Infrastructure.Domain.Entities
+﻿namespace GymManager.Api.Domain.Entities
 {
     public class Socio
     {
@@ -14,6 +14,7 @@
         public int? DocumentoId { get; set; }
         public DocumentoSocio? Documento { get; set; }
         public List<Asistencia>? Asistencias { get; set; } = new();
+        public List<IntentosAcceso>? IntentosAccesos { get; set; } = new();
         public List<Pago>? Pagos { get; set; } = new();
         public DateTime? EliminadoEn { get; set; } 
     }

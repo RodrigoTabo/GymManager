@@ -29,8 +29,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CreatePlanRequest request)
         {
-            var Id = await _planService.CrearAsync(request);
-            return Created($"/api/planes/{Id}", new { Id });
+            var id = await _planService.CrearAsync(request);
+            return Created($"/api/planes/{id}", new { id });
         }
 
         /// <summary>

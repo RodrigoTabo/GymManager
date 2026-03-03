@@ -14,9 +14,14 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpPost("marcar")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<MarcarAsistenciaResponse>> Post([FromBody] MarcarAsistenciaRequest request)
-            => Ok(await _asistenciaService.MarcarPorDniAsync(request.DNI));
+        {
+            var id = await _asistenciaService.MarcarPorDniAsync(request.DNI);
+
+            return Created($"/api/asistencias/{id}", new { id });
+        }
 
 
     }

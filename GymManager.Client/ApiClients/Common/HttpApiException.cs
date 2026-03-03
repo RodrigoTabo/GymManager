@@ -14,9 +14,7 @@ namespace GymManager.Client.ApiClients.Common
 
         public HttpApiException(string? message) : base(message)
         {
-            HttpStatusCode? StatusCode;
         }
-
 
         public static async Task<HttpApiException> FromHttpResponse(HttpResponseMessage resp)
         {

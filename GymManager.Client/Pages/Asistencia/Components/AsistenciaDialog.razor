@@ -1,0 +1,53 @@
+﻿@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudStack Direction="Row" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icon" Size="Size.Large" Color="@IconColor" />
+                <MudText Typo="Typo.h6">@Title</MudText>
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Description</MudText>
+            }
+
+            <MudPaper Class="pa-3" Elevation="0" Style="border-radius: 12px;">
+                <MudText Typo="Typo.body1">@ContentText</MudText>
+            </MudPaper>
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        @if (!string.IsNullOrWhiteSpace(CancelText))
+        {
+            <MudButton Variant="Variant.Text" OnClick="Cancel">
+                @CancelText
+            </MudButton>
+        }
+
+        <MudButton Variant="Variant.Filled" Color="@PrimaryButtonColor" OnClick="Ok">
+            @OkText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public string Title { get; set; } = "Mensaje";
+    [Parameter] public string? Description { get; set; }
+
+    [Parameter] public string ContentText { get; set; } = "";
+
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Info;
+    [Parameter] public Color IconColor { get; set; } = Color.Primary;
+
+    [Parameter] public string OkText { get; set; } = "Entendido";
+    [Parameter] public string? CancelText { get; set; } 
+    [Parameter] public Color PrimaryButtonColor { get; set; } = Color.Primary;
+
+    private void Ok() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel() => MudDialog.Cancel();
+}

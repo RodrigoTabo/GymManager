@@ -1,6 +1,6 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
-using GymManager.Api.Infraestructure.Data;
+using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;

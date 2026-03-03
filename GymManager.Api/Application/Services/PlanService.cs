@@ -1,6 +1,6 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
-using GymManager.Api.Infraestructure.Data;
+using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Planes;
 using Microsoft.EntityFrameworkCore;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
@@ -127,7 +127,7 @@ namespace GymManager.Api.Application.Services
                 .Select(p => new PlanResponse
                 (
                     p.Id,
-                    p.Nombre
+                    p.Nombre,
                     p.DuracionDias,
                     p.Precio
                 )).FirstOrDefaultAsync();

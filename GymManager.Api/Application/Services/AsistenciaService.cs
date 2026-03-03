@@ -1,6 +1,6 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
-using GymManager.Api.Infraestructure.Data;
+using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Asistencias;
 using GymManager.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -15,56 +15,96 @@ namespace GymManager.Api.Application.Services
 
         public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI)
         {
-            DateTime hoy = DateTime.Today;
-            var Resultado = ResultadoAsistencia.Aceptada;
-            var Motivo = MotivoAsistencia.Ninguno;
+            var hoy = DateTime.Today;
+            var dniNormalizado = new string((DNI ?? "").Trim().Where(char.IsDigit).ToArray());
 
-            var DNINormalizado = (DNI ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(dniNormalizado))
+            {
+                // Registramos intento (sin socio)
+                _context.IntentosAccesos.Add(new IntentosAcceso
+                {
+                    FechaRegistro = DateTime.UtcNow,
+                    DniIngresado = dniNormalizado, 
+                    SocioId = null,                
+                    Resultado = ResultadoAcceso.Denegada,
+                    Motivo = MotivoAcceso.DniInvalido
+                });
 
-            //Validamos que exista DNI
-            var socio = await _context.Socios.FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == DNINormalizado);
+                await _context.SaveChangesAsync();
+
+                throw new BadRequestException("Ingresá un DNI válido (sin puntos).");
+            }
+
+            var socio = await _context.Socios
+                .FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == dniNormalizado);
 
             if (socio is null)
-                throw new NotFoundException("El Socio no existe. Hablá con el recepcionista.");
+            {
+                _context.IntentosAccesos.Add(new IntentosAcceso
+                {
+                    FechaRegistro = DateTime.UtcNow,
+                    DniIngresado = dniNormalizado,
+                    SocioId = null,
+                    Resultado = ResultadoAcceso.Denegada,
+                    Motivo = MotivoAcceso.SocioInexistente
+                });
+
+                await _context.SaveChangesAsync();
+
+                throw new NotFoundException("El socio no existe. Hable con el recepcionista.");
+            }
+
+            var intento = new IntentosAcceso
+            {
+                FechaRegistro = DateTime.UtcNow,
+                DniIngresado = dniNormalizado,
+                SocioId = socio.Id,
+                Resultado = ResultadoAcceso.Aceptada,
+                Motivo = MotivoAcceso.Ninguno
+            };
 
             if (socio.FechaBaja != null)
             {
-                Resultado = ResultadoAsistencia.Denegada;
-                Motivo = MotivoAsistencia.SocioInactivo;
-            }
-            else
-            {
-                var coutaVigente = await _context.Pagos.FirstOrDefaultAsync(p => p.SocioId == socio.Id && p.CubreDesde <= hoy && hoy <= p.CubreHasta);
-                if (coutaVigente == null)
-                {
+                intento.Resultado = ResultadoAcceso.Denegada;
+                intento.Motivo = MotivoAcceso.SocioInactivo;
 
-                    Resultado = ResultadoAsistencia.Denegada;
-                    Motivo = MotivoAsistencia.CuotaVencida;
-                }
+                _context.IntentosAccesos.Add(intento);
+                await _context.SaveChangesAsync();
+
+                throw new ConflictException("Acceso denegado: socio inactivo.");
+            }
+
+            var cuotaVigente = await _context.Pagos
+                .AnyAsync(p => p.SocioId == socio.Id && p.CubreDesde <= hoy && hoy <= p.CubreHasta);
+
+            if (!cuotaVigente)
+            {
+                intento.Resultado = ResultadoAcceso.Denegada;
+                intento.Motivo = MotivoAcceso.CuotaVencida;
+
+                _context.IntentosAccesos.Add(intento);
+                await _context.SaveChangesAsync();
+
+                throw new ConflictException("Acceso denegado: no tenés una cuota vigente.");
             }
 
             var asistencia = new Asistencia
             {
-                FechaHora = DateTime.UtcNow,
-                Resultado = Resultado,
-                Motivo = Motivo,
-                SocioId = socio.Id,
+                FechaRegistro = DateTime.UtcNow,
+                SocioId = socio.Id
             };
 
+            _context.IntentosAccesos.Add(intento);
             _context.Asistencias.Add(asistencia);
 
             await _context.SaveChangesAsync();
 
-
             return new MarcarAsistenciaResponse(
-                    asistencia.Resultado,
-                    asistencia.Motivo,
-                    asistencia.SocioId,
-                    asistencia.FechaHora,
-                    socio.Nombre + " " + socio.Apellido,
-                    null
-                    );
-
+                asistencia.Id,
+                socio.Nombre + " " + socio.Apellido,
+                asistencia.FechaRegistro,
+                "Bienvenido " + socio.Nombre + "!"
+            );
         }
     }
 }

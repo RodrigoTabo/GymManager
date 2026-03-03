@@ -3,5 +3,5 @@
 
 namespace GymManager.Shared.Contracts.Asistencias
 {
-    public record MarcarAsistenciaResponse(ResultadoAsistencia resultado, MotivoAsistencia motivo, int socioId, DateTime FechaHora, string? NombreCompleto, string? PlanNombre);
+    public record MarcarAsistenciaResponse(int Id, string? NombreCompleto, DateTime FechaRegistro, string Mensaje);
 }

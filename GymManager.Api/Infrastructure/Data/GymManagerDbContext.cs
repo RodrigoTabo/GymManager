@@ -1,7 +1,7 @@
-﻿using GymManager.Api.Infrastructure.Domain.Entities;
+﻿using GymManager.Api.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace GymManager.Api.Infraestructure.Data
+namespace GymManager.Api.Infrastructure.Data
 {
     public class GymManagerDbContext : DbContext
     {
@@ -16,6 +16,7 @@ namespace GymManager.Api.Infraestructure.Data
         public DbSet<MetodoPago> MetodosPago => Set<MetodoPago>();
         public DbSet<DocumentoSocio> DocumentosSocio => Set<DocumentoSocio>();
         public DbSet<Asistencia> Asistencias => Set<Asistencia>();
+        public DbSet<IntentosAcceso> IntentosAccesos => Set<IntentosAcceso>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

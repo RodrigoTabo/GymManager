@@ -1,10 +1,10 @@
-﻿using GymManager.Api.Infrastructure.Domain.Entities;
+﻿using GymManager.Api.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
 
-namespace GymManager.Api.Infraestructure.Configurations
+namespace GymManager.Api.Infrastructure.Configurations
 {
     public class DocumentoSocioConfig : IEntityTypeConfiguration<DocumentoSocio>
     {

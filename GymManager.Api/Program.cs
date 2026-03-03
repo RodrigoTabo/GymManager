@@ -2,7 +2,7 @@
 using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Application.Middleware;
 using GymManager.Api.Application.Services;
-using GymManager.Api.Infraestructure.Data;
+using GymManager.Api.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManager.Api
@@ -16,6 +16,7 @@ namespace GymManager.Api
             //Servicio
             builder.Services.AddScoped<ISocioService, SocioService>();
             builder.Services.AddScoped<IPlanService, PlanService>();
+            builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 
