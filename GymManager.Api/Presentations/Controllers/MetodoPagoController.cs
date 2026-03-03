@@ -9,9 +9,14 @@ namespace GymManager.Api.Presentations.Controllers
     [Produces("application/json")]
     public class MetodoPagoController(IMetodoPagoService metodoPago) : ControllerBase
     {
-        private readonly IMetodoPagoService _MetodoPago = metodoPago;
+        private readonly IMetodoPagoService _metodoPago = metodoPago;
 
 
+
+        [HttpGet]
+        [ProducesResponseType(typeof(List<MetodoPagoResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<MetodoPagoResponse>>> Get()
+            => Ok(await _metodoPago.ListarAsync());
 
         /// <summary>
         /// Creamos un Metodo de pago
@@ -22,7 +27,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> CrearAsync([FromBody]CreateMetodoPagoRequest request)
         {
-            var id = await _MetodoPago.CrearAsync(request);
+            var id = await _metodoPago.CrearAsync(request);
             return Created($"/api/metodospagos/{id}", new { id });
         }
 

@@ -47,6 +47,19 @@ namespace GymManager.Api.Application.Services
 
         }
 
+        public async Task<List<MetodoPagoResponse>> ListarAsync()
+        {
+            //Consultamos => Trae el que no esta deshabilitado.
+            var query = _context.MetodosPago.AsNoTracking().Where(m => m.EliminadoEn == null);
 
+            //Selecciono lo que quiero mostrar.
+            var listar = await query
+                .Select(m => new MetodoPagoResponse
+                (
+                    m.Nombre
+                )).ToListAsync();
+
+            return listar;
+        }
     }
 }
