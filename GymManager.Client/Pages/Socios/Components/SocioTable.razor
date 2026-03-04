@@ -14,7 +14,7 @@
         <MudTh>Fecha de Nacimiento</MudTh>
         <MudTh>Fecha de Alta</MudTh>
         <MudTh>Plan del Gimnasio</MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
 
     <RowTemplate>
@@ -38,6 +38,13 @@
                        OnClick="@(() => OnDelete.InvokeAsync(context))">
                 Eliminar
             </MudButton>
+
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Text"
+                       Color="Color.Error"
+                       OnClick="@(() => OnPago.InvokeAsync(context))">
+                Agregar Pago
+            </MudButton>
         </MudTd>
     </RowTemplate>
 
@@ -56,4 +63,6 @@
     public EventCallback<SocioResponse> OnEdit { get; set; }
     [Parameter]
     public EventCallback<SocioResponse> OnDelete { get; set; }
+    [Parameter]
+    public EventCallback<SocioResponse> OnPago { get; set; }
 }

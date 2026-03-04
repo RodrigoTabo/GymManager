@@ -1,0 +1,133 @@
+﻿@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Pagos
+@using GymManager.Shared.Contracts.Socios
+@inject MetodoPagoApi MetodoPagoApi
+@inject PagoApi PagoApi
+
+<MudDialog>
+    <TitleContent>
+    </TitleContent>
+    <DialogContent>
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <MudAlert Severity="Severity.Error">@Error</MudAlert>
+        }
+        <MudTextField Label="Socio" Value="@SocioNombre" Disabled="true" />
+        <MudSelect T="int" Label="Metodo de Pago del Socio" @bind-Value="@Model.MetodoPagoId">
+            @foreach (var m in MetodosPago)
+            {
+                <MudSelectItem T="int" Value="@m.Id">
+                    @m.Nombre
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Create">Guardar</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+
+    //Declaraciones
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private string? ErrorMetodosPagos;
+    private bool GuardandoMetodosPagos;
+    private string? Error;
+    private bool Guardando;
+    private void Cancel() => MudDialog.Cancel();
+
+    [Parameter]
+    public SocioResponse? Socio { get; set; }
+    [Parameter]
+    public string? SocioNombre { get; set; }
+
+    private List<MetodosPagosVM> MetodosPago = new();
+    private PagosVM Model = new();
+
+
+    //Metodo Inicializar automaticamente la lista
+    protected override async Task OnInitializedAsync()
+    {
+        if (Socio is not null)
+            Model.SocioId = Socio.Id;
+
+        await LoadMetodsoPagosAsync();
+    }
+
+    private async Task LoadMetodsoPagosAsync()
+    {
+        ErrorMetodosPagos = null;
+        GuardandoMetodosPagos = true;
+
+        try
+        {
+            var listar = await MetodoPagoApi.ListarAsync();
+
+            MetodosPago = listar
+            .Select(m => new MetodosPagosVM(m.Id, m.Nombre))
+            .ToList();
+
+        }
+        catch (Exception ex)
+        {
+            ErrorMetodosPagos = ex.Message;
+        }
+        finally
+        {
+            GuardandoMetodosPagos = false;
+        }
+
+    }
+
+
+    public async Task Create()
+    {
+
+        Error = null;
+
+        if (Model.SocioId <= 0)
+        {
+            Error = "No se pudo identificar el socio.";
+            return;
+        }
+
+        if (Model.MetodoPagoId <= 0)
+        {
+            Error = "Debes cargar un Metodo de Pago";
+            return;
+        }
+
+        Guardando = true;
+
+        try
+        {
+
+            var request = new CreatePagoRequest(Model.SocioId, Model.MetodoPagoId);
+
+            await PagoApi.CrearAsync(request);
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    private record MetodosPagosVM(int Id, string Nombre);
+
+    private class PagosVM
+    {
+        public int MetodoPagoId { get; set; }
+        public int SocioId { get; set; }
+    };
+
+
+}

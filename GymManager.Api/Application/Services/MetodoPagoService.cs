@@ -56,6 +56,7 @@ namespace GymManager.Api.Application.Services
             var listar = await query
                 .Select(m => new MetodoPagoResponse
                 (
+                    m.Id,
                     m.Nombre
                 )).ToListAsync();
 

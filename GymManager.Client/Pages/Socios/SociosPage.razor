@@ -12,7 +12,8 @@
 <SocioTable Items="@socios"
             Loading="@loading"
             OnEdit="OpenEdit"
-            OnDelete="ConfirmDelete"/>
+            OnDelete="ConfirmDelete"
+            OnPago="OpenPago" />
 
 @code {
 
@@ -49,9 +50,31 @@
 
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var parameters = new DialogParameters { ["Socio"] = socio};
+        var parameters = new DialogParameters { ["Socio"] = socio, };
 
         var dialog = await DialogService.ShowAsync<SocioDialog>("Editar Socio", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await LoadSociosAsync();
+
+    }
+
+    //Llama modal de Agregar un Pago
+    private async Task OpenPago(SocioResponse socio)
+    {
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters
+        {
+            ["Socio"] = socio,
+            ["SocioNombre"] = socio.Nombre + " " + socio.Apellido,
+        };
+
+
+        var dialog = await DialogService.ShowAsync<PagoDialog>("Agregar Pago", parameters, options);
 
         var result = await dialog.Result;
 

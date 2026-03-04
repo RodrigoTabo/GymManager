@@ -26,6 +26,8 @@ public class Program
         builder.Services.AddScoped<PlanApi>();
         builder.Services.AddScoped<SocioApi>();
         builder.Services.AddScoped<AsistenciaApi>();
+        builder.Services.AddScoped<MetodoPagoApi>();
+        builder.Services.AddScoped<PagoApi>();
 
         await builder.Build().RunAsync();
     }

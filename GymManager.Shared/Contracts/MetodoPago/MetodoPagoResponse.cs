@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.MetodoPago
 {
-    public record MetodoPagoResponse(string Nombre);
+    public record MetodoPagoResponse(int Id, string Nombre);
 }
