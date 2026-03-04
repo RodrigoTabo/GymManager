@@ -17,8 +17,13 @@ namespace GymManager.Api.Presentations.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<SocioResponse>>> Get()
-            => Ok(await _SocioService.ListarAsync());
+        public async Task<ActionResult<List<SocioResponse>>> Get([FromQuery] SocioQuery query)
+            => Ok(await _SocioService.ListarAsync(query));
+
+
+        [HttpGet("stats")]
+        public async Task<ActionResult<SociosStatsResponse>> GetStats()
+            => Ok(await _SocioService.GetStatsAsync());
 
         /// <summary>
         /// Crea un nuevo socio.

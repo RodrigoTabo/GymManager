@@ -1,15 +1,67 @@
 ﻿@inherits LayoutComponentBase
+
 <MudThemeProvider />
 <MudDialogProvider />
 <MudPopoverProvider />
 <MudSnackbarProvider />
-<div class="page">
-    <div>
-    </div>
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudLayout>
+    <!-- AppBar -->
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+    </MudAppBar>
+
+    <!-- Drawer -->
+    <MudDrawer @bind-Open="@_open" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">GymManager</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+
+            
+            <MudText Typo="Typo.caption" Class="px-3 mt-2">DATOS</MudText>
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+
+            <MudDivider Class="my-2" />
+
+            <!-- Gestión -->
+            <MudText Typo="Typo.caption" Class="px-3 mt-2">GESTIÓN</MudText>
+            <MudNavLink Href="socios" Icon="@Icons.Material.Filled.Group">Socios</MudNavLink>
+            <MudNavLink Href="planes" Icon="@Icons.Material.Filled.LibraryBooks">Planes</MudNavLink>
+
+            <MudDivider Class="my-2" />
+
+            <!-- Operaciones -->
+            <MudText Typo="Typo.caption" Class="px-3 mt-2">OPERACIONES</MudText>
+            <MudNavLink Href="asistencia" Icon="@Icons.Material.Filled.CheckCircle">Asistencia</MudNavLink>
+            <MudNavLink Href="pagos" Icon="@Icons.Material.Filled.Payments">Pagos</MudNavLink>
+
+            <MudDivider Class="my-2" />
+
+            <!-- Configuración -->
+            <MudText Typo="Typo.caption" Class="px-3 mt-2">CONFIGURACIÓN</MudText>
+            <MudNavLink Href="metodos-pago" Icon="@Icons.Material.Filled.CreditCard">Métodos de pago</MudNavLink>
+
+        </MudNavMenu>
+    </MudDrawer>
+
+    <!-- Contenido debajo de la AppBar y al lado del Drawer -->
+        <MudMainContent Class="pt-16">
+            <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+
+</MudLayout>
+
+
+@code {
+    private bool _open = false;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+}

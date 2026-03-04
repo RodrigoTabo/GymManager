@@ -1,8 +1,10 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
+using GymManager.Shared.Contracts.Pagos;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop.Infrastructure;
 using System.Numerics;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
@@ -55,6 +57,7 @@ namespace GymManager.Api.Application.Services
                 Nombre = nombre,
                 Apellido = apellido,
                 PlanId = request.PlanId,
+                FechaAlta= DateTime.UtcNow,
                 FechaNacimiento = request.FechaNacimiento,
                 DocumentoId = request.documentoId,
                 EliminadoEn = null
@@ -82,7 +85,8 @@ namespace GymManager.Api.Application.Services
                  s.FechaNacimiento,
                  s.FechaAlta,
                  s.FechaBaja,
-                 s.PlanId
+                 s.PlanId,
+                 s.Plan.Nombre
                     ))
                 .FirstOrDefaultAsync();
 
@@ -93,14 +97,118 @@ namespace GymManager.Api.Application.Services
             return socio;
         }
 
-        public async Task<List<SocioResponse>> ListarAsync()
+        public async Task<SociosStatsResponse> GetStatsAsync()
+        {
+            DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime inicioMesSiguiente = inicioMes.AddMonths(1);
+
+            const int meses = 12;
+            var inicioMesInicial = inicioMes.AddMonths(-(meses - 1)); 
+
+            var labelsMeses = new List<string>(meses);
+            var altasPorMes = new List<int>(meses);
+            var bajasPorMes = new List<int>(meses);
+
+            var ActivosCount = await _context.Socios
+                .AsNoTracking()
+                .Where(s => s.EliminadoEn == null)
+                .CountAsync();
+
+            var InactivosCount = await _context.Socios
+                .AsNoTracking()
+                .Where(s => s.EliminadoEn != null)
+                .CountAsync();
+
+            var AltasMesCount = await _context.Socios
+                .AsNoTracking()
+                .Where(s => s.FechaAlta >= inicioMes && s.FechaAlta < inicioMesSiguiente && s.EliminadoEn == null)
+                .CountAsync();
+
+            var CobroMestotal = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null)
+                .SumAsync(p => p.Importe);
+
+            var ultimosPagos = await _context.Pagos
+             .AsNoTracking()
+             .Where(p =>
+                 p.FechaPago >= inicioMes &&
+                 p.FechaPago < inicioMesSiguiente &&
+                 p.EliminadoEn == null)
+             .OrderByDescending(p => p.FechaPago)
+             .Take(5)
+             .Select(p => new PagoResponse(
+                 p.SocioId,
+                 p.FechaPago,
+                 (float)p.Importe,
+                 p.MetodoPagoId,
+                 p.CubreDesde,
+                 p.CubreHasta
+             ))
+             .ToListAsync();
+
+
+            for (int i = 0; i < meses; i++)
+            {
+                var m = inicioMesInicial.AddMonths(i);
+                var mSiguiente = m.AddMonths(1);
+
+                labelsMeses.Add(m.ToString("MMM yy"));
+
+                var altas = await _context.Socios
+                    .AsNoTracking()
+                    .Where(s => s.FechaAlta >= m && s.FechaAlta < mSiguiente)
+                    .CountAsync();
+
+                var bajas = await _context.Socios
+                    .AsNoTracking()
+                    .Where(s => s.EliminadoEn != null && s.EliminadoEn >= m && s.EliminadoEn < mSiguiente)
+                    .CountAsync();
+
+                altasPorMes.Add(altas);
+                bajasPorMes.Add(bajas);
+            }
+
+            var stats = new SociosStatsResponse
+            {
+                ActivosCount = ActivosCount,
+                InactivosCount = InactivosCount,
+                AltasMesCount = AltasMesCount,
+                CobroMestotal = CobroMestotal,
+                Morosos = new List<PagoResponse>(),
+                Meses = labelsMeses,
+                AltasPorMes = altasPorMes,
+                BajasPorMes = bajasPorMes
+            };
+
+            return stats;
+
+        }
+
+        public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
         {
             //Optimizamos la query y filtramos.
-            var query = _context.Socios.AsNoTracking();
+            var consulta = _context.Socios.AsNoTracking();
+
+            consulta = query.Inactivo
+                ? consulta.Where(s => s.EliminadoEn != null)   // solo inactivos
+                : consulta.Where(s => s.EliminadoEn == null);  // solo activos
+
+            var texto = (query.Texto ?? "").Trim();
+
+            if (!string.IsNullOrWhiteSpace(texto))
+            {
+                if (query.BuscarPor == "DNI")
+                    consulta = consulta.Where(s => s.DNI.Contains(texto));
+                else if (query.BuscarPor == "NombreCompleto")
+                    consulta = consulta.Where(s => (s.Nombre + " " + s.Apellido).Contains(texto));
+                else
+                    consulta = consulta.Where(s => s.Plan.Nombre.Contains(texto));
+            }
+
 
             //Pedimos datos.
-            var listar = await query
-                .Where(s => s.EliminadoEn == null)
+            var listar = await consulta
                 .Select(s => new SocioResponse
                 (
                     s.Id,
@@ -110,7 +218,8 @@ namespace GymManager.Api.Application.Services
                     s.FechaNacimiento,
                     s.FechaAlta,
                     s.FechaBaja,
-                    s.PlanId
+                    s.PlanId,
+                    s.Plan.Nombre
                     ))
                 .ToListAsync();
 

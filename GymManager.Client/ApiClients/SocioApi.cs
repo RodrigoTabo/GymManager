@@ -1,5 +1,7 @@
 ﻿using GymManager.Client.ApiClients.Common;
+using GymManager.Shared.Contracts.Pagos;
 using GymManager.Shared.Contracts.Socios;
+using static System.Net.WebRequestMethods;
 
 namespace GymManager.Client.ApiClients
 {
@@ -8,11 +10,20 @@ namespace GymManager.Client.ApiClients
 
         private readonly HttpClient _HttpClient = HttpClient;
 
-        public async Task<List<SocioResponse>> ListarAsync()
-            => await _HttpClient.GetJsonOrThrowAsync<List<SocioResponse>>($"api/socios");
+        public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
+        {
+            var consulta = (query.Texto ?? "").Trim();
 
+            var textoUrl = Uri.EscapeDataString(consulta);
 
-        public async Task<int>CrearAsync(CreateSocioRequest request)
+            var url = string.IsNullOrEmpty(consulta)
+                ? $"api/socios?inactivo={query.Inactivo}"
+                : $"api/socios?buscarPor={query.BuscarPor}&texto={textoUrl}&inactivo={query.Inactivo}";
+
+            return await _HttpClient.GetJsonOrThrowAsync<List<SocioResponse>>(url);
+        }
+
+        public async Task<int> CrearAsync(CreateSocioRequest request)
         {
             var crear = await _HttpClient.PostJsonOrThrowAsync<CreateSocioRequest, CreatedIdResponse>
                 ("api/socios", request);
@@ -22,6 +33,9 @@ namespace GymManager.Client.ApiClients
 
         public async Task<SocioResponse> GetByIdAsync(int id)
             => await _HttpClient.GetJsonOrThrowAsync<SocioResponse>($"api/socios/{id}");
+
+        public async Task<SociosStatsResponse> GetStatsAsync()
+            => await _HttpClient.GetJsonOrThrowAsync<SociosStatsResponse>($"api/socios/stats");
 
         public async Task UpdateAsync(int id, UpdateSocioRequest request)
             => await _HttpClient.PutJsonOrThrowAsync($"api/socios/{id}", request);

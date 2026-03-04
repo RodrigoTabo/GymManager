@@ -7,7 +7,7 @@ namespace GymManager.Api.Application.Interfaces
         /// <summary>
         /// Listar Socios
         /// </summary>
-        Task<List<SocioResponse>> ListarAsync();
+        Task<List<SocioResponse>> ListarAsync(SocioQuery query);
         /// <summary>
         /// Crear Socio
         /// </summary>
@@ -24,5 +24,9 @@ namespace GymManager.Api.Application.Interfaces
         /// Borrar logico
         /// </summary>
         Task SoftDeleteAsync(int id);
+        /// <summary>
+        /// Stats Socios
+        /// </summary>
+        Task<SociosStatsResponse> GetStatsAsync();
     }
 }
