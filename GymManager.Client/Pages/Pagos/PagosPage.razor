@@ -1,0 +1,81 @@
+﻿@page "/pagos"
+@using GymManager.Client.ApiClients
+@using GymManager.Client.Pages.Pagos.Components
+@using GymManager.Shared.Contracts.Pagos
+@inject PagoApi PagoApi
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
+
+    <!-- Header -->
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.h5">Gestionar Pagos</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Primary">Alta, edición, baja de Pagos</MudText>
+            </MudStack>
+
+             <MudButton 
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.AddBox">
+                Agregar Pago
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+
+
+    <MudPaper Class="pa-0" Elevation="1">
+        <PagoTable Items="@pagos"
+                    Loading="@loading"
+                    OnDelete="ConfirmDelete"
+                    />
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+
+    private List<PagoResponse> pagos = new();
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+       => await ReloadAsync();
+
+    private async Task LoadPagosAsync()
+    {
+        loading = true;
+        try
+        {
+            pagos = await PagoApi.ListarAsync();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task ReloadAsync()
+    {
+        await LoadPagosAsync();
+    }
+
+    private async Task ConfirmDelete(PagoResponse pago)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+        {
+            ["Pago"] = pago,
+            ["ContentText"] = $"¿Seguro que querés eliminar el pago del Socio \"{pago.Socio}\"?",
+            ["ButtonText"] = "Eliminar",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<PagoDialogDelete>("Eliminar Pago", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await ReloadAsync();
+    }
+
+}

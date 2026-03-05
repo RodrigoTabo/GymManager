@@ -7,6 +7,10 @@ namespace GymManager.Client.ApiClients
     {
         private readonly HttpClient _HttpClient = HttpClient;
 
+
+        public async Task<List<PagoResponse>> ListarAsync()
+            => await _HttpClient.GetJsonOrThrowAsync<List<PagoResponse>>($"api/pagos");
+
         public async Task<int> CrearAsync(CreatePagoRequest request)
         {
             var crear = await _HttpClient.PostJsonOrThrowAsync<CreatePagoRequest, CreatedIdResponse>
@@ -14,6 +18,9 @@ namespace GymManager.Client.ApiClients
 
             return crear.Id;
         }
+
+        public async Task SoftDeleteAsync(int id)
+            => await _HttpClient.DeleteOrThrowAsync($"api/pagos/{id}");
 
         private class CreatedIdResponse
         {

@@ -138,6 +138,7 @@ namespace GymManager.Api.Application.Services
              .OrderByDescending(p => p.FechaPago)
              .Take(5)
              .Select(p => new PagoResponse(
+                 p.Id,
                  p.SocioId,
                  p.Socio.Nombre,
                  p.FechaPago,

@@ -79,6 +79,7 @@ namespace GymManager.Api.Application.Services
             var listar = await consulta
                 .Select(p => new PagoResponse
                 (
+                    p.Id,
                     p.SocioId,
                     p.Socio.Nombre + " " + p.Socio.Apellido,
                     p.FechaPago,
