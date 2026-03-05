@@ -14,6 +14,11 @@ namespace GymManager.Api.Application.Interfaces
         /// </summary>
         Task<int> CrearAsync(CreatePagoRequest request);
         /// <summary>
+        /// Editar un Pago
+        /// </summary>
+        Task UpdateAsync(UpdatePagoRequest request, int id);
+
+        /// <summary>
         /// Eliminacion logica 
         /// </summary>
         Task SoftDeleteAsync(int id);

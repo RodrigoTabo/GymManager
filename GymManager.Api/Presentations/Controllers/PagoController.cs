@@ -1,4 +1,5 @@
 ﻿using GymManager.Api.Application.Interfaces;
+using GymManager.Api.Application.Services;
 using GymManager.Shared.Contracts.Pagos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,9 +35,22 @@ namespace GymManager.Api.Presentations.Controllers
         }
 
         /// <summary>
+        /// Updateamos
+        /// </summary>
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> Put(UpdatePagoRequest request, int id)
+        {
+            await _pagoService.UpdateAsync(request, id);
+            return NoContent();
+        }
+
+        /// <summary>
         /// Eliminacion logica
         /// </summary>
-
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
