@@ -19,6 +19,9 @@ namespace GymManager.Client.ApiClients
             return crear.Id;
         }
 
+        public async Task UpdateAsync(UpdatePagoRequest request, int id)
+            => await _HttpClient.PutJsonOrThrowAsync($"api/pago/{id}", request);
+
         public async Task SoftDeleteAsync(int id)
             => await _HttpClient.DeleteOrThrowAsync($"api/pagos/{id}");
 

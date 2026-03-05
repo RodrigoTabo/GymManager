@@ -14,13 +14,6 @@
                 <MudText Typo="Typo.h5">Gestionar Pagos</MudText>
                 <MudText Typo="Typo.body2" Color="Color.Primary">Alta, edición, baja de Pagos</MudText>
             </MudStack>
-
-             <MudButton 
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.AddBox">
-                Agregar Pago
-            </MudButton>
         </MudStack>
     </MudPaper>
 
@@ -29,7 +22,7 @@
         <PagoTable Items="@pagos"
                     Loading="@loading"
                     OnDelete="ConfirmDelete"
-                    />
+                    OnEdit="OpenEdit"/>
     </MudPaper>
 
 </MudContainer>
@@ -58,6 +51,18 @@
     private async Task ReloadAsync()
     {
         await LoadPagosAsync();
+    }
+
+    private async Task OpenEdit(PagoResponse pago)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters { ["Pago"] = pago };
+
+        var dialog = await DialogService.ShowAsync<UpdatePagoDialog>("Editar Pago", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await ReloadAsync();
     }
 
     private async Task ConfirmDelete(PagoResponse pago)

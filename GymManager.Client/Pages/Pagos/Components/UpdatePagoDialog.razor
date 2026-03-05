@@ -1,0 +1,224 @@
+﻿@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Pagos
+@using GymManager.Shared.Contracts.Socios
+@inject PagoApi PagoApi
+@inject SocioApi SocioApi
+@inject MetodoPagoApi MetodoPagoApi
+
+<MudDialog>
+    <TitleContent>
+        Editar Pago
+    </TitleContent>
+
+    <DialogContent>
+        @if (!string.IsNullOrWhiteSpace(Error))
+        {
+            <MudAlert Severity="Severity.Error">@Error</MudAlert>
+        }
+
+        <!-- Socio: solo lectura -->
+        <MudSelect T="int" Label="Nombre del Socio"
+                   @bind-Value="Model.SocioId"
+                   Disabled="true">
+            @foreach (var s in Socios)
+            {
+                <MudSelectItem T="int" Value="s.Id">
+                    @(s.Nombre + " " + s.Apellido)
+                </MudSelectItem>
+            }
+        </MudSelect>
+
+        <!-- Método: editable -->
+        <MudSelect T="int" Label="Metodo de pago"
+                   @bind-Value="Model.MetodoPagoId"
+                   Disabled="Guardando">
+            @foreach (var p in MetodosPagos)
+            {
+                <MudSelectItem T="int" Value="p.Id">
+                    @p.Nombre
+                </MudSelectItem>
+            }
+        </MudSelect>
+
+        <!-- FechaPago: editable -->
+        <MudDatePicker Label="Fecha de pago"
+                       @bind-Date="Model.FechaPago"
+                       Disabled="Guardando" />
+
+        <!-- Derivados: solo lectura (pueden quedar nulos) -->
+        <MudNumericField T="decimal?" Label="Importe"
+                         @bind-Value="Model.Importe"
+                         Disabled="true" />
+
+        <MudDatePicker Label="CubreDesde"
+                       @bind-Date="Model.CubreDesde"
+                       Disabled="true" />
+
+        <MudDatePicker Label="CubreHasta"
+                       @bind-Date="Model.CubreHasta"
+                       Disabled="true" />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="Guardando">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Guardar" Disabled="Guardando">
+            Guardar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    // Este modal es SOLO editar, así que Pago debería venir siempre.
+    [Parameter] public PagoResponse Pago { get; set; } = default!;
+
+    private string? Error;
+    private bool Guardando;
+
+    private bool CargandoMetodos = true;
+    private string? ErrorMetodos;
+
+    private bool CargandoSocios = true;
+    private string? ErrorSocios;
+
+    private PagosFormVM Model = new();
+
+    private List<MetodosPagoVM> MetodosPagos = new();
+    private List<SociosVM> Socios = new();
+
+    // Para que no joda la query
+    public SocioQuery filtro { get; set; } = new SocioQuery
+    {
+        BuscarPor = "NombreCompleto",
+        Texto = "",
+        Inactivo = false
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSociosAsync();
+        await LoadMetodosAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Carga el modelo con lo que ya existe. Si algo viene null, se muestra null.
+        Model = PagosFormVM.FromPago(Pago);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public async Task LoadSociosAsync()
+    {
+        CargandoSocios = true;
+        ErrorSocios = null;
+
+        try
+        {
+            var lista = await SocioApi.ListarAsync(filtro);
+
+            Socios = lista
+                .Select(s => new SociosVM(s.Id, s.Nombre, s.Apellido))
+                .OrderBy(s => s.Nombre)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            ErrorSocios = ex.Message;
+            Socios = new();
+        }
+        finally
+        {
+            CargandoSocios = false;
+        }
+    }
+
+    public async Task LoadMetodosAsync()
+    {
+        CargandoMetodos = true;
+        ErrorMetodos = null;
+
+        try
+        {
+            var lista = await MetodoPagoApi.ListarAsync();
+
+            MetodosPagos = lista
+                .Select(p => new MetodosPagoVM(p.Id, p.Nombre))
+                .OrderBy(p => p.Nombre)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            ErrorMetodos = ex.Message;
+            MetodosPagos = new();
+        }
+        finally
+        {
+            CargandoMetodos = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        Guardando = true;
+        Error = null;
+
+        if (Model.MetodoPagoId <= 0)
+            Error = "Debes cargar un Metodo de Pago";
+
+        if (Model.FechaPago is null)
+            Error = "Debes cargar la Fecha de Pago";
+
+        if (!string.IsNullOrWhiteSpace(Error))
+        {
+            Guardando = false;
+            return;
+        }
+
+        try
+        {
+            var request = new UpdatePagoRequest(
+                MetodoPagoId: Model.MetodoPagoId,
+                FechaPago: Model.FechaPago.Value
+            );
+
+            await PagoApi.UpdateAsync(request, Pago.Id);
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    public class PagosFormVM
+    {
+        public int SocioId { get; set; }
+
+        public DateTime? FechaPago { get; set; }
+        public int MetodoPagoId { get; set; }
+
+        public decimal? Importe { get; set; }
+        public DateTime? CubreDesde { get; set; }
+        public DateTime? CubreHasta { get; set; }
+
+        public static PagosFormVM FromPago(PagoResponse p) => new()
+        {
+            SocioId = p.SocioId,
+            FechaPago = p.FechaPago,
+            MetodoPagoId = p.MetodoPagoId,
+            Importe = p.Importe,
+            CubreDesde = p.CubreDesde,
+            CubreHasta = p.CubreHasta
+        };
+    }
+
+    public record MetodosPagoVM(int Id, string Nombre);
+    public record SociosVM(int Id, string Nombre, string Apellido);
+}
