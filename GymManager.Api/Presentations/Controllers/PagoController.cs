@@ -1,6 +1,7 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Application.Services;
 using GymManager.Shared.Contracts.Pagos;
+using GymManager.Shared.Contracts.Socios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymManager.Api.Presentations.Controllers
@@ -59,6 +60,14 @@ namespace GymManager.Api.Presentations.Controllers
             await _pagoService.SoftDeleteAsync(id);
             return NoContent();
         }
+
+        /// <summary>
+        /// Stats
+        /// </summary>
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync()
+            => Ok(await _pagoService.GetPagosStatsAsync());
 
     }
 }

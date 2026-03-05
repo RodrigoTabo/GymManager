@@ -11,6 +11,9 @@ namespace GymManager.Client.ApiClients
         public async Task<List<PagoResponse>> ListarAsync()
             => await _HttpClient.GetJsonOrThrowAsync<List<PagoResponse>>($"api/pagos");
 
+        public async Task<PagosStatsResponse> GetPagosStatsAsync()
+            => await _HttpClient.GetJsonOrThrowAsync<PagosStatsResponse>($"api/pagos/stats");
+
         public async Task<int> CrearAsync(CreatePagoRequest request)
         {
             var crear = await _HttpClient.PostJsonOrThrowAsync<CreatePagoRequest, CreatedIdResponse>
