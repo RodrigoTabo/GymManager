@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.Pagos
 {
-    public record PagoResponse(int SocioId, DateTime FechaPago, float Monto, int MetodoPagoId, DateTime? CubreDesde, DateTime? CubreHasta);
+    public record PagoResponse(int SocioId, string Socio, DateTime FechaPago, decimal Importe, int MetodoPagoId, string MetodoPago, DateTime? CubreDesde, DateTime? CubreHasta);
 }

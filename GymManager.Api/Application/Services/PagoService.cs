@@ -52,14 +52,14 @@ namespace GymManager.Api.Application.Services
             var importe = plan.Precio;
 
 
-            var crearPago = new Pago 
+            var crearPago = new Pago
             {
                 Importe = importe,
                 FechaPago = DateTime.UtcNow,
                 CubreDesde = CubreDesde,
                 CubreHasta = CubreHasta,
                 MetodoPagoId = request.MetodoPagoId,
-                SocioId = request.SocioId,  
+                SocioId = request.SocioId,
                 EliminadoEn = null
             };
 
@@ -70,10 +70,51 @@ namespace GymManager.Api.Application.Services
             return crearPago.Id;
         }
 
-        public Task<List<PagoResponse>> ListarAsync()
+        public async Task<List<PagoResponse>> ListarAsync()
         {
-            throw new NotImplementedException();
+            //Optimizamos consulta y la filtramos.
+            var consulta = _context.Pagos.AsNoTracking().Where(p => p.EliminadoEn == null);
+
+            //Pedimos la consulta y la guardamos como lista.
+            var listar = await consulta
+                .Select(p => new PagoResponse
+                (
+                    p.SocioId,
+                    p.Socio.Nombre + " " + p.Socio.Apellido,
+                    p.FechaPago,
+                    p.Importe,
+                    p.MetodoPagoId,
+                    p.MetodoPago.Nombre,
+                    p.CubreDesde,
+                    p.CubreHasta
+                    )).ToListAsync();
+
+            //Retornamos la lista.
+            return listar;
+
         }
+
+
+        public async Task SoftDeleteAsync(int id)
+        {
+            //Buscamos el Pago
+            var pagosExiste = await _context.Pagos.FindAsync(id);
+            //Existe?
+            if (pagosExiste == null)
+                throw new NotFoundException("El Pago no existe.");
+            //Existe, ya esta eliminado?
+            if (pagosExiste.EliminadoEn != null)
+                throw new ConflictException("El Pago ya esta eliminado.");
+            //Lo eliminamos
+            pagosExiste.EliminadoEn = DateTime.UtcNow;
+            //Guardamos.
+            await _context.SaveChangesAsync();
+        }
+
+
     }
+
+
+
 
 }

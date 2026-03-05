@@ -13,6 +13,10 @@ namespace GymManager.Api.Application.Interfaces
         /// Crear nuevo Pago
         /// </summary>
         Task<int> CrearAsync(CreatePagoRequest request);
+        /// <summary>
+        /// Eliminacion logica 
+        /// </summary>
+        Task SoftDeleteAsync(int id);
 
     }
 }

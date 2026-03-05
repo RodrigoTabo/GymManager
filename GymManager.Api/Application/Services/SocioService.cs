@@ -139,9 +139,11 @@ namespace GymManager.Api.Application.Services
              .Take(5)
              .Select(p => new PagoResponse(
                  p.SocioId,
+                 p.Socio.Nombre,
                  p.FechaPago,
-                 (float)p.Importe,
+                 (decimal)p.Importe,
                  p.MetodoPagoId,
+                 p.MetodoPago.Nombre,
                  p.CubreDesde,
                  p.CubreHasta
              ))
