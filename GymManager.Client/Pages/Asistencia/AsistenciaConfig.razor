@@ -1,24 +1,12 @@
-﻿@page "/intentosaccesos"
+﻿@page "/asistencia/config"
+@using GymManager.Shared.Contracts.Asistencias
 @using GymManager.Client.ApiClients
-@inject IntentosAccesoApi IntentosAccesoApi
-@using GymManager.Client.Pages.IntentosAcceso.Components
-@using GymManager.Shared.Contracts.IntentosAcceso
-@using GymManager.Shared.Enums
+@inject AsistenciaApi AsistenciaApi
+
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
-    <!-- Header -->
-    <MudPaper Class="pa-4 mb-4" Elevation="1">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.h5">Gestionar Intentos de Accesos</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Primary">Lista y filtro de los Intentos de Accesos</MudText>
-            </MudStack>
-        </MudStack>
-    </MudPaper>
 
-    <!--KPIS Cards-->
-    <!--Graficos-->
     <!-- Barra de filtros (afuera de la tabla, sin superposiciones) -->
     <MudPaper Class="pa-2 mb-2" Elevation="1">
         <MudGrid Spacing="1" AlignItems="AlignItems.Center">
@@ -49,37 +37,6 @@
                               Adornment="Adornment.Start"
                               AdornmentIcon="@Icons.Material.Filled.Search"
                               Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudSelect T="ResultadoAcceso?"
-                           Dense="true"
-                           Margin="Margin.Dense"
-                           Variant="Variant.Outlined"
-                           Label="Resultado"
-                           Value="@filtro.Resultado"
-                           ValueChanged="@(EventCallback.Factory.Create<ResultadoAcceso?>(this, v => OnResultadoChanged(v)))"
-                           Clearable="true">
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(null)">Todos</MudSelectItem>
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Aceptada)">Exitoso</MudSelectItem>
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Denegada)">Fallido</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudSelect T="MotivoAcceso?"
-                           Dense="true"
-                           Margin="Margin.Dense"
-                           Variant="Variant.Outlined"
-                           Label="Motivo"
-                           Value="@filtro.Motivo"
-                           ValueChanged="@(EventCallback.Factory.Create<MotivoAcceso?>(this, v => OnMotivoChanged(v)))"
-                           Clearable="true">
-                    <MudSelectItem T="MotivoAcceso?" Value="@(null)">Todos</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.SocioInexistente)">Socio no encontrado</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.CuotaVencida)">Cuota vencida</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.DniInvalido)">DNI incorrecto</MudSelectItem>
-                </MudSelect>
             </MudItem>
 
             <MudItem xs="12" sm="6" md="2">
@@ -118,46 +75,44 @@
 
     <!--Table-->
     <MudPaper Class="pa-0" Elevation="1">
-        <IntentosAccesoTable Items="@intentosAccesos"
-                             Loading="@loading" />
+        <AsistenciaTable Items="@Asistencias"
+                         Loading="@loading" />
     </MudPaper>
 
 </MudContainer>
 
 @code {
 
-    private List<IntentosAccesoResponse> intentosAccesos = new();
+    private List<AsistenciaResponse> Asistencias = new();
     private bool loading;
-
-    private IntentosAccesoFiltro filtro { get; set; } = new()
+    private AsistenciaFiltro filtro { get; set; } = new()
     {
         Dni = string.Empty,
         Nombre = string.Empty,
-        Resultado = null,
-        Motivo = null,
         Desde = null,
         Hasta = null
     };
 
     protected override async Task OnInitializedAsync()
-        => await ReloadAsync();
+    => await ReloadAsync();
 
     private async Task ReloadAsync()
     {
-        await LoadIntentosAccesosAsync(filtro);
+        await LoadAsistenciasAsync(filtro);
     }
 
-    private async Task LoadIntentosAccesosAsync(IntentosAccesoFiltro f)
+    private async Task LoadAsistenciasAsync(AsistenciaFiltro f)
     {
         loading = true;
         try
         {
-            intentosAccesos = await IntentosAccesoApi.ListarAsync(f);
+            Asistencias = await AsistenciaApi.ListarAsync(f);
         }
         finally
         {
             loading = false;
         }
+
     }
 
     private async Task OnDniChanged(string value)
@@ -169,18 +124,6 @@
     private async Task OnNombreChanged(string value)
     {
         filtro.Nombre = value;
-        await ReloadAsync();
-    }
-
-    private async Task OnResultadoChanged(ResultadoAcceso? value)
-    {
-        filtro.Resultado = value;
-        await ReloadAsync();
-    }
-
-    private async Task OnMotivoChanged(MotivoAcceso? value)
-    {
-        filtro.Motivo = value;
         await ReloadAsync();
     }
 
@@ -198,7 +141,7 @@
 
     private async Task LimpiarFiltros()
     {
-        filtro = new IntentosAccesoFiltro();
+        filtro = new AsistenciaFiltro();
         await ReloadAsync();
     }
 

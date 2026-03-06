@@ -1,0 +1,42 @@
+﻿@using GymManager.Shared.Contracts.Asistencias
+<MudTable Items="@Items"
+          Hover="true"
+          Dense="true"
+          Striped="true"
+          Breakpoint="Breakpoint.None"
+          Loading="@Loading"
+          LoadingProgressColor="Color.Info"
+          HorizontalScrollbar="true"
+          Elevation="0">
+
+
+    <HeaderContent>
+        <MudTh>FechaRegistro</MudTh>
+        <MudTh>Socio</MudTh>
+    </HeaderContent>
+
+
+    <RowTemplate>
+        <MudTd DataLabel="FechaRegistro">@context.FechaRegistro</MudTd>
+        <MudTd DataLabel="Motivo">@context.Socio</MudTd>
+    </RowTemplate>
+
+
+    <NoRecordsContent>
+        <MudStack Class="pa-6" AlignItems="AlignItems.Center" Spacing="1">
+            <MudIcon Icon="@Icons.Material.Filled.SearchOff" />
+            <MudText Typo="Typo.body1">No hay Asistencias para mostrar</MudText>
+            <MudText Typo="Typo.caption">Probá cambiando los filtros.</MudText>
+        </MudStack>
+    </NoRecordsContent>
+
+</MudTable>
+
+@code {
+
+    [Parameter]
+    public List<AsistenciaResponse> Items { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
+
+}

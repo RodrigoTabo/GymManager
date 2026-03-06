@@ -11,6 +11,12 @@ namespace GymManager.Api.Presentations.Controllers
     {
         private readonly IAsistenciaService _asistenciaService = asistenciaService;
 
+
+        [HttpGet]
+        public async Task<ActionResult<List<AsistenciaResponse>>> Get([FromQuery] AsistenciaFiltro filtro)
+            => Ok(await _asistenciaService.ListarAsync(filtro));
+
+
         [HttpPost("marcar")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -22,7 +28,6 @@ namespace GymManager.Api.Presentations.Controllers
 
             return Created($"/api/asistencias/{resp.Id}", resp);
         }
-
 
     }
 }

@@ -1,5 +1,4 @@
 ﻿using GymManager.Api.Application.Interfaces;
-using GymManager.Api.Application.Services;
 using GymManager.Shared.Contracts.IntentosAcceso;
 using Microsoft.AspNetCore.Mvc;
 

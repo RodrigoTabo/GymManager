@@ -1,4 +1,5 @@
-﻿using GymManager.Shared.Contracts.Asistencias;
+﻿using GymManager.Api.Application.Services;
+using GymManager.Shared.Contracts.Asistencias;
 
 namespace GymManager.Api.Application.Interfaces
 {
@@ -8,6 +9,9 @@ namespace GymManager.Api.Application.Interfaces
         /// Registrar Asistencia/Intentos Accesos
         /// </summary>
         Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI);
-
+        /// <summary>
+        /// Listar Asistencias
+        /// </summary>
+        Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro);
     }
 }

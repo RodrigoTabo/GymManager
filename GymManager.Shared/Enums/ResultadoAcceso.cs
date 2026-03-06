@@ -3,6 +3,6 @@
     public enum ResultadoAcceso
     {
         Aceptada = 1,
-        Denegada = 2
+        Denegada = 2,
     }
 }
