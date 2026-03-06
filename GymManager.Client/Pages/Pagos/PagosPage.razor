@@ -46,7 +46,7 @@
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" />
                     </MudAvatar>
                     <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Pagos del mes</MudText>
+                        <MudText Typo="Typo.subtitle2">Transacciones del mes</MudText>
                         <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0"))</MudText>
                     </MudStack>
                 </MudStack>
@@ -60,7 +60,7 @@
                         <MudIcon Icon="@Icons.Material.Filled.Event" />
                     </MudAvatar>
                     <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Pagos de hoy</MudText>
+                        <MudText Typo="Typo.subtitle2">Transacciones de hoy</MudText>
                         <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0"))</MudText>
                     </MudStack>
                 </MudStack>
@@ -74,7 +74,7 @@
                         <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
                     </MudAvatar>
                     <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Total del mes</MudText>
+                        <MudText Typo="Typo.subtitle2">Total recaudado (mes)</MudText>
                         <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
                     </MudStack>
                 </MudStack>
@@ -88,7 +88,7 @@
                         <MudIcon Icon="@Icons.Material.Filled.Payments" />
                     </MudAvatar>
                     <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Total de hoy</MudText>
+                        <MudText Typo="Typo.subtitle2">Total recaudado (hoy)</MudText>
                         <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
                     </MudStack>
                 </MudStack>
@@ -138,7 +138,7 @@
         <MudItem xs="12">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <MudText Typo="Typo.h6">Total por mes (últimos 6)</MudText>
+                    <MudText Typo="Typo.h6">Recaudación por mes (últimos 6)</MudText>
                     <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">
                         @(loadingStats ? "—" : stats.TotalPorMes.Sum(x => x.Total).ToString("N2"))
                     </MudChip>

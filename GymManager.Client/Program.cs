@@ -28,6 +28,7 @@ public class Program
         builder.Services.AddScoped<AsistenciaApi>();
         builder.Services.AddScoped<MetodoPagoApi>();
         builder.Services.AddScoped<PagoApi>();
+        builder.Services.AddScoped<IntentosAccesoApi>();
 
         await builder.Build().RunAsync();
     }
