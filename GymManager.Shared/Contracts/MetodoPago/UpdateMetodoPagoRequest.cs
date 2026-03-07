@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.MetodoPago
 {
-    public class CreateMetodoPagoRequest
+    public class UpdateMetodoPagoRequest
     {
         public string Nombre { get; set; }
     }

@@ -25,10 +25,30 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> CrearAsync([FromBody]CreateMetodoPagoRequest request)
+        public async Task<ActionResult> CrearAsync([FromBody] CreateMetodoPagoRequest request)
         {
             var id = await _metodoPago.CrearAsync(request);
             return Created($"/api/metodospagos/{id}", new { id });
+        }
+
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> UpdateAsync([FromBody] UpdateMetodoPagoRequest request, int id)
+        {
+            await _metodoPago.UpdateAsync(request, id);
+            return NoContent();
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> SoftDeleteAsync(int id)
+        {
+            await _metodoPago.SoftDeleteAsync(id);
+            return NoContent();
         }
 
 
