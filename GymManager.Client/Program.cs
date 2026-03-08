@@ -16,7 +16,7 @@ public class Program
 
         builder.Services.AddMudServices();
 
-        // HttpClient apuntando a tu API
+    
         builder.Services.AddScoped(_ => new HttpClient
         {
             BaseAddress = new Uri("https://localhost:7093/")
@@ -29,6 +29,8 @@ public class Program
         builder.Services.AddScoped<MetodoPagoApi>();
         builder.Services.AddScoped<PagoApi>();
         builder.Services.AddScoped<IntentosAccesoApi>();
+        builder.Services.AddScoped<GeneralApi>();
+
 
         await builder.Build().RunAsync();
     }

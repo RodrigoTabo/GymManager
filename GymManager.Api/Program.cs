@@ -20,6 +20,7 @@ namespace GymManager.Api
             builder.Services.AddScoped<IMetodoPagoService, MetodoPagoService>();
             builder.Services.AddScoped<IPagoService, PagoService>();
             builder.Services.AddScoped<IIntentosAccesoService, IntentosAccessoService>();
+            builder.Services.AddScoped<IGeneralService, GeneralService>();
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 

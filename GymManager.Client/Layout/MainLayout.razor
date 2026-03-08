@@ -5,57 +5,83 @@
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <!-- AppBar -->
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
-    </MudAppBar>
+<!-- TOP BAR -->
+<MudAppBar Elevation="1" Dense="true">
+    <MudText Typo="Typo.h6">GymManager</MudText>
+</MudAppBar>
 
-    <!-- Drawer -->
-    <MudDrawer @bind-Open="@_open" Elevation="1">
+<MudLayout>
+
+
+    <!-- SIDEBAR -->
+    <MudDrawer Open="true"
+               Anchor="Anchor.Left"
+               Variant="DrawerVariant.Persistent"
+               Elevation="1"
+               Width="260px"
+               Class="pt-16">
+
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">GymManager</MudText>
         </MudDrawerHeader>
-        <MudNavMenu>
 
-            <MudDivider Class="my-2" />
+        <br />
 
-            <!--General-->
-            <MudText Typo="Typo.caption" Class="px-3 mt-2">DASHBOARD</MudText>
-            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">General</MudNavLink>
-            <MudNavLink Href="asistencia" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Asistencias</MudNavLink>
-            <MudNavLink Href="asistencia" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Cobranzas</MudNavLink>
-
-            <MudDivider Class="my-2" />
-
-            <!-- Operaciones -->
-            <MudText Typo="Typo.caption" Class="px-3 mt-2">OPERACIONES</MudText>
-            <MudNavLink Href="asistencia/config" Icon="@Icons.Material.Filled.CheckCircle">Asistencia</MudNavLink>
-            <MudNavLink Href="intentosaccesos" Icon="@Icons.Material.Filled.CheckCircle">Intentos de Accesos</MudNavLink>
-
-            <MudDivider Class="my-2" />
-
-            <!-- Cobranzas -->
-            <MudText Typo="Typo.caption" Class="px-3 mt-2">COBRANZAS</MudText>
-            <MudNavLink Href="pagos" Icon="@Icons.Material.Filled.Payments">Pagos</MudNavLink>
-            <MudNavLink Href="pagos" Icon="@Icons.Material.Filled.Payments">Vencidos</MudNavLink>
-
-            <MudDivider Class="my-2" />
-
-            <!-- Gestión -->
-            <MudText Typo="Typo.caption" Class="px-3 mt-2">ADMINISTRACIÓN</MudText>
-            <MudNavLink Href="socios" Icon="@Icons.Material.Filled.Group">Socios</MudNavLink>
-            <MudNavLink Href="planes" Icon="@Icons.Material.Filled.LibraryBooks">Planes</MudNavLink>
-
-
+        <!-- DASHBOARD -->
+        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">DASHBOARD</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+                General
+            </MudNavLink>
+            <MudNavLink Href="asistencia" Icon="@Icons.Material.Filled.FactCheck">
+                Asistencias
+            </MudNavLink>
         </MudNavMenu>
+
+      <br />
+        
+        <!-- OPERACIONES -->
+        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">OPERACIONES</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="asistencia/config" Icon="@Icons.Material.Filled.CheckCircle">
+                Asistencia
+            </MudNavLink>
+            <MudNavLink Href="intentosaccesos" Icon="@Icons.Material.Filled.Login">
+                Intentos de accesos
+            </MudNavLink>
+        </MudNavMenu>
+
+        <br />
+
+        <!-- COBRANZAS -->
+        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">COBRANZAS</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="pagos" Icon="@Icons.Material.Filled.Payments">
+                Pagos
+            </MudNavLink>
+            <MudNavLink Href="vencidos" Icon="@Icons.Material.Filled.WarningAmber">
+                Vencidos
+            </MudNavLink>
+        </MudNavMenu>
+
+        <br />
+
+        <!-- ADMINISTRACIÓN -->
+        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">ADMINISTRACIÓN</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="socios" Icon="@Icons.Material.Filled.Group">
+                Socios
+            </MudNavLink>
+            <MudNavLink Href="planes" Icon="@Icons.Material.Filled.LibraryBooks">
+                Planes
+            </MudNavLink>
+        </MudNavMenu>
+
     </MudDrawer>
 
-    <!-- Contenido debajo de la AppBar y al lado del Drawer -->
+    <!-- CONTENIDO -->
     <MudMainContent Class="pt-16">
-        <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+        <MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
             @Body
         </MudContainer>
     </MudMainContent>

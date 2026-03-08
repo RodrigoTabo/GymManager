@@ -22,7 +22,7 @@ namespace GymManager.Api.Presentations.Controllers
 
 
         [HttpGet("stats")]
-        [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SociosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<SociosStatsResponse>> GetStats()
             => Ok(await _SocioService.GetStatsAsync());
 
