@@ -2,188 +2,22 @@
 @using MudBlazor
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Socios
-
 @inject IDialogService DialogService
 @inject SocioApi SocioApi
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
-    <!-- Header -->
-    <!-- KPI Cards -->
-    <MudGrid Spacing="2" Class="mb-4">
+    <!-- KPI Cards + Paneles -->
+    <SocioStatsSection Stats="@Stats"
+                       Loading="@loadingStats" />
 
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.People" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.subtitle2" Align="Align.Center">Activos</MudText>
-                    <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.ActivosCount.ToString())</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
+    <!-- Barra de filtro -->
+    <SocioFiltersSection Filtro="@Filtro"
+                         OnFiltroChanged="HandleFiltroChanged"
+                         OnCrear="OpenCrear" />
 
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Error" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.PersonOff" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.subtitle2" Align="Align.Center">Inactivos</MudText>
-                    <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.InactivosCount.ToString())</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5" ">
-                <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.subtitle2" Align="Align.Center">Altas del mes</MudText>
-                    <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.AltasMesCount.ToString())</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.Payments" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.subtitle2" Align="Align.Center">Cobro del mes</MudText>
-                    <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.CobroMestotal.ToString("N2"))</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-    </MudGrid>
-
-    <!-- Paneles -->
-    <MudGrid Spacing="2" Class="mb-4">
-
-        <!-- Chart -->
-        <MudItem xs="12" md="8">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="mb-2">Actividad (últimos 12 meses)</MudText>
-
-                @if (loadingStats)
-                {
-                    <MudText>Cargando…</MudText>
-                }
-                else if (_chartLabels.Length == 0)
-                {
-                    <MudText>Sin datos para el gráfico.</MudText>
-                }
-                else
-                {
-                    <MudChart T="double"
-                              ChartType="ChartType.Bar"
-                              ChartSeries="@_chartSeries"
-                              XAxisLabels="@_chartLabels"
-                              Width="100%"
-                              Height="300px" />
-                }
-            </MudPaper>
-        </MudItem>
-
-        <!-- Últimos pagos -->
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="mb-2">Últimos pagos</MudText>
-
-                @if (loadingStats)
-                {
-                    <MudText>Cargando…</MudText>
-                }
-                else if (stats.UltimosPagos is null || stats.UltimosPagos.Count == 0)
-                {
-                    <MudText>No hay pagos recientes.</MudText>
-                }
-                else
-                {
-                    <MudStack Spacing="1">
-                        @foreach (var p in stats.UltimosPagos)
-                        {
-                            <MudPaper Class="pa-2" Elevation="0">
-                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                                    <MudText Typo="Typo.body2">Socio #{p.SocioId}</MudText>
-                                    <MudText Typo="Typo.caption">@p.FechaPago.ToString("dd/MM")</MudText>
-                                </MudStack>
-
-                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                                    <MudText Typo="Typo.caption">Método: @p.MetodoPagoId</MudText>
-                                    <MudText Typo="Typo.body2">@p.Importe.ToString("N2")</MudText>
-                                </MudStack>
-                            </MudPaper>
-                        }
-                    </MudStack>
-                }
-            </MudPaper>
-        </MudItem>
-
-    </MudGrid>
-
-
-
-
-
-    <!-- Barra de filtros (afuera de la tabla, sin superposiciones) -->
+    <!-- Tabla -->
     <MudPaper Class="pa-3 mb-3" Elevation="5">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.h5">Gestionar Socios</MudText>
-            </MudStack>
-
-            <MudButton OnClick="OpenCrear"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.AddBox">
-                Agregar socio
-            </MudButton>
-        </MudStack>
-        <br />
-        <MudGrid Spacing="2" AlignItems="AlignItems.Center">
-
-            <MudItem xs="12" md="3">
-                <MudSelect T="string"
-                           Dense="true"
-                           Variant="Variant.Outlined"
-                           Label="Filtrar por"
-                           Value="@filtro.BuscarPor"
-                           ValueChanged="@(EventCallback.Factory.Create<string>(this, v => OnBuscarPorChanged(v)))">
-                    <MudSelectItem T="string" Value="@("NombreCompleto")">Nombre Completo</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("DNI")">DNI</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("PorPlan")">Por plan</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-
-            <MudItem xs="12" md="6">
-                <MudTextField Dense="true"
-                              Variant="Variant.Outlined"
-                              Value="@filtro.Texto"
-                              ValueChanged="@(EventCallback.Factory.Create<string>(this, v => OnTextoChanged(v)))"
-                              Label="Buscar"
-                              Placeholder="Escribí para buscar…"
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" md="3">
-                <MudCheckBox T="bool"
-                             Dense="true"
-                             Label="Solo inactivos"
-                             Color="Color.Primary"
-                             Value="@filtro.Inactivo"
-                             ValueChanged="@(EventCallback.Factory.Create<bool>(this, v => OnInactivoChanged(v)))" />
-            </MudItem>
-
-        </MudGrid>
-        <!-- Tabla (sin toolbar interno) -->
         <SocioTable Items="@socios"
                     Loading="@loading"
                     OnEdit="OpenEdit"
@@ -192,22 +26,17 @@
         <MudDivider />
     </MudPaper>
 
-
-
 </MudContainer>
 
 @code {
 
     private List<SocioResponse> socios = new();
-    private SociosStatsResponse stats = new();
-
-    private string[] _chartLabels = Array.Empty<string>();
-    private List<ChartSeries<double>> _chartSeries = new();
+    private SociosStatsResponse Stats { get; set; } = new();
 
     private bool loadingStats;
     private bool loading;
 
-    public SocioQuery filtro { get; set; } = new SocioQuery
+    private SocioQuery Filtro { get; set; } = new SocioQuery
     {
         BuscarPor = "NombreCompleto",
         Texto = "",
@@ -220,15 +49,15 @@
     private async Task ReloadAsync()
     {
         await LoadStatsAsync();
-        await LoadSociosAsync(filtro);
+        await LoadSociosAsync();
     }
 
-    private async Task LoadSociosAsync(SocioQuery f)
+    private async Task LoadSociosAsync()
     {
         loading = true;
         try
         {
-            socios = await SocioApi.ListarAsync(f);
+            socios = await SocioApi.ListarAsync(Filtro);
         }
         finally
         {
@@ -241,34 +70,12 @@
         loadingStats = true;
         try
         {
-            stats = await SocioApi.GetStatsAsync();
-            BuildChart();
+            Stats = await SocioApi.GetStatsAsync();
         }
         finally
         {
             loadingStats = false;
         }
-    }
-
-    private void BuildChart()
-    {
-        if (stats?.Meses == null || stats.Meses.Count == 0)
-        {
-            _chartLabels = Array.Empty<string>();
-            _chartSeries = new List<ChartSeries<double>>();
-            return;
-        }
-
-        _chartLabels = stats.Meses.ToArray();
-
-        var altas = (stats.AltasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
-        var bajas = (stats.BajasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
-
-        _chartSeries = new List<ChartSeries<double>>
-        {
-            new ChartSeries<double> { Name = "Altas", Data = altas },
-            new ChartSeries<double> { Name = "Bajas", Data = bajas }
-        };
     }
 
     private async Task OpenCrear()
@@ -329,32 +136,13 @@
 
     private async Task HandleFiltroChanged(SocioQuery nuevo)
     {
-        filtro = new SocioQuery
+        Filtro = new SocioQuery
         {
             BuscarPor = nuevo.BuscarPor,
             Texto = nuevo.Texto,
             Inactivo = nuevo.Inactivo
         };
 
-        // Performance: solo tabla
-        await LoadSociosAsync(filtro);
-    }
-
-    private async Task OnBuscarPorChanged(string value)
-    {
-        filtro.BuscarPor = value;
-        await LoadSociosAsync(filtro);
-    }
-
-    private async Task OnTextoChanged(string value)
-    {
-        filtro.Texto = (value ?? "").Trim();
-        await LoadSociosAsync(filtro);
-    }
-
-    private async Task OnInactivoChanged(bool value)
-    {
-        filtro.Inactivo = value;
-        await LoadSociosAsync(filtro);
+        await LoadSociosAsync();
     }
 }

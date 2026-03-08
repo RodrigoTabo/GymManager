@@ -13,9 +13,7 @@ namespace GymManager.Shared.Contracts.Socios
         public int ActivosCount { get; set; }
         public int InactivosCount { get; set; }
         public int AltasMesCount { get; set; }
-        public decimal CobroMestotal { get; set; }
-        public List<PagoResponse> UltimosPagos { get; set; } = new();
-        public List<PagoResponse> Morosos { get; set; } = new();
+        public int BajasMesCount { get; set; }
         public List<string> Meses { get; set; } = new();
         public List<int> AltasPorMes { get; set; }
         public List<int> BajasPorMes { get; set; }

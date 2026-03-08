@@ -24,9 +24,5 @@ namespace GymManager.Api.Application.Interfaces
         /// Borrar logico
         /// </summary>
         Task SoftDeleteAsync(int id);
-        /// <summary>
-        /// Stats Socios
-        /// </summary>
-        Task<SociosStatsResponse> GetStatsAsync();
     }
 }

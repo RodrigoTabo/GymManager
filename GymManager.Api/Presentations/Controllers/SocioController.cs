@@ -8,9 +8,10 @@ namespace GymManager.Api.Presentations.Controllers
     [ApiController]
     [Route("api/socios")]
     [Produces("application/json")]
-    public class SocioController(ISocioService SocioService) : ControllerBase
+    public class SocioController(ISocioService socioService, ISocioStatsService socioStatsService) : ControllerBase
     {
-        private readonly ISocioService _SocioService = SocioService;
+        private readonly ISocioService _socioService = socioService;
+        private readonly ISocioStatsService _socioStatsService = socioStatsService;
 
         /// <summary>
         /// Lista todos los socios
@@ -18,13 +19,13 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<SocioResponse>>> Get([FromQuery] SocioQuery query)
-            => Ok(await _SocioService.ListarAsync(query));
+            => Ok(await _socioService.ListarAsync(query));
 
 
         [HttpGet("stats")]
         [ProducesResponseType(typeof(SociosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<SociosStatsResponse>> GetStats()
-            => Ok(await _SocioService.GetStatsAsync());
+            => Ok(await _socioStatsService.GetStatsAsync());
 
         /// <summary>
         /// Crea un nuevo socio.
@@ -35,12 +36,12 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CreateSocioRequest request)
         {
-            var id = await _SocioService.CrearAsync(request);
+            var id = await _socioService.CrearAsync(request);
             return Created($"/api/socios/{id}", new { id });
         }
 
         /// <summary>
-        /// Actualiazmos un socio.
+        /// Actualizamos un socio.
         /// </summary>
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -49,7 +50,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateSocioRequest request)
         {
-            await _SocioService.UpdateAsync(id, request);
+            await _socioService.UpdateAsync(id, request);
             return NoContent();
         }
 
@@ -57,10 +58,10 @@ namespace GymManager.Api.Presentations.Controllers
         /// Traemos socio por Id
         /// </summary>
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(PlanResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SocioResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SocioResponse>> GetByIdAsync(int id)
-            => Ok(await _SocioService.GetByIdAsync(id));
+            => Ok(await _socioService.GetByIdAsync(id));
 
         /// <summary>
         /// Eliminamos Socio Logico.
@@ -71,7 +72,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> SoftDeleteAsync(int id)
         {
-            await _SocioService.SoftDeleteAsync(id);
+            await _socioService.SoftDeleteAsync(id);
             return NoContent();
         }
 

@@ -29,7 +29,6 @@
 </MudDialog>
 @code {
 
-    //Declaraciones
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
@@ -48,7 +47,6 @@
     private PagosVM Model = new();
 
 
-    //Metodo Inicializar automaticamente la lista
     protected override async Task OnInitializedAsync()
     {
         if (Socio is not null)

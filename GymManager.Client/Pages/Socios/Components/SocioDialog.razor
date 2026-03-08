@@ -2,6 +2,7 @@
 @using GymManager.Shared.Contracts.Socios
 @inject PlanApi PlanApi
 @inject SocioApi SocioApi
+
 <MudDialog>
     <TitleContent>
         @(Socio is null ? "Crear Socio" : "Editar Socio")
@@ -31,7 +32,6 @@
 </MudDialog>
 
 @code {
-    //Declaraciones
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
@@ -46,7 +46,6 @@
     private void Cancel() => MudDialog.Cancel();
     private List<PlanFormVM> Planes = new();
 
-    //Metodo Inicializar automaticamente la lista
     protected override async Task OnInitializedAsync()
     => await LoadPlanesAsync();
 
@@ -65,8 +64,6 @@
         Model.PlanId = Socio.PlanId;
     }
 
-
-    //Metodo Cargar lista planes.
     public async Task LoadPlanesAsync()
     {
         CargandoPlanes = true;
@@ -92,8 +89,6 @@
         }
     }
 
-
-    //Metodo Crear Socio
     public async Task Create()
     {
         Guardando = true;
@@ -147,7 +142,7 @@
         }
     }
 
-    //ViewModels
+
     public class SocioFormVM
     {
         public string DNI { get; set; }

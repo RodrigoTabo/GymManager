@@ -1,0 +1,102 @@
+﻿@using GymManager.Shared.Contracts.Socios
+
+<MudPaper Class="pa-3 mb-3" Elevation="5">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h5">Gestionar Socios</MudText>
+        </MudStack>
+
+        <MudButton OnClick="OnCrearClick"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.AddBox">
+            Agregar socio
+        </MudButton>
+    </MudStack>
+
+    <br />
+
+    <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+
+        <MudItem xs="12" md="3">
+            <MudSelect T="string"
+                       Dense="true"
+                       Variant="Variant.Outlined"
+                       Label="Filtrar por"
+                       Value="@Filtro.BuscarPor"
+                       ValueChanged="OnBuscarPorChanged">
+                <MudSelectItem T="string" Value="@("NombreCompleto")">Nombre Completo</MudSelectItem>
+                <MudSelectItem T="string" Value="@("DNI")">DNI</MudSelectItem>
+                <MudSelectItem T="string" Value="@("PorPlan")">Por plan</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudTextField T="string"
+                          Dense="true"
+                          Variant="Variant.Outlined"
+                          Value="@Filtro.Texto"
+                          ValueChanged="OnTextoChanged"
+                          Label="Buscar"
+                          Placeholder="Escribí para buscar…"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Clearable="true" />
+        </MudItem>
+
+        <MudItem xs="12" md="3">
+            <MudCheckBox T="bool"
+                         Dense="true"
+                         Label="Solo inactivos"
+                         Color="Color.Primary"
+                         Value="@Filtro.Inactivo"
+                         ValueChanged="OnInactivoChanged" />
+        </MudItem>
+
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public SocioQuery Filtro { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<SocioQuery> OnFiltroChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnCrear { get; set; }
+
+    private async Task OnCrearClick()
+        => await OnCrear.InvokeAsync();
+
+    private async Task OnBuscarPorChanged(string value)
+    {
+        var nuevoFiltro = CopiarFiltro();
+        nuevoFiltro.BuscarPor = value;
+        await OnFiltroChanged.InvokeAsync(nuevoFiltro);
+    }
+
+    private async Task OnTextoChanged(string value)
+    {
+        var nuevoFiltro = CopiarFiltro();
+        nuevoFiltro.Texto = (value ?? "").Trim();
+        await OnFiltroChanged.InvokeAsync(nuevoFiltro);
+    }
+
+    private async Task OnInactivoChanged(bool value)
+    {
+        var nuevoFiltro = CopiarFiltro();
+        nuevoFiltro.Inactivo = value;
+        await OnFiltroChanged.InvokeAsync(nuevoFiltro);
+    }
+
+    private SocioQuery CopiarFiltro()
+    {
+        return new SocioQuery
+        {
+            BuscarPor = Filtro.BuscarPor,
+            Texto = Filtro.Texto,
+            Inactivo = Filtro.Inactivo
+        };
+    }
+}

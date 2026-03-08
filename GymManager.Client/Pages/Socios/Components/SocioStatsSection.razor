@@ -1,0 +1,41 @@
+﻿@using GymManager.Client.Components
+@using GymManager.Shared.Contracts.Socios
+
+<MudGrid Spacing="2" Class="mb-4">
+    <KpiCard Titulo="Activos"
+             Valor="@(Stats.ActivosCount.ToString())"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.People"
+             Color="Color.Success" />
+
+    <KpiCard Titulo="Inactivos"
+             Valor="@(Stats.InactivosCount.ToString())"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.PersonOff"
+             Color="Color.Error" />
+
+    <KpiCard Titulo="Altas del mes"
+             Valor="@(Stats.AltasMesCount.ToString())"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.TrendingUp"
+             Color="Color.Info" />
+
+    <KpiCard Titulo="Bajas del mes"
+             Valor="@(Stats.BajasMesCount.ToString())"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.PersonOff"
+             Color="Color.Error" />
+</MudGrid>
+
+<MudGrid Spacing="2" Class="mb-4">
+    <SocioActividadChartSection Stats="Stats"
+                                Loading="Loading" />
+</MudGrid>
+
+
+@code {
+
+    [Parameter] public SociosStatsResponse Stats { get; set; } = new();
+    [Parameter] public bool Loading { get; set; }
+
+}

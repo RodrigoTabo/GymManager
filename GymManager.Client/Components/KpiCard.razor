@@ -1,0 +1,29 @@
+﻿@using GymManager.Shared.Contracts.Socios
+
+<MudItem xs="12" sm="6" md="3">
+    <MudPaper Class="pa-4" Elevation="5">
+        <MudStack AlignItems="AlignItems.Center" Spacing="1">
+            <MudAvatar Variant="Variant.Filled" Color="@Color" Size="Size.Medium">
+                <MudIcon Icon="@Icon" />
+            </MudAvatar>
+            <MudText Typo="Typo.subtitle2" Align="Align.Center">@Titulo</MudText>
+            <MudText Typo="Typo.h5" Align="Align.Center">@(Loading ? "—" : Valor.ToString())</MudText>
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+
+@code {
+
+    [Parameter]
+    public string Titulo { get; set; } = string.Empty;
+    [Parameter]
+    public string Valor { get; set; } = "0";
+    [Parameter]
+    public bool Loading { get; set; }
+    [Parameter]
+    public string Icon { get; set; } = Icons.Material.Filled.Info;
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
+
+}

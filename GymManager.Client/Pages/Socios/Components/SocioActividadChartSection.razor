@@ -1,0 +1,64 @@
+﻿@using GymManager.Shared.Contracts.Socios
+
+
+<MudItem xs="12" md="8">
+    <MudPaper Class="pa-4" Elevation="5">
+        <MudText Typo="Typo.h6" Class="mb-2">Actividad (últimos 12 meses)</MudText>
+
+        @if (Loading)
+        {
+            <MudText>Cargando…</MudText>
+        }
+        else if (_chartLabels.Length == 0)
+        {
+            <MudText>Sin datos para el gráfico.</MudText>
+        }
+        else
+        {
+            <MudChart T="double"
+                      ChartType="ChartType.Bar"
+                      ChartSeries="@_chartSeries"
+                      XAxisLabels="@_chartLabels"
+                      Width="100%"
+                      Height="300px" />
+        }
+    </MudPaper>
+</MudItem>
+
+
+@code {
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public SociosStatsResponse Stats { get; set; } = new();
+
+    private string[] _chartLabels = Array.Empty<string>();
+    private List<ChartSeries<double>> _chartSeries = new();
+
+    protected override void OnParametersSet()
+    {
+        BuildChart();
+    }
+
+    private void BuildChart()
+    {
+        if (Stats?.Meses == null || Stats.Meses.Count == 0)
+        {
+            _chartLabels = Array.Empty<string>();
+            _chartSeries = new();
+            return;
+        }
+
+        _chartLabels = Stats.Meses.ToArray();
+
+        var altas = (Stats.AltasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
+        var bajas = (Stats.BajasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
+
+        _chartSeries = new()
+        {
+            new ChartSeries<double> { Name = "Altas", Data = altas },
+            new ChartSeries<double> { Name = "Bajas", Data = bajas }
+        };
+    }
+}
