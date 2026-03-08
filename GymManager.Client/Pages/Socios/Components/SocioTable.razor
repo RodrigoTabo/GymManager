@@ -14,8 +14,7 @@
 
     <HeaderContent>
         <MudTh>DNI</MudTh>
-        <MudTh>Nombre</MudTh>
-        <MudTh>Apellido</MudTh>
+        <MudTh>Nombre completo</MudTh>
         <MudTh>Fecha Nac.</MudTh>
         <MudTh>Alta</MudTh>
         <MudTh>Plan</MudTh>
@@ -23,20 +22,42 @@
     </HeaderContent>
 
     <RowTemplate>
-        <MudTd DataLabel="DNI">@context.DNI</MudTd>
-        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
-        <MudTd DataLabel="Apellido">@context.Apellido</MudTd>
+
+        <MudTd DataLabel="DNI ingresado">
+            <MudChip T="string" Variant="Variant.Outlined" Color="Color.Default" Size="Size.Small">
+                @context.DNI
+            </MudChip>
+        </MudTd>
+
+        <MudTd DataLabel="Socio">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                </MudAvatar>
+                <MudTd DataLabel="Nombre">@context.Nombre @context.Apellido</MudTd>
+            </MudStack>
+        </MudTd>
 
         <MudTd DataLabel="Fecha Nac.">
             @(context.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")
         </MudTd>
 
         <MudTd DataLabel="Alta">
-            @(context.FechaAlta?.ToString("dd/MM/yyyy") ?? "-")
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Filled"
+                     Color="Color.Success">
+                @(context.FechaAlta?.ToString("dd/MM/yyyy") ?? "-")
+            </MudChip>
         </MudTd>
 
         <MudTd DataLabel="Plan">
-            @(string.IsNullOrWhiteSpace(context.Plan) ? "-" : context.Plan)
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Filled"
+                     Color="Color.Info">
+                @(string.IsNullOrWhiteSpace(context.Plan) ? "-" : context.Plan)
+            </MudChip>
         </MudTd>
 
         <MudTd DataLabel="Acciones">

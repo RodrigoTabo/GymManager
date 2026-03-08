@@ -4,18 +4,117 @@
 @inject IDialogService DialogService
 @inject PlanApi PlanApi
 
-<MudButton @onclick="OpenCrear" Variant="Variant.Filled" Color="Color.Primary">
-    Crear nuevo plan
-</MudButton>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
-<PlanTable Items="@planes"
-           Loading="@loading"
-           OnEdit="OpenEdit"
-           OnDelete="ConfirmDelete" />
+    <!-- KPIs -->
+    <MudGrid Spacing="2" Class="mb-4">
 
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 h-100" Elevation="1">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" />
+                    </MudAvatar>
+
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.caption" Class="text-muted">Planes activos</MudText>
+                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PlanActivos.ToString("N0"))</MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="9">
+            <MudPaper Class="pa-4 h-100" Elevation="1">
+                <MudStack Spacing="3">
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Color="Color.Warning" />
+                        <MudText Typo="Typo.h6">Top 3 Planes</MudText>
+                    </MudStack>
+
+                    @if (loadingStats)
+                    {
+                        <MudText Typo="Typo.body2">Cargando datos...</MudText>
+                    }
+                    else if (stats.TopPlanes is not null && stats.TopPlanes.Any())
+                    {
+
+                        @for (int i = 0; i < stats.TopPlanes.Count; i++)
+                        {
+                            var plan = stats.TopPlanes[i];
+                            var posicion = i + 1;
+
+
+                            <MudPaper Class="pa-3" Outlined="true">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+                                            @posicion
+                                        </MudAvatar>
+
+                                        <MudStack Spacing="0">
+                                            <MudText Typo="Typo.subtitle1">@plan.NombrePlan</MudText>
+                                        </MudStack>
+                                    </MudStack>
+
+                                    <MudText Typo="Typo.h6" Class="text-muted">@plan.Cantidad</MudText>
+
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
+                    }
+
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+
+    <!-- Tabla -->
+    <MudPaper Class="pa-4 mb-3" Elevation="2">
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Justify="Justify.SpaceBetween"
+                  Class="mb-4">
+
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.h5">Gestionar Planes</MudText>
+                <MudText Typo="Typo.body2" Class="text-muted">
+                    Administrá los planes disponibles del sistema
+                </MudText>
+            </MudStack>
+
+            <MudButton OnClick="OpenCrear"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.AddBox">
+                Agregar plan
+            </MudButton>
+        </MudStack>
+
+        <PlanTable Items="@planes"
+                   Loading="@loading"
+                   OnEdit="OpenEdit"
+                   OnDelete="ConfirmDelete" />
+    </MudPaper>
+
+</MudContainer>
 @code {
     private List<PlanResponse> planes = new();
     private bool loading;
+    private bool loadingStats;
+    private string? errorStats;
+
+    private StatsPlanRequest stats = new()
+    {
+        TopPlanes = new List<PlanContadorResponse>()
+    };
 
     //Inicializa la lista llamando al metodo.
     protected override async Task OnInitializedAsync()
@@ -26,6 +125,29 @@
         loading = true;
         planes = await PlanApi.ListarAsync();
         loading = false;
+        await LoadStatsAsync();
+    }
+
+    private async Task LoadStatsAsync()
+    {
+        loadingStats = true;
+        errorStats = null;
+
+        try
+        {
+            stats = await PlanApi.GetPlanStatsAsync();
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorStats = ex.Message;
+            stats = new() { TopPlanes = new List<PlanContadorResponse>() };
+        }
+        finally
+        {
+            loadingStats = false;
+        }
     }
 
     //Llama al modal Crear

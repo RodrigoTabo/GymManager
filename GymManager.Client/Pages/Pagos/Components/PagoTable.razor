@@ -1,10 +1,10 @@
 ﻿@using GymManager.Shared.Contracts.Pagos
 @using MudBlazor
-
 <MudTable Items="@Items"
           Hover="true"
           Dense="true"
           Striped="true"
+          Bordered="true"
           Breakpoint="Breakpoint.None"
           Loading="@Loading"
           LoadingProgressColor="Color.Info"
@@ -24,19 +24,57 @@
 
 
     <RowTemplate>
-        <MudTd DataLabel="Socio">@context.Socio</MudTd>
-        <MudTd DataLabel="Fecha de Pago">@context.FechaPago</MudTd>
+        <MudTd DataLabel="Socio">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                </MudAvatar>
+                <MudTd DataLabel="Socio">@context.Socio</MudTd>
+            </MudStack>
+        </MudTd>
+        <MudTd DataLabel="Fecha de Pago">@context.FechaPago</MudTd>      
         <MudTd DataLabel="Importe">@context.Importe</MudTd>
-        <MudTd DataLabel="Cubre Desde">@context.MetodoPago</MudTd>
-        <MudTd DataLabel="Cubre Hasta">@context.CubreDesde</MudTd>
-        <MudTd DataLabel="Cubre Hasta">@context.CubreHasta</MudTd>
+
+        <MudTd DataLabel="MetodoPago">
+            @if (context.MetodoPago == "Transferencia")
+            {
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="me-1" />
+                <span>@context.MetodoPago</span>
+            }
+            else if (context.MetodoPago == "Efectivo")
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Payments" Class="me-1" />
+                <span>@context.MetodoPago</span>
+            }
+            else
+            {
+                <span>@context.MetodoPago</span>
+            }
+        </MudTd>
+
+
+
+        <MudTd DataLabel="Alta">
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Filled"
+                     Color="Color.Success">
+                @context.CubreDesde
+            </MudChip>
+        </MudTd>
+        <MudTd DataLabel="Alta">
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Filled"
+                     Color="Color.Error">
+                @context.CubreHasta
+            </MudChip>
+        </MudTd>
 
         <MudTd DataLabel="Acciones">
             <MudStack Row="true" Spacing="1">
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
                                OnClick="@(() => OnEdit.InvokeAsync(context))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Payments" Color="Color.Success" Size="Size.Small"
-                               OnClick="@(() => OnPago.InvokeAsync(context))" />
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                OnClick="@(() => OnDelete.InvokeAsync(context))" />
             </MudStack>

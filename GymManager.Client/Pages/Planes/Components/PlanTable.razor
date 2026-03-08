@@ -20,18 +20,11 @@
         <MudTd DataLabel="Precio">@context.Precio</MudTd>
 
         <MudTd>
-            <MudButton Size="Size.Small"
-                       Variant="Variant.Text"
-                       OnClick="@(() => OnEdit.InvokeAsync(context))">
-                Editar
-            </MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                           OnClick="@(() => OnEdit.InvokeAsync(context))" />
 
-            <MudButton Size="Size.Small"
-                       Variant="Variant.Text"
-                       Color="Color.Error"
-                       OnClick="@(() => OnDelete.InvokeAsync(context))">
-                Eliminar
-            </MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                           OnClick="@(() => OnDelete.InvokeAsync(context))" />
         </MudTd>
     </RowTemplate>
 

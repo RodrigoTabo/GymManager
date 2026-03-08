@@ -1,5 +1,6 @@
 ﻿@page "/pagos"
 @using GymManager.Client.ApiClients
+@using GymManager.Client.Pages.MetodosPagos
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
 @using MudBlazor.Charts
@@ -7,24 +8,6 @@
 @inject IDialogService DialogService
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
-
-    <!-- Header -->
-    <MudPaper Class="pa-4 mb-4" Elevation="1">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.h5">Gestionar Pagos</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Primary">Alta, edición, baja de Pagos</MudText>
-            </MudStack>
-
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Refresh"
-                       Disabled="@(loading || loadingStats)"
-                       OnClick="ReloadAsync">
-                Refrescar
-            </MudButton>
-        </MudStack>
-    </MudPaper>
 
     @if (!string.IsNullOrWhiteSpace(errorStats))
     {
@@ -42,12 +25,12 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" />
                     </MudAvatar>
                     <MudStack Spacing="0">
                         <MudText Typo="Typo.subtitle2">Transacciones del mes</MudText>
-                        <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0"))</MudText>
+                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0"))</MudText>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -56,12 +39,12 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.Event" />
                     </MudAvatar>
                     <MudStack Spacing="0">
                         <MudText Typo="Typo.subtitle2">Transacciones de hoy</MudText>
-                        <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0"))</MudText>
+                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0"))</MudText>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -70,12 +53,12 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
                     </MudAvatar>
                     <MudStack Spacing="0">
                         <MudText Typo="Typo.subtitle2">Total recaudado (mes)</MudText>
-                        <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
+                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -84,12 +67,12 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.Payments" />
                     </MudAvatar>
                     <MudStack Spacing="0">
                         <MudText Typo="Typo.subtitle2">Total recaudado (hoy)</MudText>
-                        <MudText Typo="Typo.h4">@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
+                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -98,15 +81,15 @@
         <MudItem xs="12" md="6">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
                     </MudAvatar>
 
                     <MudStack Spacing="0" Class="flex-grow-1">
                         <MudText Typo="Typo.subtitle2">Efectivo (hoy)</MudText>
                         <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosDiariosEnEfectivo.ToString("N0")) pagos</MudText>
-                            <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalDiariosPagoEfectivo.ToString("N2"))</MudText>
+                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.PagosDiariosEnEfectivo.ToString("N0")) pagos</MudText>
+                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.TotalDiariosPagoEfectivo.ToString("N2"))</MudText>
                         </MudStack>
                     </MudStack>
                 </MudStack>
@@ -116,15 +99,15 @@
         <MudItem xs="12" md="6">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Large">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Medium">
                         <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" />
                     </MudAvatar>
 
                     <MudStack Spacing="0" Class="flex-grow-1">
                         <MudText Typo="Typo.subtitle2">Transferencia (hoy)</MudText>
                         <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosDiariosEnTransferencia.ToString("N0")) pagos</MudText>
-                            <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalDiariosPagoTransferencia.ToString("N2"))</MudText>
+                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.PagosDiariosEnTransferencia.ToString("N0")) pagos</MudText>
+                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.TotalDiariosPagoTransferencia.ToString("N2"))</MudText>
                         </MudStack>
                     </MudStack>
                 </MudStack>
@@ -133,9 +116,8 @@
     </MudGrid>
 
     <!-- GRÁFICOS -->
-    <MudGrid Spacing="2" Class="mb-4">
-        <!-- Total por mes (full width) -->
-        <MudItem xs="12">
+    <MudGrid Spacing="2">
+        <MudItem xs="12" lg="5">
             <MudPaper Class="pa-4" Outlined="true">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                     <MudText Typo="Typo.h6">Recaudación por mes (últimos 6)</MudText>
@@ -146,27 +128,57 @@
 
                 @if (loadingStats)
                 {
-                    <MudProgressLinear Indeterminate="true" Class="mt-4" />
+                    <MudProgressLinear Indeterminate="true" />
                 }
                 else
                 {
                     <MudChart T="double"
-                              ChartType="ChartType.Bar"
+                              ChartType="ChartType.Line"
                               ChartSeries="@barSeries"
                               XAxisLabels="@barLabels"
                               Height="260px" />
                 }
             </MudPaper>
         </MudItem>
+
+        <MudItem xs="12" lg="7">
+            <MudPaper Elevation="0" Outlined="true" Class="pa-3" Height="100%">
+                <!--Tabla metodos-->
+                <MetodosPagoPage />
+            </MudPaper>
+        </MudItem>
     </MudGrid>
 
-    <!-- Tabla de Pagos -->
-    <MudPaper Class="pa-0" Elevation="1">
+
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Justify="Justify.SpaceBetween"
+                  Class="mb-4">
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudIcon Icon="@Icons.Material.Filled.Payments" />
+                <MudText Typo="Typo.h5">Pagos</MudText>
+            </MudStack>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       Disabled="@(loading || loadingStats)"
+                       OnClick="ReloadAsync">
+                Refrescar
+            </MudButton>
+        </MudStack>
+        <MudDivider></MudDivider>
+
         <PagoTable Items="@pagos"
                    Loading="@loading"
                    OnDelete="ConfirmDelete"
                    OnEdit="OpenEdit" />
+
     </MudPaper>
+
 
 </MudContainer>
 

@@ -5,32 +5,57 @@
           Striped="true"
           Breakpoint="Breakpoint.None"
           Loading="@Loading"
+          Bordered="true"
           LoadingProgressColor="Color.Info"
           HorizontalScrollbar="true"
           Elevation="0">
 
-
     <HeaderContent>
-        <MudTh>FechaRegistro</MudTh>
+        <MudTh>Fecha registro</MudTh>
         <MudTh>Socio</MudTh>
     </HeaderContent>
 
-
     <RowTemplate>
-        <MudTd DataLabel="FechaRegistro">@context.FechaRegistro</MudTd>
-        <MudTd DataLabel="Motivo">@context.Socio</MudTd>
-    </RowTemplate>
+        <MudTd DataLabel="Fecha registro">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.body2">
+                    @context.FechaRegistro.ToString("dd/MM/yyyy")
+                </MudText>
+                <MudText Typo="Typo.caption">
+                    @context.FechaRegistro.ToString("HH:mm")
+                </MudText>
+            </MudStack>
+        </MudTd>
 
+        <MudTd DataLabel="Socio">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                </MudAvatar>
+
+                <MudText Typo="Typo.body2">
+                    @context.Socio
+                </MudText>
+            </MudStack>
+        </MudTd>
+    </RowTemplate>
 
     <NoRecordsContent>
         <MudStack Class="pa-6" AlignItems="AlignItems.Center" Spacing="1">
-            <MudIcon Icon="@Icons.Material.Filled.SearchOff" />
-            <MudText Typo="Typo.body1">No hay Asistencias para mostrar</MudText>
-            <MudText Typo="Typo.caption">Probá cambiando los filtros.</MudText>
+            <MudIcon Icon="@Icons.Material.Filled.SearchOff"
+                     Size="Size.Large"
+                     Color="Color.Primary" />
+            <MudText Typo="Typo.body1">No hay asistencias para mostrar</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Probá cambiando los filtros.
+            </MudText>
         </MudStack>
     </NoRecordsContent>
+
     <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }"
+                       RowsPerPageString="Filas por página"
+                       InfoFormat="{first_item}-{last_item} de {all_items}" />
     </PagerContent>
 </MudTable>
 

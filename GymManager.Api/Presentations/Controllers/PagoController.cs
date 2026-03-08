@@ -65,7 +65,7 @@ namespace GymManager.Api.Presentations.Controllers
         /// Stats
         /// </summary>
         [HttpGet("stats")]
-        [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync()
             => Ok(await _pagoService.GetPagosStatsAsync());
 

@@ -69,5 +69,11 @@ namespace GymManager.Api.Presentations.Controllers
             return NoContent();
         }
 
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(StatsPlanRequest), StatusCodes.Status200OK)]
+        public async Task<ActionResult<StatsPlanRequest>> GetStatsAsync()
+            => Ok(await _planService.GetStatsAsync());
+
+
     }
 }

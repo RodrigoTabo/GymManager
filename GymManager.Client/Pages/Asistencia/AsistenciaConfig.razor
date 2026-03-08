@@ -6,12 +6,22 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
+    <!-- Header -->
+    <!-- Header -->
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.h5">Gestionar Asistencias</MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
 
-    <!-- Barra de filtros (afuera de la tabla, sin superposiciones) -->
-    <MudPaper Class="pa-2 mb-2" Elevation="1">
-        <MudGrid Spacing="1" AlignItems="AlignItems.Center">
+    <!-- Filtros -->
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
 
-            <MudItem xs="12" sm="6" md="2">
+        <MudGrid Spacing="2" AlignItems="AlignItems.Center">
+
+            <MudItem xs="12" sm="6" md="3">
                 <MudTextField T="string"
                               Dense="true"
                               Margin="Margin.Dense"
@@ -73,8 +83,19 @@
         </MudGrid>
     </MudPaper>
 
-    <!--Table-->
-    <MudPaper Class="pa-0" Elevation="1" >
+    <!-- Tabla -->
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap" Class="mb-3">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.subtitle1">Asistencias registradas</MudText>
+                <MudText Typo="Typo.body2">
+                    Historial de ingresos validados del gimnasio.
+                </MudText>
+            </MudStack>
+        </MudStack>
+
+        <MudDivider Class="mb-3" />
+
         <AsistenciaTable Items="@Asistencias"
                          Loading="@loading" />
     </MudPaper>
