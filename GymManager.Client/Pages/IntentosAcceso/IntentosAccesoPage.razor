@@ -16,104 +16,15 @@
         </MudStack>
     </MudPaper>
 
-    <!--KPIS Cards-->
-    <!--Graficos-->
-    <!-- Barra de filtros (afuera de la tabla, sin superposiciones) -->
-    <MudPaper Class="pa-2 mb-2" Elevation="5">
-        <MudGrid Spacing="1" AlignItems="AlignItems.Center">
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudTextField T="string"
-                              Dense="true"
-                              Margin="Margin.Dense"
-                              Variant="Variant.Outlined"
-                              Value="@filtro.Dni"
-                              ValueChanged="@(EventCallback.Factory.Create<string>(this, v => OnDniChanged(v)))"
-                              Label="DNI"
-                              Placeholder="Buscar por DNI..."
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Badge"
-                              Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="3">
-                <MudTextField T="string"
-                              Dense="true"
-                              Margin="Margin.Dense"
-                              Variant="Variant.Outlined"
-                              Value="@filtro.Nombre"
-                              ValueChanged="@(EventCallback.Factory.Create<string>(this, v => OnNombreChanged(v)))"
-                              Label="Nombre"
-                              Placeholder="Buscar por nombre..."
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudSelect T="ResultadoAcceso?"
-                           Dense="true"
-                           Margin="Margin.Dense"
-                           Variant="Variant.Outlined"
-                           Label="Resultado"
-                           Value="@filtro.Resultado"
-                           ValueChanged="@(EventCallback.Factory.Create<ResultadoAcceso?>(this, v => OnResultadoChanged(v)))"
-                           Clearable="true">
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(null)">Todos</MudSelectItem>
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Aceptada)">Exitoso</MudSelectItem>
-                    <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Denegada)">Fallido</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudSelect T="MotivoAcceso?"
-                           Dense="true"
-                           Margin="Margin.Dense"
-                           Variant="Variant.Outlined"
-                           Label="Motivo"
-                           Value="@filtro.Motivo"
-                           ValueChanged="@(EventCallback.Factory.Create<MotivoAcceso?>(this, v => OnMotivoChanged(v)))"
-                           Clearable="true">
-                    <MudSelectItem T="MotivoAcceso?" Value="@(null)">Todos</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.SocioInexistente)">Socio no encontrado</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.CuotaVencida)">Cuota vencida</MudSelectItem>
-                    <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.DniInvalido)">DNI incorrecto</MudSelectItem>
-                </MudSelect>
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudDatePicker Label="Desde"
-                               Dense="true"
-                               Margin="Margin.Dense"
-                               Variant="Variant.Outlined"
-                               Date="@filtro.Desde"
-                               DateChanged="@(EventCallback.Factory.Create<DateTime?>(this, v => OnDesdeChanged(v)))"
-                               Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" sm="6" md="2">
-                <MudDatePicker Label="Hasta"
-                               Dense="true"
-                               Margin="Margin.Dense"
-                               Variant="Variant.Outlined"
-                               Date="@filtro.Hasta"
-                               DateChanged="@(EventCallback.Factory.Create<DateTime?>(this, v => OnHastaChanged(v)))"
-                               Clearable="true" />
-            </MudItem>
-
-            <MudItem xs="12" md="2" Class="d-flex align-center">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           Size="Size.Small"
-                           Style="height:36px; min-width:110px;"
-                           StartIcon="@Icons.Material.Filled.Clear"
-                           OnClick="LimpiarFiltros">
-                    Limpiar
-                </MudButton>
-            </MudItem>
-
-        </MudGrid>
-    </MudPaper>
+    <!-- Filtro de busqueda -->
+    <IntentosAccesoFilterSection Filtro="Filtro"
+                                 LimpiarFiltros="LimpiarFiltros"
+                                 OnDesdeChanged="OnDesdeChanged"
+                                 OnHastaChanged="OnHastaChanged"
+                                 OnDniChanged="OnDniChanged"
+                                 OnMotivoChanged="OnMotivoChanged"
+                                 OnNombreChanged="OnNombreChanged"
+                                 OnResultadoChanged="OnResultadoChanged" />
 
     <!--Table-->
     <MudPaper Class="pa-0" Elevation="5">
@@ -128,7 +39,7 @@
     private List<IntentosAccesoResponse> intentosAccesos = new();
     private bool loading;
 
-    private IntentosAccesoFiltro filtro { get; set; } = new()
+    private IntentosAccesoFiltro Filtro { get; set; } = new()
     {
         Dni = string.Empty,
         Nombre = string.Empty,
@@ -143,7 +54,7 @@
 
     private async Task ReloadAsync()
     {
-        await LoadIntentosAccesosAsync(filtro);
+        await LoadIntentosAccesosAsync(Filtro);
     }
 
     private async Task LoadIntentosAccesosAsync(IntentosAccesoFiltro f)
@@ -161,43 +72,43 @@
 
     private async Task OnDniChanged(string value)
     {
-        filtro.Dni = value;
+        Filtro.Dni = value;
         await ReloadAsync();
     }
 
     private async Task OnNombreChanged(string value)
     {
-        filtro.Nombre = value;
+        Filtro.Nombre = value;
         await ReloadAsync();
     }
 
     private async Task OnResultadoChanged(ResultadoAcceso? value)
     {
-        filtro.Resultado = value;
+        Filtro.Resultado = value;
         await ReloadAsync();
     }
 
     private async Task OnMotivoChanged(MotivoAcceso? value)
     {
-        filtro.Motivo = value;
+        Filtro.Motivo = value;
         await ReloadAsync();
     }
 
     private async Task OnDesdeChanged(DateTime? value)
     {
-        filtro.Desde = value;
+        Filtro.Desde = value;
         await ReloadAsync();
     }
 
     private async Task OnHastaChanged(DateTime? value)
     {
-        filtro.Hasta = value;
+        Filtro.Hasta = value;
         await ReloadAsync();
     }
 
     private async Task LimpiarFiltros()
     {
-        filtro = new IntentosAccesoFiltro();
+        Filtro = new IntentosAccesoFiltro();
         await ReloadAsync();
     }
 

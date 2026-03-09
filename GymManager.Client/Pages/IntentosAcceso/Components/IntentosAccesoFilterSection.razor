@@ -1,0 +1,130 @@
+﻿@using GymManager.Shared.Contracts.IntentosAcceso
+@using GymManager.Shared.Enums
+
+
+<MudPaper Class="pa-2 mb-2" Elevation="5">
+    <MudGrid Spacing="1" AlignItems="AlignItems.Center">
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudTextField T="string"
+                          Dense="true"
+                          Margin="Margin.Dense"
+                          Variant="Variant.Outlined"
+                          Value="@Filtro.Dni"
+                          ValueChanged="@(v => OnDniChanged.InvokeAsync(v))"
+                          Label="DNI"
+                          Placeholder="Buscar por DNI..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Badge"
+                          Clearable="true" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField T="string"
+                          Dense="true"
+                          Margin="Margin.Dense"
+                          Variant="Variant.Outlined"
+                          Value="@Filtro.Nombre"
+                          ValueChanged="@(v => OnNombreChanged.InvokeAsync(v))"
+                          Label="Nombre"
+                          Placeholder="Buscar por nombre..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Clearable="true" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudSelect T="ResultadoAcceso?"
+                       Dense="true"
+                       Margin="Margin.Dense"
+                       Variant="Variant.Outlined"
+                       Label="Resultado"
+                       Value="@Filtro.Resultado"
+                       ValueChanged="@(v => OnResultadoChanged.InvokeAsync(v))"
+                       Clearable="true">
+                <MudSelectItem T="ResultadoAcceso?" Value="@(null)">Todos</MudSelectItem>
+                <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Aceptada)">Exitoso</MudSelectItem>
+                <MudSelectItem T="ResultadoAcceso?" Value="@(ResultadoAcceso.Denegada)">Fallido</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudSelect T="MotivoAcceso?"
+                       Dense="true"
+                       Margin="Margin.Dense"
+                       Variant="Variant.Outlined"
+                       Label="Motivo"
+                       Value="@Filtro.Motivo"
+                       ValueChanged="@(v => OnMotivoChanged.InvokeAsync(v))"
+                       Clearable="true">
+                <MudSelectItem T="MotivoAcceso?" Value="@(null)">Todos</MudSelectItem>
+                <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.SocioInexistente)">Socio no encontrado</MudSelectItem>
+                <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.CuotaVencida)">Cuota vencida</MudSelectItem>
+                <MudSelectItem T="MotivoAcceso?" Value="@(MotivoAcceso.DniInvalido)">DNI incorrecto</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudDatePicker Label="Desde"
+                           Dense="true"
+                           Margin="Margin.Dense"
+                           Variant="Variant.Outlined"
+                           Date="@Filtro.Desde"
+                           DateChanged="@(v => OnDesdeChanged.InvokeAsync(v))"
+                           Clearable="true" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudDatePicker Label="Hasta"
+                           Dense="true"
+                           Margin="Margin.Dense"
+                           Variant="Variant.Outlined"
+                           Date="@Filtro.Hasta"
+                           DateChanged="@(v => OnHastaChanged.InvokeAsync(v))"
+                           Clearable="true" />
+        </MudItem>
+
+        <MudItem xs="12" md="2" Class="d-flex align-center">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       Style="height:36px; min-width:110px;"
+                       StartIcon="@Icons.Material.Filled.Clear"
+                       OnClick="@LimpiarFiltros">
+                Limpiar
+            </MudButton>
+        </MudItem>
+
+    </MudGrid>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public IntentosAccesoFiltro Filtro { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string> OnDniChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNombreChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ResultadoAcceso?> OnResultadoChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<MotivoAcceso?> OnMotivoChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> OnDesdeChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> OnHastaChanged { get; set; }
+
+    [Parameter]
+    public EventCallback LimpiarFiltros { get; set; }
+
+
+
+
+}
