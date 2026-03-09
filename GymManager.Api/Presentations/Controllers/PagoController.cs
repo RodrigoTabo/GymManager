@@ -1,7 +1,5 @@
 ﻿using GymManager.Api.Application.Interfaces;
-using GymManager.Api.Application.Services;
 using GymManager.Shared.Contracts.Pagos;
-using GymManager.Shared.Contracts.Socios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymManager.Api.Presentations.Controllers
@@ -9,9 +7,10 @@ namespace GymManager.Api.Presentations.Controllers
     [ApiController]
     [Route("api/pagos")]
     [Produces("application/json")]
-    public class PagoController(IPagoService pagoService) : ControllerBase
+    public class PagoController(IPagoService pagoService, IPagoStatsService pagoStatsService) : ControllerBase
     {
         private readonly IPagoService _pagoService = pagoService;
+        private readonly IPagoStatsService _pagoStatsService = pagoStatsService;
 
 
         /// <summary>
@@ -67,7 +66,7 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet("stats")]
         [ProducesResponseType(typeof(PagosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync()
-            => Ok(await _pagoService.GetPagosStatsAsync());
+            => Ok(await _pagoStatsService.GetStatsAsync());
 
     }
 }

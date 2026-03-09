@@ -1,0 +1,69 @@
+﻿@using GymManager.Client.Components
+@using GymManager.Client.Pages.MetodosPagos
+@using GymManager.Shared.Contracts.Pagos
+
+<MudGrid Spacing="2" Class="mb-4">
+
+    <KpiCard Titulo="Transacciones del mes"
+             Valor="@(Stats.PagosMensualesCount.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <KpiCard Titulo="Transacciones de hoy"
+             Valor="@(Stats.PagosDiariosCount.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.Event"
+             Color="Color.Secondary" />
+
+
+    <KpiCard Titulo="Total recaudado (mes)"
+             Valor="@(Stats.TotalPagoMensual.ToString("N2"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.AttachMoney"
+             Color="Color.Success" />
+
+    <KpiCard Titulo="Total recaudado (hoy)"
+             Valor="@(Stats.TotalPagoDiario.ToString("N2"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.Payments"
+             Color="Color.Info" />
+
+
+    <KpiCard Titulo="Efectivo (hoy)"
+             Valor="@(Stats.PagosDiariosEnEfectivo.ToString("N0") + "Pagos"
+                                                                 + Stats.TotalDiariosPagoEfectivo.ToString("N2"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.LocalAtm"
+             Color="Color.Warning" />
+
+    <KpiCard Titulo="Transferencia (hoy)"
+             Valor="@(Stats.PagosDiariosEnTransferencia.ToString("N0") + "Pagos"
+                                                                 + Stats.TotalDiariosPagoTransferencia.ToString("N2"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.SwapHoriz"
+             Color="Color.Tertiary" />
+
+</MudGrid>
+
+<MudGrid Spacing="2">
+    <PagoActividadChartSection Stats="Stats"
+                               Loading="Loading" />
+
+    <!--Tabla aca por orden.->
+    <MudItem xs="12" lg="7">
+        <MudPaper Elevation="5" Class="pa-3" Height="100%">
+            <!--Tabla metodos-->
+            <MetodosPagoPage />
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+
+    [Parameter]
+    public PagosStatsResponse Stats { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
+}

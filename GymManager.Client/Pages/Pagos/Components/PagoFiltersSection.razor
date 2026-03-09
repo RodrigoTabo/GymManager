@@ -1,0 +1,30 @@
+﻿
+<MudStack Row="true"
+          AlignItems="AlignItems.Center"
+          Justify="Justify.SpaceBetween"
+          Class="mb-4">
+
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+        <MudIcon Icon="@Icons.Material.Filled.Payments" />
+        <MudText Typo="Typo.h5">Pagos</MudText>
+    </MudStack>
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               Disabled="@(Loading || LoadingStats)"
+               OnClick="ReloadAsync">
+        Refrescar
+    </MudButton>
+</MudStack>
+
+@code {
+    [Parameter]
+    public bool LoadingStats { get; set; }
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public EventCallback ReloadAsync { get; set; }
+
+}

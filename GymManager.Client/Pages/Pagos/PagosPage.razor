@@ -1,6 +1,5 @@
 ﻿@page "/pagos"
 @using GymManager.Client.ApiClients
-@using GymManager.Client.Pages.MetodosPagos
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
 @using MudBlazor.Charts
@@ -19,158 +18,19 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorPagos</MudAlert>
     }
 
-    <!-- KPI Cards -->
-    <MudGrid Spacing="2" Class="mb-4">
+    <!-- KPI Cards + Graficos + Tabla -->
 
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" />
-                    </MudAvatar>
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Transacciones del mes</MudText>
-                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0"))</MudText>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.Event" />
-                    </MudAvatar>
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Transacciones de hoy</MudText>
-                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0"))</MudText>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.AttachMoney" />
-                    </MudAvatar>
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Total recaudado (mes)</MudText>
-                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.Payments" />
-                    </MudAvatar>
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle2">Total recaudado (hoy)</MudText>
-                        <MudText Typo="Typo.h5">@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
-                    </MudAvatar>
-
-                    <MudStack Spacing="0" Class="flex-grow-1">
-                        <MudText Typo="Typo.subtitle2">Efectivo (hoy)</MudText>
-                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.PagosDiariosEnEfectivo.ToString("N0")) pagos</MudText>
-                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.TotalDiariosPagoEfectivo.ToString("N2"))</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" />
-                    </MudAvatar>
-
-                    <MudStack Spacing="0" Class="flex-grow-1">
-                        <MudText Typo="Typo.subtitle2">Transferencia (hoy)</MudText>
-                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.PagosDiariosEnTransferencia.ToString("N0")) pagos</MudText>
-                            <MudText Typo="Typo.h6">@(loadingStats ? "—" : stats.TotalDiariosPagoTransferencia.ToString("N2"))</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-
-    <!-- GRÁFICOS -->
-    <MudGrid Spacing="2">
-        <MudItem xs="12" lg="5">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <MudText Typo="Typo.h6">Recaudación por mes (últimos 6)</MudText>
-                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">
-                        @(loadingStats ? "—" : stats.TotalPorMes.Sum(x => x.Total).ToString("N2"))
-                    </MudChip>
-                </MudStack>
-
-                @if (loadingStats)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else
-                {
-                    <MudChart T="double"
-                              ChartType="ChartType.Line"
-                              ChartSeries="@barSeries"
-                              XAxisLabels="@barLabels"
-                              Height="260px" />
-                }
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" lg="7">
-            <MudPaper Elevation="5" Class="pa-3" Height="100%">
-                <!--Tabla metodos-->
-                <MetodosPagoPage />
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-
+    <PagoStatsSection Stats="Stats"
+                      Loading="loadingStats" />
     <br />
 
     <MudPaper Class="pa-4 mb-4" Elevation="5">
 
-        <MudStack Row="true"
-                  AlignItems="AlignItems.Center"
-                  Justify="Justify.SpaceBetween"
-                  Class="mb-4">
+        <!-- Ya tenemos separado una sección para un futuro filtro. -->
+        <PagoFiltersSection LoadingStats="loadingStats"
+                            Loading="loading"
+                            ReloadAsync="ReloadAsync" />
 
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                <MudIcon Icon="@Icons.Material.Filled.Payments" />
-                <MudText Typo="Typo.h5">Pagos</MudText>
-            </MudStack>
-
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Refresh"
-                       Disabled="@(loading || loadingStats)"
-                       OnClick="ReloadAsync">
-                Refrescar
-            </MudButton>
-        </MudStack>
         <MudDivider></MudDivider>
 
         <PagoTable Items="@pagos"
@@ -186,7 +46,7 @@
 @code {
     private List<PagoResponse> pagos = new();
 
-    private PagosStatsResponse stats = new()
+    private PagosStatsResponse Stats = new()
     {
         TotalPorMes = new List<PagoMesSerie>()
     };
@@ -196,9 +56,6 @@
 
     private string? errorStats;
     private string? errorPagos;
-
-    private List<ChartSeries<double>> barSeries = new();
-    private string[] barLabels = Array.Empty<string>();
 
 
     protected override async Task OnInitializedAsync()
@@ -237,18 +94,14 @@
 
         try
         {
-            stats = await PagoApi.GetPagosStatsAsync();
+            Stats = await PagoApi.GetPagosStatsAsync();
 
-            BuildBarChart();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             errorStats = ex.Message;
-            stats = new() { TotalPorMes = new List<PagoMesSerie>() };
-
-            barSeries = new();
-            barLabels = Array.Empty<string>();
+            Stats = new() { TotalPorMes = new List<PagoMesSerie>() };
         }
         finally
         {
@@ -286,34 +139,4 @@
             await ReloadAsync();
     }
 
-    private void BuildBarChart()
-    {
-        var serie = stats.TotalPorMes ?? new List<PagoMesSerie>();
-
-        barLabels = serie.Select(x => FormatMes(x.Mes)).ToArray();
-
-        barSeries = new List<ChartSeries<double>>
-        {
-            new ChartSeries<double>
-            {
-                Name = "Total",
-                Data = serie.Select(x => (double)x.Total).ToArray()
-            }
-        };
-    }
-
-    private static string FormatMes(string mes)
-    {
-        // Espera "yyyy-MM"
-        if (!string.IsNullOrWhiteSpace(mes) &&
-            mes.Length == 7 &&
-            int.TryParse(mes.Substring(0, 4), out var y) &&
-            int.TryParse(mes.Substring(5, 2), out var m) &&
-            m is >= 1 and <= 12)
-        {
-            return new DateTime(y, m, 1).ToString("MMM");
-        }
-
-        return mes ?? "";
-    }
 }

@@ -1,5 +1,4 @@
 ﻿using GymManager.Api.Application.Interfaces;
-using GymManager.Shared.Contracts.Planes;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.AspNetCore.Mvc;
 
