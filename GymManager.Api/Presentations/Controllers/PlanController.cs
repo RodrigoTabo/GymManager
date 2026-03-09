@@ -7,9 +7,11 @@ namespace GymManager.Api.Presentations.Controllers
     [ApiController]
     [Route("api/planes")]
     [Produces("application/json")]
-    public class PlanController(IPlanService planService) : ControllerBase
+    public class PlanController(IPlanService planService, IPlanStatsService planStatsService) : ControllerBase
     {
+
         private readonly IPlanService _planService = planService;
+        private readonly IPlanStatsService _planStatsService = planStatsService;
 
         /// <summary>
         /// Lista todos los planes
@@ -72,7 +74,7 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet("stats")]
         [ProducesResponseType(typeof(StatsPlanRequest), StatusCodes.Status200OK)]
         public async Task<ActionResult<StatsPlanRequest>> GetStatsAsync()
-            => Ok(await _planService.GetStatsAsync());
+            => Ok(await _planStatsService.GetStatsAsync());
 
 
     }

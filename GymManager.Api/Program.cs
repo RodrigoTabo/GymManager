@@ -13,16 +13,25 @@ namespace GymManager.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //Servicio
+            //TODOS LOS SERVICIOS
+            //Socios
             builder.Services.AddScoped<ISocioService, SocioService>();
-            builder.Services.AddScoped<IPlanService, PlanService>();
-            builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
-            builder.Services.AddScoped<IMetodoPagoService, MetodoPagoService>();
-            builder.Services.AddScoped<IPagoService, PagoService>();
-            builder.Services.AddScoped<IIntentosAccesoService, IntentosAccessoService>();
-            builder.Services.AddScoped<IGeneralService, GeneralService>();
             builder.Services.AddScoped<ISocioStatsService, SocioStatsService>();
+            //Planes
+            builder.Services.AddScoped<IPlanService, PlanService>();
+            builder.Services.AddScoped<IPlanStatsService, PlanStatsService>();
+            //Pagos
+            builder.Services.AddScoped<IPagoService, PagoService>();
             builder.Services.AddScoped<IPagoStatsService, PagoStatsService>();
+            //Asistencias
+            builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
+            //Metodos de pagos
+            builder.Services.AddScoped<IMetodoPagoService, MetodoPagoService>();
+            //Intentos de Acceso
+            builder.Services.AddScoped<IIntentosAccesoService, IntentosAccessoService>();
+            //Stats General
+            builder.Services.AddScoped<IGeneralService, GeneralService>();
+            //Contexto y conexion a la DB.
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 

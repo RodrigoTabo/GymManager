@@ -1,0 +1,26 @@
+﻿<MudStack Row="true"
+          AlignItems="AlignItems.Center"
+          Justify="Justify.SpaceBetween"
+          Class="mb-4">
+
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5">Gestionar Planes</MudText>
+        <MudText Typo="Typo.body2" Class="text-muted">
+            Administrá los planes disponibles del sistema
+        </MudText>
+    </MudStack>
+
+    <MudButton OnClick="OpenCrear"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.AddBox">
+        Agregar plan
+    </MudButton>
+</MudStack>
+
+@code {
+
+    [Parameter]
+    public EventCallback OpenCrear { get; set; }
+
+}

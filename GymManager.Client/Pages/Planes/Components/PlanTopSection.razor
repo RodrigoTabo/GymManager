@@ -1,0 +1,61 @@
+﻿@using GymManager.Shared.Contracts.Planes
+
+<MudItem xs="12" sm="6" md="9">
+    <MudPaper Class="pa-4 h-100" Elevation="5">
+        <MudStack Spacing="3">
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Color="Color.Warning" />
+                <MudText Typo="Typo.h6">Top 3 Planes</MudText>
+            </MudStack>
+
+            @if (Loading)
+            {
+                <MudText Typo="Typo.body2">Cargando datos...</MudText>
+            }
+            else if (Stats.TopPlanes is not null && Stats.TopPlanes.Any())
+            {
+
+                @for (int i = 0; i < Stats.TopPlanes.Count; i++)
+                {
+                    var plan = Stats.TopPlanes[i];
+                    var posicion = i + 1;
+
+
+                    <MudPaper Class="pa-3" Outlined="true">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+                                    @posicion
+                                </MudAvatar>
+
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.subtitle1">@plan.NombrePlan</MudText>
+                                </MudStack>
+                            </MudStack>
+
+                            <MudText Typo="Typo.h6" Class="text-muted">@plan.Cantidad</MudText>
+
+                        </MudStack>
+                    </MudPaper>
+                }
+            }
+            else
+            {
+                <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
+            }
+
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+
+    [Parameter]
+    public StatsPlanRequest Stats { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+}

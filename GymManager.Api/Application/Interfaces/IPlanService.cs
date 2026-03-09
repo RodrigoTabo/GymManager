@@ -24,9 +24,5 @@ namespace GymManager.Api.Application.Interfaces
         /// Eliminar logico
         /// </summary>
         Task SoftDeleteAsync(int id);
-        /// <summary>
-        /// Stats planes
-        /// </summary>
-        Task<StatsPlanRequest> GetStatsAsync();
     }
 }

@@ -1,0 +1,25 @@
+﻿@using GymManager.Client.Components
+@using GymManager.Shared.Contracts.Planes
+
+<MudGrid Spacing="2" Class="mb-4">
+
+    <KpiCard Titulo="Planes Activos"
+             Valor="@(Stats.PlanActivos.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <PlanTopSection Loading="Loading"
+                    Stats="Stats" />
+
+</MudGrid>
+
+@code {
+
+    [Parameter]
+    public StatsPlanRequest Stats { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+}
