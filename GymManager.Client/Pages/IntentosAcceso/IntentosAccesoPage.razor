@@ -54,15 +54,15 @@
 
     private async Task ReloadAsync()
     {
-        await LoadIntentosAccesosAsync(Filtro);
+        await LoadIntentosAccesosAsync();
     }
 
-    private async Task LoadIntentosAccesosAsync(IntentosAccesoFiltro f)
+    private async Task LoadIntentosAccesosAsync()
     {
         loading = true;
         try
         {
-            intentosAccesos = await IntentosAccesoApi.ListarAsync(f);
+            intentosAccesos = await IntentosAccesoApi.ListarAsync(Filtro);
         }
         finally
         {
