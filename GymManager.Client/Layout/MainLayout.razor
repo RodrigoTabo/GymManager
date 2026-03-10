@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@inject GymManager.Web.Security.JwtAuthStateProvider JwtAuthStateProvider
+@inject NavigationManager Navigation
+@inherits LayoutComponentBase
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -38,8 +40,8 @@
             </MudNavLink>
         </MudNavMenu>
 
-      <br />
-        
+        <br />
+
         <!-- OPERACIONES -->
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">OPERACIONES</MudText>
         <MudNavMenu Dense="true">
@@ -73,10 +75,10 @@
                 Socios
             </MudNavLink>
             <MudNavLink Href="planes" Icon="@Icons.Material.Filled.LibraryBooks">
-                Planes
+                Planes  
             </MudNavLink>
         </MudNavMenu>
-
+        <button @onclick="Logout">Salir</button>
     </MudDrawer>
 
     <!-- CONTENIDO -->
@@ -85,6 +87,7 @@
             @Body
         </MudContainer>
     </MudMainContent>
+
 
 </MudLayout>
 
@@ -96,4 +99,11 @@
     {
         _open = !_open;
     }
+
+    private async Task Logout()
+    {
+        await JwtAuthStateProvider.MarkUserAsLoggedOutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
 }

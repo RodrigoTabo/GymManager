@@ -1,13 +1,17 @@
 ﻿using GymManager.Api.Domain.Entities;
+using GymManager.Api.Infrastructure.Configurations;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManager.Api.Infrastructure.Data
 {
-    public class GymManagerDbContext : DbContext
+    public class GymManagerDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     {
-
         public GymManagerDbContext(DbContextOptions<GymManagerDbContext> options)
-                : base(options) { }
+            : base(options)
+        {
+        }
 
         // DbSets
         public DbSet<Socio> Socios => Set<Socio>();

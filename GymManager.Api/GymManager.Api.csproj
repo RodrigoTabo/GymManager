@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
@@ -33,7 +34,6 @@
 
   <ItemGroup>
     <Folder Include="Infrastructure\Data\Migrations\" />
-    <Folder Include="Infrastructure\Data\Seeds\" />
     <Folder Include="Presentations\Middlewares\" />
   </ItemGroup>
 

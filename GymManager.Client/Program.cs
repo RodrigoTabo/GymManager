@@ -2,6 +2,9 @@ using GymManager.Client.ApiClients;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using Microsoft.AspNetCore.Components.Authorization;
+using GymManager.Web.Security;
+using GymManager.Web.ApiClients;
 
 namespace GymManager.Client;
 
@@ -30,6 +33,15 @@ public class Program
         builder.Services.AddScoped<PagoApi>();
         builder.Services.AddScoped<IntentosAccesoApi>();
         builder.Services.AddScoped<GeneralApi>();
+
+        builder.Services.AddAuthorizationCore();
+
+        builder.Services.AddScoped<TokenStorageService>();
+        builder.Services.AddScoped<JwtAuthStateProvider>();
+        builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+            sp.GetRequiredService<JwtAuthStateProvider>());
+
+        builder.Services.AddScoped<AuthApi>();
 
 
         await builder.Build().RunAsync();
