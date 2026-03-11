@@ -41,6 +41,8 @@
     [Parameter]
     public SocioResponse? Socio { get; set; }
     [Parameter]
+    public Guid SucursalId { get; set; }
+    [Parameter]
     public string? SocioNombre { get; set; }
 
     private List<MetodosPagosVM> MetodosPago = new();
@@ -62,7 +64,7 @@
 
         try
         {
-            var listar = await MetodoPagoApi.ListarAsync();
+            var listar = await MetodoPagoApi.ListarAsync(SucursalId);
 
             MetodosPago = listar
             .Select(m => new MetodosPagosVM(m.Id, m.Nombre))
@@ -105,7 +107,7 @@
 
             var request = new CreatePagoRequest(Model.SocioId, Model.MetodoPagoId);
 
-            await PagoApi.CrearAsync(request);
+            await PagoApi.CrearAsync(SucursalId, request);
 
             MudDialog.Close(DialogResult.Ok(true));
         }

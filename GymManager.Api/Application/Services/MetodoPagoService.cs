@@ -7,13 +7,32 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class MetodoPagoService(GymManagerDbContext context) : IMetodoPagoService
+    public class MetodoPagoService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : IMetodoPagoService
     {
         private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
 
-        public async Task<int> CrearAsync(CreateMetodoPagoRequest request)
+        public async Task<int> CrearAsync(Guid sucursalid, CreateMetodoPagoRequest request)
         {
+
+            var userId = _currentUserService.UserId
+                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             ///Normalizamos y validamos
             var nombre = (request.Nombre ?? "").Trim();
@@ -21,22 +40,24 @@ namespace GymManager.Api.Application.Services
                 throw new BadRequestException("Debes ingresar un Nombre");
 
             ///Buscamos si existe
-            var existeMetodo = await _context.MetodosPago.FirstOrDefaultAsync(m => m.Nombre == nombre);
+            var existeMetodo = await _context.MetodosPago
+                .FirstOrDefaultAsync(m => m.Nombre == nombre && m.SucursalId == sucursalId);
 
             /// Es nullo?
             if (existeMetodo is not null)
             {
                 /// Esta deshabilitado?
                 if (existeMetodo.EliminadoEn != null)
-                    throw new NotFoundException("El metodo de pago existe, pero está deshabilitado.");
+                    throw new ConflictException("El metodo de pago existe, pero está deshabilitado.");
 
-                throw new NotFoundException("El metodo de pago ya existe.");
+                throw new ConflictException("El metodo de pago ya existe.");
             }
 
             var crearMetodo = new MetodoPago
             {
                 Nombre = nombre,
-                EliminadoEn = null
+                EliminadoEn = null,
+                SucursalId = sucursalId
             };
 
             _context.MetodosPago.Add(crearMetodo);
@@ -47,10 +68,27 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<List<MetodoPagoResponse>> ListarAsync()
+        public async Task<List<MetodoPagoResponse>> ListarAsync(Guid sucursalid)
         {
+            var userId = _currentUserService.UserId
+                 ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Consultamos => Trae el que no esta deshabilitado.
-            var query = _context.MetodosPago.AsNoTracking().Where(m => m.EliminadoEn == null);
+            var query = _context.MetodosPago
+                .AsNoTracking()
+                .Where(m => m.EliminadoEn == null && m.SucursalId == sucursalId);
 
             //Selecciono lo que quiero mostrar.
             var listar = await query
@@ -63,8 +101,24 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task UpdateAsync(UpdateMetodoPagoRequest request, int id)
+        public async Task UpdateAsync(Guid sucursalid, UpdateMetodoPagoRequest request, int id)
         {
+
+            var userId = _currentUserService.UserId
+                 ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             var metodo = await _context.MetodosPago.FindAsync(id);
 
             if (metodo is null)
@@ -73,11 +127,15 @@ namespace GymManager.Api.Application.Services
             if (metodo.EliminadoEn != null)
                 throw new ConflictException("El metodo que deseas editar, esta deshabilitado");
 
+            if (metodo.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
                 throw new BadRequestException("El nombre es necesario");
 
-            var existeYa = await _context.MetodosPago.FirstOrDefaultAsync(m => m.Nombre == nombre && m.Id != id);
+            var existeYa = await _context.MetodosPago
+                .FirstOrDefaultAsync(m => m.Nombre == nombre && m.Id != id && m.SucursalId == sucursalId);
 
             if (existeYa is not null)
                 throw new ConflictException("Ya existe un metodo con este nombre.");
@@ -89,8 +147,23 @@ namespace GymManager.Api.Application.Services
         }
 
 
-        public async Task SoftDeleteAsync(int id) 
+        public async Task SoftDeleteAsync(Guid sucursalid, int id)
         {
+
+            var userId = _currentUserService.UserId
+                 ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             var metodo = await _context.MetodosPago.FindAsync(id);
 
@@ -100,7 +173,10 @@ namespace GymManager.Api.Application.Services
             if (metodo.EliminadoEn != null)
                 throw new ConflictException("El Metodo ya esta eliminado");
 
-            metodo.EliminadoEn = null;
+            if (metodo.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            metodo.EliminadoEn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 

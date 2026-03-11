@@ -1,15 +1,20 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.General;
+using GymManager.Web.Security;
 
 namespace GymManager.Client.ApiClients
 {
-    public class GeneralApi(HttpClient httpClient)
+    public class GeneralApi(ApiHttpClientProvider clientProvider)
     {
-        private readonly HttpClient _httpClient = httpClient;
+
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
 
-        public async Task<GeneralResponse> GetStatsAsync()
-            => await _httpClient.GetJsonOrThrowAsync<GeneralResponse>("api/general");
+        public async Task<GeneralResponse> GetStatsAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<GeneralResponse>($"api/sucursales/{sucursalId}/general");
+        }
 
     }
 }

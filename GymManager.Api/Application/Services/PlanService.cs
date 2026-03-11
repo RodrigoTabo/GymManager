@@ -7,18 +7,37 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class PlanService(GymManagerDbContext context) : IPlanService
+    public class PlanService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : IPlanService
     {
-
         private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<List<PlanResponse>> ListarAsync()
-        {
+        public async Task<List<PlanResponse>> ListarAsync(Guid sucursalid)
+      {
+
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             //Optimizamos la consulta que vamos a realizar.
             var query = _context.Planes
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null);
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId);
 
             //Realizamos la consulta con la query optimizada.
             var listar = await query
@@ -34,8 +53,23 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task<int> CrearAsync(CreatePlanRequest request)
+        public async Task<int> CrearAsync(Guid sucursalid, CreatePlanRequest request)
         {
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Validamos que haya cargado el nombre
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
@@ -49,7 +83,8 @@ namespace GymManager.Api.Application.Services
                 throw new BadRequestException("Tenes que agregar un precio al plan.");
 
             //Validamos si existe pero esta eliminado.
-            var existe = await _context.Planes.FirstOrDefaultAsync(p => p.Nombre == nombre);
+            var existe = await _context.Planes
+                .FirstOrDefaultAsync(p => p.Nombre == nombre && p.SucursalId == sucursalId);
 
             if (existe is not null)
             {
@@ -65,6 +100,7 @@ namespace GymManager.Api.Application.Services
                 Nombre = nombre,
                 DuracionDias = request.DuracionDias,
                 Precio = request.Precio,
+                SucursalId = sucursalId,
             };
 
             //Agregamos el nuevo plan
@@ -76,8 +112,23 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task UpdateAsync(int id, UpdatePlanRequest request)
+        public async Task UpdateAsync(Guid sucursalid, int id, UpdatePlanRequest request)
         {
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Validamos que exista el Id que queremos modificar.
             var plan = await _context.Planes.FindAsync(id);
             if (plan is null)
@@ -85,6 +136,9 @@ namespace GymManager.Api.Application.Services
 
             if (plan.EliminadoEn != null)
                 throw new ConflictException("El plan ya está deshabilitado.");
+
+            if (plan.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Validamos que haya completado los campos
             var nombre = (request.Nombre ?? "").Trim();
@@ -96,7 +150,8 @@ namespace GymManager.Api.Application.Services
                 throw new BadRequestException("Tenes que agregar un precio al plan");
 
             //Validamos que el plan no exista
-            var existe = await _context.Planes.FirstOrDefaultAsync(p => p.Nombre == nombre && p.Id != id);
+            var existe = await _context.Planes
+                .FirstOrDefaultAsync(p => p.Nombre == nombre && p.Id != id && p.SucursalId == sucursalId);
 
             if (existe is not null)
             {
@@ -113,12 +168,27 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<PlanResponse> GetByIdAsync(int id)
+        public async Task<PlanResponse> GetByIdAsync(Guid sucursalid, int id)
         {
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             ///Buscamos el plan.
             var plan = await _context.Planes
                 .AsNoTracking()
-                .Where(p => p.Id == id && p.EliminadoEn == null)
+                .Where(p => p.Id == id && p.EliminadoEn == null && p.SucursalId == sucursalId)
                 .Select(p => new PlanResponse
                 (
                     p.Id,
@@ -134,8 +204,23 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(Guid sucursalid, int id)
         {
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             var plan = await _context.Planes.FindAsync(id);
 
             ///Existe el plan?
@@ -144,6 +229,9 @@ namespace GymManager.Api.Application.Services
             ///Esta deshabilitado?
             if (plan.EliminadoEn != null)
                 throw new ConflictException("El plan ya está deshabilitado.");
+
+            if(plan.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             plan.EliminadoEn = DateTime.UtcNow;
             await _context.SaveChangesAsync();

@@ -1,7 +1,7 @@
 using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Application.Middleware;
 using GymManager.Api.Application.Services;
-using GymManager.Api.Infrastructure.Configurations;
+using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Api.Infrastructure.Data.Seeds;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +18,8 @@ namespace GymManager.Api
 
             // TODOS LOS SERVICIOS
             builder.Services.AddScoped<IdentitySeedService>();
+            builder.Services.AddHttpContextAccessor();
+
 
             // Socios
             builder.Services.AddScoped<ISocioService, SocioService>();
@@ -42,6 +44,13 @@ namespace GymManager.Api
 
             // Stats general
             builder.Services.AddScoped<IGeneralService, GeneralService>();
+
+            // sucursal
+            builder.Services.AddScoped<ISucursalService, SucursalService>();
+
+            //CurrentUser & CurrentSucursal
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<ICurrentSucursalService, CurrentSucursalService>();
 
             // DbContext
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
@@ -134,6 +143,7 @@ namespace GymManager.Api
 
             app.MapControllers();
             app.MapIdentityApi<AppUser>();
+
 
             using (var scope = app.Services.CreateScope())
             {

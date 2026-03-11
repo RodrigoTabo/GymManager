@@ -33,6 +33,8 @@
     public string ButtonText { get; set; } = "Confirmar";
     [Parameter]
     public Color Color { get; set; } = Color.Primary;
+    [Parameter]
+    public Guid SucursalId { get; set; }
 
 
     [Parameter]
@@ -55,7 +57,7 @@
 
         try
         {
-            await PagoApi.SoftDeleteAsync(Pago.Id);
+            await PagoApi.SoftDeleteAsync(SucursalId ,Pago.Id);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)

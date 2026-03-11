@@ -1,4 +1,5 @@
 ﻿using GymManager.Api.Application.Interfaces;
+using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Pagos;
 using Microsoft.EntityFrameworkCore;
@@ -6,13 +7,31 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class PagoStatsService (GymManagerDbContext context) : IPagoStatsService
+    public class PagoStatsService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : IPagoStatsService
     {
-
         private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<PagosStatsResponse> GetStatsAsync()
+        public async Task<PagosStatsResponse> GetStatsAsync(Guid sucursalid)
         {
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var inicioSerie = inicioMes.AddMonths(-5); // 6 meses: mes actual + 5 atrás
             DateTime inicioMesSiguiente = inicioMes.AddMonths(1);
@@ -22,33 +41,33 @@ namespace GymManager.Api.Application.Services
             // Base query reutilizable (soft delete)
             var pagosBase = _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null);
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId);
 
             //CantidadPagosMensuales
             var pagosMensualesCount = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null).CountAsync();
+                .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null && p.SucursalId == sucursalId).CountAsync();
 
             //TotalPagosMensuales
             var totalPagoMensual = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null)
+                .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null && p.SucursalId == sucursalId)
                 .SumAsync(p => p.Importe);
 
             //CantidadPagosDiarios
             var pagosDiariosCount = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.EliminadoEn == null).CountAsync();
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.EliminadoEn == null && p.SucursalId == sucursalId).CountAsync();
             //TotalPagosDiarios
             var totalPagoDiario = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.EliminadoEn == null)
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.EliminadoEn == null && p.SucursalId == sucursalId)
                 .SumAsync(p => p.Importe);
 
             //Buscamos efectivo y transferencia
 
             var metodos = await _context.MetodosPago.AsNoTracking()
-                .Where(m => m.EliminadoEn == null && (m.Nombre == "Efectivo" || m.Nombre == "Transferencia"))
+                .Where(m => m.EliminadoEn == null && (m.Nombre == "Efectivo" || m.Nombre == "Transferencia") && m.SucursalId == sucursalId)
                 .Select(m => new { m.Id, m.Nombre })
                 .ToListAsync();
 
@@ -65,35 +84,35 @@ namespace GymManager.Api.Application.Services
             //PagosEnEfectivo
             var pagosDiariosEnEfectivo = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null)
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana)
-                .Where(p => p.MetodoPagoId == efectivoId.Value)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.SucursalId == sucursalId)
+                .Where(p => p.MetodoPagoId == efectivoId.Value && p.SucursalId == sucursalId)
                 .CountAsync();
 
             var totalDiarioPagoEfectivo = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null)
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana)
-                .Where(p => p.MetodoPagoId == efectivoId.Value)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.SucursalId == sucursalId)
+                .Where(p => p.MetodoPagoId == efectivoId.Value && p.SucursalId == sucursalId)
                 .SumAsync(p => p.Importe);
 
             //Pagos diarios en transferencia
             var pagosDiariosEnTransferencia = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null)
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana)
-                .Where(p => p.MetodoPagoId == transferenciaId.Value)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.SucursalId == sucursalId)
+                .Where(p => p.MetodoPagoId == transferenciaId.Value && p.SucursalId == sucursalId)
                 .CountAsync();
 
             var totalDiarioPagoTransferencia = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null)
-                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana)
-                .Where(p => p.MetodoPagoId == transferenciaId.Value)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
+                .Where(p => p.FechaPago >= hoy && p.FechaPago < mañana && p.SucursalId == sucursalId)
+                .Where(p => p.MetodoPagoId == transferenciaId.Value && p.SucursalId == sucursalId)
                 .SumAsync(p => p.Importe);
 
             var serieRaw = await pagosBase
-                .Where(p => p.FechaPago >= inicioSerie && p.FechaPago < mañana)
+                .Where(p => p.FechaPago >= inicioSerie && p.FechaPago < mañana && p.SucursalId == sucursalId)
                 .GroupBy(p => new { p.FechaPago.Year, p.FechaPago.Month })
                 .Select(g => new
                 {

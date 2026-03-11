@@ -1,6 +1,8 @@
 ﻿@using GymManager.Client.ApiClients
 @using GymManager.Client.Pages.MetodosPagos.Components
 @using GymManager.Shared.Contracts.MetodoPago
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject MetodoPagoApi MetodoPagoApi
 
     <!--Table-->
@@ -31,6 +33,8 @@
 
 
 @code {
+    [Parameter]
+    public Guid SucursalId { get; set; }
 
     private List<MetodoPagoResponse> metodoPagoResponse = new();
     private bool loading;
@@ -50,7 +54,7 @@
 
         try
         {
-            metodoPagoResponse = await MetodoPagoApi.ListarAsync();
+            metodoPagoResponse = await MetodoPagoApi.ListarAsync(SucursalId);
         }
         finally
         {

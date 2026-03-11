@@ -1,0 +1,69 @@
+﻿@page "/sucursales"
+@using GymManager.Client.ApiClients.Common
+@using GymManager.Shared.Contracts.Sucursal
+@inject SucursalApi SucursalApi
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-0" Style="min-height: 100vh;">
+    <MudGrid Spacing="0" Class="ma-0" Style="min-height: 100vh;">
+        <MudItem xs="12" md="5">
+            
+            @foreach (var sucursal in Sucursales)
+            {
+                <MudTextField T="string"
+                              Label="@sucursal.Nombre"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              FullWidth="true"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Email" />
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Size="Size.Large"
+                           Style="height: 48px; border-radius: 12px;"
+                           OnClick="() => Acceder(sucursal.Id)">
+                    Acceder
+                </MudButton>
+                
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+    private List<SucursalResponse> Sucursales { get; set; } = new();
+    private string? Error;
+    private bool Loading;
+
+    protected override async Task OnInitializedAsync()
+    => await LoadSucursalesAsync();
+
+    private async Task LoadSucursalesAsync()
+    {
+        Loading = true;
+
+        try
+        {
+            Sucursales = await SucursalApi.Get();
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+        }
+
+    }
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private void Acceder(Guid sucursalId)
+    {
+        Nav.NavigateTo($"/sucursal/{sucursalId}/general");
+    }
+
+}

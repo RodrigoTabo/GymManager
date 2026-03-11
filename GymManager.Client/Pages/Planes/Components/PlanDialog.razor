@@ -33,6 +33,9 @@
     [Parameter] 
     public PlanResponse? Plan { get; set; }  
 
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private string? Error;
     private bool Guardando;
 
@@ -87,7 +90,7 @@
                     Model.Precio
                 );
 
-                await PlanApi.CrearAsync(request);
+                await PlanApi.CrearAsync(SucursalId, request);
             }
             else
             {
@@ -97,7 +100,7 @@
                     Model.Precio
                 );
 
-                await PlanApi.UpdateAsync(Plan.Id, request);
+                await PlanApi.UpdateAsync(SucursalId, Plan.Id, request);
 
             }
 

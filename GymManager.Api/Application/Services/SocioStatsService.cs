@@ -1,17 +1,37 @@
 ﻿using GymManager.Api.Application.Interfaces;
+using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 
 namespace GymManager.Api.Application.Services
 {
-    public class SocioStatsService(GymManagerDbContext context) : ISocioStatsService
+    public class SocioStatsService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : ISocioStatsService
     {
-
         private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<SociosStatsResponse> GetStatsAsync()
+        public async Task<SociosStatsResponse> GetStatsAsync(Guid sucursalid)
         {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             DateTime inicioMesSiguiente = inicioMes.AddMonths(1);
 
@@ -24,24 +44,25 @@ namespace GymManager.Api.Application.Services
 
             var ActivosCount = await _context.Socios
                 .AsNoTracking()
-                .Where(s => s.EliminadoEn == null)
+                .Where(s => s.EliminadoEn == null && s.SucursalId == sucursalId)
                 .CountAsync();
 
             var InactivosCount = await _context.Socios
                 .AsNoTracking()
-                .Where(s => s.EliminadoEn != null)
+                .Where(s => s.EliminadoEn != null && s.SucursalId == sucursalId)
                 .CountAsync();
 
             var AltasMesCount = await _context.Socios
                 .AsNoTracking()
-                .Where(s => s.FechaAlta >= inicioMes && s.FechaAlta < inicioMesSiguiente && s.EliminadoEn == null)
+                .Where(s => s.FechaAlta >= inicioMes && s.FechaAlta < inicioMesSiguiente && s.EliminadoEn == null && s.SucursalId == sucursalId)
                 .CountAsync();
 
             var BajasMesCount = await _context.Socios
                 .AsNoTracking()
-                .Where(s => s.EliminadoEn >= inicioMes && s.EliminadoEn < inicioMesSiguiente)
+                .Where(s => s.EliminadoEn >= inicioMes && s.EliminadoEn < inicioMesSiguiente && s.SucursalId == sucursalId)
                 .CountAsync();
 
+            //De lo que iba a ser uno de los graficos.
             //var CobroMestotal = await _context.Pagos
             //    .AsNoTracking()
             //    .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null)
@@ -78,12 +99,12 @@ namespace GymManager.Api.Application.Services
 
                 var altas = await _context.Socios
                     .AsNoTracking()
-                    .Where(s => s.FechaAlta >= m && s.FechaAlta < mSiguiente)
+                    .Where(s => s.FechaAlta >= m && s.FechaAlta < mSiguiente && s.SucursalId == sucursalId)
                     .CountAsync();
 
                 var bajas = await _context.Socios
                     .AsNoTracking()
-                    .Where(s => s.EliminadoEn != null && s.EliminadoEn >= m && s.EliminadoEn < mSiguiente)
+                    .Where(s => s.EliminadoEn != null && s.EliminadoEn >= m && s.EliminadoEn < mSiguiente && s.SucursalId == sucursalId)
                     .CountAsync();
 
                 altasPorMes.Add(altas);

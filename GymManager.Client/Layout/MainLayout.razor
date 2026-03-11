@@ -1,4 +1,5 @@
 ﻿@inject GymManager.Web.Security.JwtAuthStateProvider JwtAuthStateProvider
+@inject GymManager.Web.Security.ApiHttpClientProvider ApiHttpClientProvider
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
 
@@ -7,15 +8,11 @@
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
-<!-- TOP BAR -->
 <MudAppBar Elevation="1" Dense="true">
     <MudText Typo="Typo.h6">GymManager</MudText>
 </MudAppBar>
 
 <MudLayout>
-
-
-    <!-- SIDEBAR -->
     <MudDrawer Open="true"
                Anchor="Anchor.Left"
                Variant="DrawerVariant.Persistent"
@@ -29,81 +26,95 @@
 
         <br />
 
-        <!-- DASHBOARD -->
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">DASHBOARD</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/dashboard")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
                 General
             </MudNavLink>
-            <MudNavLink Href="asistencia" Icon="@Icons.Material.Filled.FactCheck">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia")" Icon="@Icons.Material.Filled.FactCheck">
                 Asistencias
             </MudNavLink>
         </MudNavMenu>
 
         <br />
 
-        <!-- OPERACIONES -->
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">OPERACIONES</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="asistencia/config" Icon="@Icons.Material.Filled.CheckCircle">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia/config")" Icon="@Icons.Material.Filled.CheckCircle">
                 Asistencia
             </MudNavLink>
-            <MudNavLink Href="intentosaccesos" Icon="@Icons.Material.Filled.Login">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/intentosaccesos")" Icon="@Icons.Material.Filled.Login">
                 Intentos de accesos
             </MudNavLink>
         </MudNavMenu>
 
         <br />
 
-        <!-- COBRANZAS -->
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">COBRANZAS</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="pagos" Icon="@Icons.Material.Filled.Payments">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/pagos")" Icon="@Icons.Material.Filled.Payments">
                 Pagos
             </MudNavLink>
-            <MudNavLink Href="vencidos" Icon="@Icons.Material.Filled.WarningAmber">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/vencidos")" Icon="@Icons.Material.Filled.WarningAmber">
                 Vencidos
             </MudNavLink>
         </MudNavMenu>
 
         <br />
 
-        <!-- ADMINISTRACIÓN -->
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">ADMINISTRACIÓN</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="socios" Icon="@Icons.Material.Filled.Group">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/socios")" Icon="@Icons.Material.Filled.Group">
                 Socios
             </MudNavLink>
-            <MudNavLink Href="planes" Icon="@Icons.Material.Filled.LibraryBooks">
-                Planes  
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/planes")" Icon="@Icons.Material.Filled.LibraryBooks">
+                Planes
             </MudNavLink>
         </MudNavMenu>
-        <button @onclick="Logout">Salir</button>
+
+        <MudButton OnClick="CambiarSucursal" Variant="Variant.Text" Color="Color.Primary">
+            Cambiar sucursal
+        </MudButton>
+
+        <MudButton OnClick="Logout" Variant="Variant.Text" Color="Color.Error">
+            Salir
+        </MudButton>
     </MudDrawer>
 
-    <!-- CONTENIDO -->
     <MudMainContent Class="pt-16">
         <MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
             @Body
         </MudContainer>
     </MudMainContent>
-
-
 </MudLayout>
 
-
 @code {
-    private bool _open = false;
+    private Guid? CurrentSucursalId => TryGetSucursalIdFromUrl();
 
-    private void ToggleDrawer()
+    private Guid? TryGetSucursalIdFromUrl()
     {
-        _open = !_open;
+        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length >= 2 &&
+            segments[0].Equals("sucursal", StringComparison.OrdinalIgnoreCase) &&
+            Guid.TryParse(segments[1], out var sucursalId))
+        {
+            return sucursalId;
+        }
+
+        return null;
+    }
+
+    private void CambiarSucursal()
+    {
+        Navigation.NavigateTo("/sucursales");
     }
 
     private async Task Logout()
     {
         await JwtAuthStateProvider.MarkUserAsLoggedOutAsync();
+        ApiHttpClientProvider.ClearAuthorization();
         Navigation.NavigateTo("/login");
     }
-
 }

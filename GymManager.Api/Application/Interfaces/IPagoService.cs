@@ -8,19 +8,19 @@ namespace GymManager.Api.Application.Interfaces
         /// Listamos los pagos
         /// </summary>
         /// <returns></returns>
-        Task<List<PagoResponse>> ListarAsync();
+        Task<List<PagoResponse>> ListarAsync(Guid sucursalId);
         /// <summary>
         /// Crear nuevo Pago
         /// </summary>
-        Task<int> CrearAsync(CreatePagoRequest request);
+        Task<int> CrearAsync(Guid sucursalId, CreatePagoRequest request);
         /// <summary>
         /// Editar un Pago
         /// </summary>
-        Task UpdateAsync(UpdatePagoRequest request, int id);
+        Task UpdateAsync(Guid sucursalId, UpdatePagoRequest request, int id);
 
         /// <summary>
         /// Eliminacion logica 
         /// </summary>
-        Task SoftDeleteAsync(int id);
+        Task SoftDeleteAsync(Guid sucursalId, int id);
     }
 }

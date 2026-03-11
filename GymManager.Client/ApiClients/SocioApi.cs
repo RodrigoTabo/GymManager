@@ -1,47 +1,70 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.Pagos;
 using GymManager.Shared.Contracts.Socios;
+using GymManager.Web.Security;
 using static System.Net.WebRequestMethods;
 
 namespace GymManager.Client.ApiClients
 {
-    public class SocioApi(HttpClient HttpClient)
+    public class SocioApi(ApiHttpClientProvider clientProvider)
     {
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
-        private readonly HttpClient _HttpClient = HttpClient;
-
-        public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
+        public async Task<List<SocioResponse>> ListarAsync(Guid sucursalId, SocioQuery query)
         {
-            var consulta = (query.Texto ?? "").Trim();
+            var client = await _clientProvider.GetClientAsync();
 
+            var consulta = (query.Texto ?? "").Trim();
             var textoUrl = Uri.EscapeDataString(consulta);
 
             var url = string.IsNullOrEmpty(consulta)
-                ? $"api/socios?inactivo={query.Inactivo}"
-                : $"api/socios?buscarPor={query.BuscarPor}&texto={textoUrl}&inactivo={query.Inactivo}";
+                ? $"api/sucursales/{sucursalId}/socios?inactivo={query.Inactivo}"
+                : $"api/sucursales/{sucursalId}/socios?buscarPor={query.BuscarPor}&texto={textoUrl}&inactivo={query.Inactivo}";
 
-            return await _HttpClient.GetJsonOrThrowAsync<List<SocioResponse>>(url);
+            return await client.GetJsonOrThrowAsync<List<SocioResponse>>(url);
         }
 
-        public async Task<int> CrearAsync(CreateSocioRequest request)
+        public async Task<int> CrearAsync(Guid sucursalId, CreateSocioRequest request)
         {
-            var crear = await _HttpClient.PostJsonOrThrowAsync<CreateSocioRequest, CreatedIdResponse>
-                ("api/socios", request);
+            var client = await _clientProvider.GetClientAsync();
+
+            var crear = await client.PostJsonOrThrowAsync<CreateSocioRequest, CreatedIdResponse>(
+                $"api/sucursales/{sucursalId}/socios", request);
 
             return crear.Id;
         }
 
-        public async Task<SocioResponse> GetByIdAsync(int id)
-            => await _HttpClient.GetJsonOrThrowAsync<SocioResponse>($"api/socios/{id}");
+        public async Task<SocioResponse> GetByIdAsync(Guid sucursalId, int id)
+        {
+            var client = await _clientProvider.GetClientAsync();
 
-        public async Task<SociosStatsResponse> GetStatsAsync()
-            => await _HttpClient.GetJsonOrThrowAsync<SociosStatsResponse>($"api/socios/stats");
+            return await client.GetJsonOrThrowAsync<SocioResponse>(
+                $"api/sucursales/{sucursalId}/socios/{id}");
+        }
 
-        public async Task UpdateAsync(int id, UpdateSocioRequest request)
-            => await _HttpClient.PutJsonOrThrowAsync($"api/socios/{id}", request);
+        public async Task<SociosStatsResponse> GetStatsAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
 
-        public async Task SoftDeleteAsync(int id)
-            => await _HttpClient.DeleteOrThrowAsync($"api/socios/{id}");
+            return await client.GetJsonOrThrowAsync<SociosStatsResponse>(
+                $"api/sucursales/{sucursalId}/socios/stats");
+        }
+
+        public async Task UpdateAsync(Guid sucursalId, int id, UpdateSocioRequest request)
+        {
+            var client = await _clientProvider.GetClientAsync();
+
+            await client.PutJsonOrThrowAsync(
+                $"api/sucursales/{sucursalId}/socios/{id}", request);
+        }
+
+        public async Task SoftDeleteAsync(Guid sucursalId, int id)
+        {
+            var client = await _clientProvider.GetClientAsync();
+
+            await client.DeleteOrThrowAsync(
+                $"api/sucursales/{sucursalId}/socios/{id}");
+        }
 
         private class CreatedIdResponse
         {

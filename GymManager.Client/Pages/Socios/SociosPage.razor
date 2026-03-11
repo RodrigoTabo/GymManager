@@ -1,4 +1,6 @@
-﻿@page "/socios"
+﻿@page "/sucursal/{SucursalId:guid}/socios"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using MudBlazor
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Socios
@@ -30,6 +32,9 @@
 
 @code {
 
+    [Parameter] 
+    public Guid SucursalId { get; set; }
+
     private List<SocioResponse> socios = new();
     private SociosStatsResponse Stats { get; set; } = new();
 
@@ -57,7 +62,7 @@
         loading = true;
         try
         {
-            socios = await SocioApi.ListarAsync(Filtro);
+            socios = await SocioApi.ListarAsync(SucursalId, Filtro);
         }
         finally
         {
@@ -70,7 +75,7 @@
         loadingStats = true;
         try
         {
-            Stats = await SocioApi.GetStatsAsync();
+            Stats = await SocioApi.GetStatsAsync(SucursalId);
         }
         finally
         {

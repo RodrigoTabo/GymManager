@@ -1,6 +1,6 @@
 ﻿namespace GymManager.Api.Domain.Entities
 {
-    public class Pago
+    public class Pago : ICurrentSucursalService
     {
         public int Id { get; set; }
         public DateTime FechaPago { get; set; }
@@ -11,6 +11,8 @@
         public MetodoPago MetodoPago { get; set; }
         public int SocioId { get; set; }
         public Socio Socio { get; set; }
-        public DateTime? EliminadoEn { get; set; } 
+        public DateTime? EliminadoEn { get; set; }
+
+        public Guid? SucursalId { get; set; }
     }
 }

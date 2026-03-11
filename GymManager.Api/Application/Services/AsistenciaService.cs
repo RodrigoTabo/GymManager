@@ -9,13 +9,30 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GymManager.Api.Application.Services
 {
-    public class AsistenciaService(GymManagerDbContext context) : IAsistenciaService
+    public class AsistenciaService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : IAsistenciaService
     {
         private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro)
+        public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalid, AsistenciaFiltro filtro)
         {
-            var query = _context.Asistencias.Include(s => s.Socio).AsNoTracking();
+
+            var userId = _currentUserService.UserId
+                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
+            var query = _context.Asistencias.Include(s => s.Socio).AsNoTracking().Where(a => a.SucursalId == sucursalId);
 
             //Filtramos por DNI
             if (!string.IsNullOrWhiteSpace(filtro.Dni))
@@ -49,8 +66,24 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI)
+        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalid, string DNI)
         {
+
+            var userId = _currentUserService.UserId
+           ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             var hoy = DateTime.UtcNow;
             //Normalizamos el DNI
             var dniNormalizado = new string((DNI ?? "").Trim().Where(char.IsDigit).ToArray());
@@ -64,7 +97,8 @@ namespace GymManager.Api.Application.Services
                     DniIngresado = dniNormalizado,
                     SocioId = null,
                     Resultado = ResultadoAcceso.Denegada,
-                    Motivo = MotivoAcceso.DniInvalido
+                    Motivo = MotivoAcceso.DniInvalido,
+                    SucursalId = sucursalId
                 });
 
                 await _context.SaveChangesAsync();
@@ -73,7 +107,7 @@ namespace GymManager.Api.Application.Services
             }
             //Buscamos el socio
             var socio = await _context.Socios
-                .FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == dniNormalizado);
+                .FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == dniNormalizado && s.SucursalId == sucursalId);
             //Si el socio es nulo registramos que es nulo.
             if (socio is null)
             {
@@ -83,7 +117,8 @@ namespace GymManager.Api.Application.Services
                     DniIngresado = dniNormalizado,
                     SocioId = null,
                     Resultado = ResultadoAcceso.Denegada,
-                    Motivo = MotivoAcceso.SocioInexistente
+                    Motivo = MotivoAcceso.SocioInexistente,
+                    SucursalId = sucursalid
                 });
 
                 await _context.SaveChangesAsync();
@@ -98,14 +133,15 @@ namespace GymManager.Api.Application.Services
                 DniIngresado = dniNormalizado,
                 SocioId = socio.Id,
                 Resultado = ResultadoAcceso.Aceptada,
-                Motivo = MotivoAcceso.Ninguno
+                Motivo = MotivoAcceso.Ninguno,
+                SucursalId = sucursalid
             };
             //Si el socio esta dado de baja, lo registramos que intento entrar un usuario dado de baja.
             if (socio.FechaBaja != null)
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.SocioInactivo;
-
+                intento.SucursalId = sucursalid;
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
 
@@ -119,6 +155,7 @@ namespace GymManager.Api.Application.Services
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.CuotaVencida;
+                intento.SucursalId = sucursalid;
 
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
@@ -129,7 +166,9 @@ namespace GymManager.Api.Application.Services
             var asistencia = new Asistencia
             {
                 FechaRegistro = DateTime.UtcNow,
-                SocioId = socio.Id
+                SocioId = socio.Id,
+                SucursalId = sucursalid
+
             };
 
             //Guardamos los intentos y las asistencias.

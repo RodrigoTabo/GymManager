@@ -5,7 +5,7 @@ namespace GymManager.Api.Application.Interfaces
     public interface IGeneralService
     {
 
-        Task<GeneralResponse> GetStatsGeneralAsync();
+        Task<GeneralResponse> GetStatsGeneralAsync(Guid sucursalId);
 
     }
 }

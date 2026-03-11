@@ -1,16 +1,19 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.MetodoPago;
+using GymManager.Web.Security;
 
 namespace GymManager.Client.ApiClients
 {
-    public class MetodoPagoApi(HttpClient httpClient)
+    public class MetodoPagoApi(ApiHttpClientProvider clientProvider)
     {
 
-        private readonly HttpClient _httpClient = httpClient;
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
-
-        public async Task<List<MetodoPagoResponse>> ListarAsync()
-            => await _httpClient.GetJsonOrThrowAsync<List<MetodoPagoResponse>>($"api/metodospagos");
+        public async Task<List<MetodoPagoResponse>> ListarAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<List<MetodoPagoResponse>>($"api/sucursales/{sucursalId}/metodospagos");
+        }
 
     }
 }

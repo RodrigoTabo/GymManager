@@ -2,7 +2,7 @@
 
 namespace GymManager.Api.Domain.Entities
 {
-    public class IntentosAcceso
+    public class IntentosAcceso : ICurrentSucursalService
     {
         public int Id { get; set; }
         public DateTime FechaRegistro { get; set; }
@@ -12,6 +12,8 @@ namespace GymManager.Api.Domain.Entities
         public Socio? Socio { get; set; }
         public ResultadoAcceso Resultado { get; set; }
         public MotivoAcceso Motivo { get; set; }
+
+        public Guid? SucursalId { get; set; }
 
     }
 }

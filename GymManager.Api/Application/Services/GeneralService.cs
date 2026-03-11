@@ -11,7 +11,7 @@ namespace GymManager.Api.Application.Services
     {
         private readonly GymManagerDbContext _context = context;
 
-        public async Task<GeneralResponse> GetStatsGeneralAsync()
+        public async Task<GeneralResponse> GetStatsGeneralAsync(Guid sucursalId)
         {
             //Declaramos que hoy es hoy...
             DateTime hoy = DateTime.UtcNow.Date;

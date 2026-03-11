@@ -7,19 +7,120 @@
 @inject GymManager.Web.Security.JwtAuthStateProvider JwtAuthStateProvider
 @inject NavigationManager Navigation
 
-<h3>Login</h3>
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-0" Style="min-height: 100vh;">
+    <MudGrid Spacing="0" Class="ma-0" Style="min-height: 100vh;">
 
-<div class="mb-2">
-    <label>Email</label>
-    <input @bind="model.Email" />
-</div>
+        <!-- Panel izquierdo -->
+        <MudItem xs="12" md="7" Class="d-none d-md-flex">
+            <MudPaper Class="d-flex flex-column justify-center pa-10"
+                      Square="true"
+                      Style="height: 100%; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #60a5fa 100%); color: white;">
 
-<div class="mb-2">
-    <label>Password</label>
-    <input type="password" @bind="model.Password" />
-</div>
+                <MudText Typo="Typo.h3" Class="mb-4"><b>GymManager</b></MudText>
 
-<button @onclick="HandleLogin">Ingresar</button>
+                <MudText Typo="Typo.h4" Class="mb-2">
+                    Gestioná tu gimnasio de forma simple y profesional
+                </MudText>
+
+                <MudText Typo="Typo.body1" Class="mb-6" Style="max-width: 520px;">
+                    Controlá socios, pagos, asistencias y sucursales desde una sola plataforma.
+                    Ordená tu negocio con una experiencia moderna, clara y rápida.
+                </MudText>
+
+                <MudStack Spacing="3" Class="mt-4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Variant="Variant.Filled" Color="Color.Surface" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Primary" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.body1">Administración de socios y membresías</MudText>
+                    </MudStack>
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Variant="Variant.Filled" Color="Color.Surface" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Primary" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.body1">Seguimiento de pagos y cobranzas</MudText>
+                    </MudStack>
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Variant="Variant.Filled" Color="Color.Surface" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Store" Color="Color.Primary" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.body1">Multi-sucursal y control centralizado</MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Panel derecho -->
+        <MudItem xs="12" md="5">
+            <div class="d-flex justify-center align-center" style="min-height: 100vh; padding: 24px;">
+                <MudPaper Class="pa-8 w-100"
+                          Elevation="10"
+                          Style="max-width: 430px; border-radius: 20px;">
+
+                    <MudStack Spacing="4">
+                        <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                            <MudAvatar Size="Size.Large"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Filled"
+                                       Class="mb-2">
+                                <MudIcon Icon="@Icons.Material.Filled.LockOpen" />
+                            </MudAvatar>
+
+                            <MudText Typo="Typo.h4"><b>Bienvenido</b></MudText>
+
+                            <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Center">
+                                Iniciá sesión para acceder al panel de administración
+                            </MudText>
+                        </MudStack>
+
+                        <MudTextField T="string"
+                                      Label="Correo electrónico"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      FullWidth="true"
+                                      Adornment="Adornment.Start"
+                                      @bind-Value="model.Email"
+                                      AdornmentIcon="@Icons.Material.Filled.Email" />
+
+                        <MudTextField T="string"
+                                      Label="Contraseña"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      FullWidth="true"
+                                      InputType="InputType.Password"
+                                      Adornment="Adornment.Start"
+                                      @bind-Value="model.Password"
+                                      AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                            <MudCheckBox T="bool" Label="Recordarme" Color="Color.Primary" />
+                            <MudLink Href="#" Typo="Typo.body2">¿Olvidaste tu contraseña?</MudLink>
+                        </MudStack>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   FullWidth="true"
+                                   Size="Size.Large"
+                                   OnClick="HandleLogin"
+                                   Style="height: 48px; border-radius: 12px;">
+                            Ingresar
+                        </MudButton>
+
+                        <MudDivider Class="my-2" />
+
+                        <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Default">
+                            ¿No tenés cuenta?
+                            <MudLink Href="#">Solicitar acceso</MudLink>
+                        </MudText>
+                    </MudStack>
+                </MudPaper>
+            </div>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
 
 @if (!string.IsNullOrWhiteSpace(error))
 {

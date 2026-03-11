@@ -1,4 +1,6 @@
-﻿@page "/planes"
+﻿@page "/sucursal/{SucursalId:guid}/planes"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Planes
 @inject IDialogService DialogService
@@ -22,6 +24,10 @@
 
 </MudContainer>
 @code {
+
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private List<PlanResponse> planes = new();
     private bool loading;
     private string? errorStats;
@@ -39,7 +45,7 @@
     private async Task LoadPlanesAsync()
     {
         loading = true;
-        planes = await PlanApi.ListarAsync();
+        planes = await PlanApi.ListarAsync(SucursalId);
         loading = false;
         await LoadStatsAsync();
     }
@@ -51,7 +57,7 @@
 
         try
         {
-            Stats = await PlanApi.GetPlanStatsAsync();
+            Stats = await PlanApi.GetPlanStatsAsync(SucursalId);
 
             StateHasChanged();
         }
@@ -71,7 +77,13 @@
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var dialog = await DialogService.ShowAsync<PlanDialog>("Crear Plan", options);
+        var parameters = new DialogParameters
+        {
+            ["SucursalId"] = SucursalId
+        };
+
+        var dialog = await DialogService.ShowAsync<PlanDialog>("Crear Plan", parameters, options);
+
 
         var result = await dialog.Result;
 
@@ -86,7 +98,8 @@
 
         var parameters = new DialogParameters
         {
-            ["Plan"] = plan
+            ["Plan"] = plan,
+            ["SucursalId"] = SucursalId
         };
 
         var dialog = await DialogService.ShowAsync<PlanDialog>("Editar Plan", parameters, options);
@@ -107,7 +120,8 @@
             ["Plan"] = plan,
             ["ContentText"] = $"¿Seguro que querés eliminar el plan \"{plan.Nombre}\"?",
             ["ButtonText"] = "Eliminar",
-            ["Color"] = Color.Error
+            ["Color"] = Color.Error,
+            ["SucursalId"] = SucursalId
         };
 
         var dialog = await DialogService.ShowAsync<PlanDialogDelete>("Eliminar Plan", parameters, options);

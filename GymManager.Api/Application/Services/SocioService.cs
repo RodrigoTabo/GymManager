@@ -1,27 +1,37 @@
 ﻿using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
-using GymManager.Shared.Contracts.Pagos;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop.Infrastructure;
-using System.Numerics;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class SocioService : ISocioService
+    public class SocioService(GymManagerDbContext context,
+        ICurrentSucursalService currentSucursalService,
+        ICurrentUserService currentUserService) : ISocioService
     {
+        private readonly GymManagerDbContext _context = context;
+        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        private readonly GymManagerDbContext _context;
-
-        public SocioService(GymManagerDbContext context)
+        public async Task<int> CrearAsync(Guid sucursalid, CreateSocioRequest request)
         {
-            _context = context;
-        }
 
-        public async Task<int> CrearAsync(CreateSocioRequest request)
-        {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             //Carga DNI
             var dni = (request.DNI ?? "").Trim();
@@ -37,18 +47,23 @@ namespace GymManager.Api.Application.Services
                 throw new BadRequestException("El Apellido es obligatorio");
 
             //Existe? Existe Deshabilitado?
-            var socio = await _context.Socios.AnyAsync(s => s.DNI == request.DNI);
+            var socio = await _context.Socios
+                .AnyAsync(s => s.DNI == dni && s.SucursalId == sucursalId);
+
             if (socio)
-                throw new NotFoundException("El Socio ya existe.");
+                throw new ConflictException("El Socio ya existe.");
 
             //Existe? Existe Deshabilitado?
             var plan = await _context.Planes.FindAsync(request.PlanId);
-
+            
             if (plan is null)
                 throw new NotFoundException("Debes agregar un Plan.");
 
             if (plan.EliminadoEn is not null)
                 throw new ConflictException("El plan existe, pero está deshabilitado.");
+
+            if(plan.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Creamos socio
             var crearSocio = new Socio
@@ -60,7 +75,8 @@ namespace GymManager.Api.Application.Services
                 FechaAlta= DateTime.UtcNow,
                 FechaNacimiento = request.FechaNacimiento,
                 DocumentoId = request.documentoId,
-                EliminadoEn = null
+                EliminadoEn = null,
+                SucursalId = sucursalId
             };
 
             //Agregamos
@@ -71,11 +87,26 @@ namespace GymManager.Api.Application.Services
             return crearSocio.Id;
         }
 
-        public async Task<SocioResponse> GetByIdAsync(int id)
+        public async Task<SocioResponse> GetByIdAsync(Guid sucursalid, int id)
         {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Optimizamos query, buscamos el socio, filtramos y pedimos los datos.
             var socio = await _context.Socios.AsNoTracking()
-                .Where(s => s.Id == id && s.EliminadoEn == null)
+                .Where(s => s.Id == id && s.EliminadoEn == null && s.SucursalId == sucursalId)
                 .Select(s => new SocioResponse
                 (
                  s.Id,
@@ -97,10 +128,25 @@ namespace GymManager.Api.Application.Services
             return socio;
         }
 
-        public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
+        public async Task<List<SocioResponse>> ListarAsync(Guid sucursalid, SocioQuery query)
         {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Optimizamos la query y filtramos.
-            var consulta = _context.Socios.AsNoTracking();
+            var consulta = _context.Socios.AsNoTracking().Where(s => s.SucursalId == sucursalId);
 
             consulta = query.Inactivo
                 ? consulta.Where(s => s.EliminadoEn != null)   // solo inactivos
@@ -139,8 +185,23 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(Guid sucursalid, int id)
         {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             //Buscamos el socio
             var socio = await _context.Socios.FindAsync(id);
 
@@ -150,6 +211,9 @@ namespace GymManager.Api.Application.Services
             //Existe socio deshabilitado?
             if (socio.EliminadoEn != null)
                 throw new ConflictException("El socio ya está deshabilitado");
+            if(socio.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
             //Actualizamos
             socio.EliminadoEn = DateTime.UtcNow;
             //Impactamos Db.
@@ -157,8 +221,23 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task UpdateAsync(int id, UpdateSocioRequest request)
+        public async Task UpdateAsync(Guid sucursalid, int id, UpdateSocioRequest request)
         {
+            var userId = _currentUserService.UserId
+              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
             var socio = await _context.Socios.FindAsync(id);
 
             if (socio is null)
@@ -166,6 +245,9 @@ namespace GymManager.Api.Application.Services
 
             if (socio.EliminadoEn != null)
                 throw new ConflictException("El Socio está deshabilitado.");
+
+            if (socio.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Carga DNI
             var dni = (request.DNI ?? "").Trim();
@@ -181,9 +263,9 @@ namespace GymManager.Api.Application.Services
                 throw new BadRequestException("El Apellido es obligatorio");
 
             //Existe? Existe Deshabilitado?
-            var socioExiste = await _context.Socios.AnyAsync(s => s.DNI == request.DNI && s.Id != id);
+            var socioExiste = await _context.Socios.AnyAsync(s => s.DNI == dni && s.Id != id && s.SucursalId == sucursalId);
             if (socioExiste)
-                throw new NotFoundException("El Socio ya existe.");
+                throw new ConflictException("El Socio ya existe.");
 
             //Existe? Existe Deshabilitado?
             var plan = await _context.Planes.FindAsync(request.PlanId);
@@ -193,6 +275,9 @@ namespace GymManager.Api.Application.Services
 
             if (plan.EliminadoEn is not null)
                 throw new ConflictException("El plan existe, pero está deshabilitado.");
+
+            if (plan.SucursalId != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             socio.DNI = dni;
             socio.Nombre = nombre;

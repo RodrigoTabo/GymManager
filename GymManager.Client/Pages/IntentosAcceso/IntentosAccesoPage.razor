@@ -1,4 +1,6 @@
-﻿@page "/intentosaccesos"
+﻿@page "/sucursal/{SucursalId:guid}/intentosaccesos"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @inject IntentosAccesoApi IntentosAccesoApi
 @using GymManager.Client.Pages.IntentosAcceso.Components
@@ -39,6 +41,9 @@
     private List<IntentosAccesoResponse> intentosAccesos = new();
     private bool loading;
 
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private IntentosAccesoFiltro Filtro { get; set; } = new()
     {
         Dni = string.Empty,
@@ -62,7 +67,7 @@
         loading = true;
         try
         {
-            intentosAccesos = await IntentosAccesoApi.ListarAsync(Filtro);
+            intentosAccesos = await IntentosAccesoApi.ListarAsync(SucursalId, Filtro);
         }
         finally
         {

@@ -7,6 +7,6 @@ namespace GymManager.Api.Application.Interfaces
         /// <summary>
         /// Stats Socios
         /// </summary>
-        Task<SociosStatsResponse> GetStatsAsync();
+        Task<SociosStatsResponse> GetStatsAsync(Guid sucursalId);
     }
 }

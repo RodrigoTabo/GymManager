@@ -38,6 +38,9 @@
     [Parameter]
     public SocioResponse? Socio { get; set; }
 
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private string? Error;
     private bool Guardando;
 
@@ -56,7 +59,7 @@
 
         try
         {
-            await SocioApi.SoftDeleteAsync(Socio.Id);
+            await SocioApi.SoftDeleteAsync(SucursalId, Socio.Id);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)

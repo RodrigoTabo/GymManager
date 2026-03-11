@@ -1,4 +1,6 @@
 ﻿@page "/general"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.General
 @inject GeneralApi GeneralApi
@@ -198,6 +200,9 @@
 
 @code {
 
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private GeneralResponse stats = new()
     {
         TopVencenHoy = new List<PagosVencidos>(),
@@ -215,7 +220,7 @@
         loadingStats = true;
         try
         {
-            stats = await GeneralApi.GetStatsAsync();
+            stats = await GeneralApi.GetStatsAsync(SucursalId);
         }
         finally
         {

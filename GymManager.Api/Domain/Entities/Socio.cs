@@ -1,6 +1,6 @@
 ﻿namespace GymManager.Api.Domain.Entities
 {
-    public class Socio
+    public class Socio : ICurrentSucursalService
     {
         public int Id { get; set; }
         public string DNI { get; set; }
@@ -16,6 +16,8 @@
         public List<Asistencia>? Asistencias { get; set; } = new();
         public List<IntentosAcceso>? IntentosAccesos { get; set; } = new();
         public List<Pago>? Pagos { get; set; } = new();
-        public DateTime? EliminadoEn { get; set; } 
+        public DateTime? EliminadoEn { get; set; }
+
+        public Guid? SucursalId { get; set; }
     }
 }

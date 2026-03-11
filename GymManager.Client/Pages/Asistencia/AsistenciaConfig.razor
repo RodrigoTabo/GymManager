@@ -1,4 +1,6 @@
-﻿@page "/asistencia/config"
+﻿@page "/sucursal/{SucursalId:guid}/asistencia/config"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using GymManager.Shared.Contracts.Asistencias
 @using GymManager.Client.ApiClients
 @inject AsistenciaApi AsistenciaApi
@@ -44,6 +46,9 @@
 
 @code {
 
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
     private List<AsistenciaResponse> Asistencias = new();
     private bool loading;
     private AsistenciaFiltro Filtro { get; set; } = new()
@@ -67,7 +72,7 @@
         loading = true;
         try
         {
-            Asistencias = await AsistenciaApi.ListarAsync(Filtro);
+            Asistencias = await AsistenciaApi.ListarAsync(SucursalId, Filtro);
         }
         finally
         {

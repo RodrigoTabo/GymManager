@@ -1,5 +1,4 @@
 ﻿using GymManager.Api.Domain.Entities;
-using GymManager.Api.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +20,8 @@ namespace GymManager.Api.Infrastructure.Data
         public DbSet<DocumentoSocio> DocumentosSocio => Set<DocumentoSocio>();
         public DbSet<Asistencia> Asistencias => Set<Asistencia>();
         public DbSet<IntentosAcceso> IntentosAccesos => Set<IntentosAcceso>();
+        public DbSet<Sucursal> Sucursales => Set<Sucursal>();
+        public DbSet<UsuarioSucursal> UsuarioSucursales => Set<UsuarioSucursal>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

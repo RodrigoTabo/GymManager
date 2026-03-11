@@ -1,32 +1,48 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.Pagos;
+using GymManager.Web.Security;
 
 namespace GymManager.Client.ApiClients
 {
-    public class PagoApi(HttpClient HttpClient)
+    public class PagoApi(ApiHttpClientProvider clientProvider)
     {
-        private readonly HttpClient _HttpClient = HttpClient;
 
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
-        public async Task<List<PagoResponse>> ListarAsync()
-            => await _HttpClient.GetJsonOrThrowAsync<List<PagoResponse>>($"api/pagos");
-
-        public async Task<PagosStatsResponse> GetPagosStatsAsync()
-            => await _HttpClient.GetJsonOrThrowAsync<PagosStatsResponse>($"api/pagos/stats");
-
-        public async Task<int> CrearAsync(CreatePagoRequest request)
+        public async Task<List<PagoResponse>> ListarAsync(Guid sucursalId)
         {
-            var crear = await _HttpClient.PostJsonOrThrowAsync<CreatePagoRequest, CreatedIdResponse>
-                ("api/pagos", request);
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<List<PagoResponse>>($"api/sucursales/{sucursalId}/pagos");
+        }
+
+        public async Task<PagosStatsResponse> GetPagosStatsAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<PagosStatsResponse>($"api/sucursales/{sucursalId}/pagos/stats");
+        }
+
+        public async Task<int> CrearAsync(Guid sucursalId, CreatePagoRequest request)
+        {
+            var client = await _clientProvider.GetClientAsync();
+
+            var crear = await client.PostJsonOrThrowAsync<CreatePagoRequest, CreatedIdResponse>
+                ($"api/sucursales/{sucursalId}/pagos", request);
 
             return crear.Id;
         }
 
-        public async Task UpdateAsync(UpdatePagoRequest request, int id)
-            => await _HttpClient.PutJsonOrThrowAsync($"api/pago/{id}", request);
+        public async Task UpdateAsync(Guid sucursalId, UpdatePagoRequest request, int id)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            await client.PutJsonOrThrowAsync($"api/sucursales/{sucursalId}/{id}", request);
+        }
 
-        public async Task SoftDeleteAsync(int id)
-            => await _HttpClient.DeleteOrThrowAsync($"api/pagos/{id}");
+        public async Task SoftDeleteAsync(Guid sucursalId, int id)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            await client.DeleteOrThrowAsync($"api/sucursales/{sucursalId}/{id}");
+        }
+
 
         private class CreatedIdResponse
         {

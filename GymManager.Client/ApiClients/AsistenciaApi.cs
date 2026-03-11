@@ -1,14 +1,15 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.Asistencias;
+using GymManager.Web.Security;
 
 namespace GymManager.Client.ApiClients
 {
-    public class AsistenciaApi (HttpClient HttpClient)
+    public class AsistenciaApi(ApiHttpClientProvider clientProvider)
     {
 
-        private readonly HttpClient _httpClient = HttpClient;
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
-        public async Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro)
+        public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalId, AsistenciaFiltro filtro)
         {
             var queryParams = new List<string>();
 
@@ -24,18 +25,23 @@ namespace GymManager.Client.ApiClients
             if (filtro.Hasta.HasValue)
                 queryParams.Add($"hasta={Uri.EscapeDataString(filtro.Hasta.Value.ToString("O"))}");
 
-            var url = "api/asistencias";
+            var url = $"api/sucursales/{sucursalId}/asistencias";
+
+            var client = await _clientProvider.GetClientAsync();
+
 
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);
 
-            return await _httpClient.GetJsonOrThrowAsync<List<AsistenciaResponse>>(url);
+            return await client.GetJsonOrThrowAsync<List<AsistenciaResponse>>(url);
 
         }
-        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(MarcarAsistenciaRequest request)
+        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalId, MarcarAsistenciaRequest request)
         {
-            var resp = await _httpClient.PostJsonOrThrowAsync<MarcarAsistenciaRequest, MarcarAsistenciaResponse>(
-                "api/asistencias/marcar",
+            var client = await _clientProvider.GetClientAsync();
+
+            var resp = await client.PostJsonOrThrowAsync<MarcarAsistenciaRequest, MarcarAsistenciaResponse>(
+                $"api/sucursales/{sucursalId}/asistencias/marcar",
                 request);
 
             return resp;

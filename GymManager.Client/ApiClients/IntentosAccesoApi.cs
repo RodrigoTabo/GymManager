@@ -1,15 +1,19 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.IntentosAcceso;
+using GymManager.Web.Security;
 using System.Collections;
 
 namespace GymManager.Client.ApiClients
 {
-    public class IntentosAccesoApi(HttpClient httpClient)
+    public class IntentosAccesoApi(ApiHttpClientProvider clientProvider)
     {
-        private readonly HttpClient _httpClient = httpClient;
 
-        public async Task<List<IntentosAccesoResponse>> ListarAsync(IntentosAccesoFiltro filtro)
+        private readonly ApiHttpClientProvider _clientProvider = clientProvider;
+
+
+        public async Task<List<IntentosAccesoResponse>> ListarAsync(Guid sucursalId, IntentosAccesoFiltro filtro)
         {
+            var client = await _clientProvider.GetClientAsync();
             var queryParams = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(filtro.Dni))
@@ -30,12 +34,12 @@ namespace GymManager.Client.ApiClients
             if (filtro.Hasta.HasValue)
                 queryParams.Add($"hasta={Uri.EscapeDataString(filtro.Hasta.Value.ToString("O"))}");
 
-            var url = "api/intentosaccesos";
+            var url = $"api/sucursales/{sucursalId}/intentosaccesos";
 
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);
 
-            return await _httpClient.GetJsonOrThrowAsync<List<IntentosAccesoResponse>>(url);
+            return await client.GetJsonOrThrowAsync<List<IntentosAccesoResponse>>(url);
         }
 
 
