@@ -1,0 +1,91 @@
+﻿@page "/sucursal/{SucursalId:guid}/pagos/vencidos"
+@attribute [Authorize]
+@using GymManager.Client.ApiClients
+@using GymManager.Client.Pages.Pagos.Components
+@using GymManager.Shared.Contracts.Pagos
+@using Microsoft.AspNetCore.Authorization
+@inject PagoApi PagoApi
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
+
+    @if (!string.IsNullOrWhiteSpace(ErrorStats))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@ErrorStats</MudAlert>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Error))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@Error</MudAlert>
+    }
+
+    <VencimientosStatsSection Loading="loadingStats"
+                               Stats="Stats"/>
+
+
+    <MudPaper Class="pa-4 mb-4" Elevation="5">
+        <VencidoTable Items="Items"
+                      Loading="Loading" />
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
+    private List<VencidoResponse> Items = new();
+    private VencimientoStatsResponse Stats = new();
+
+    private bool loadingStats;
+    private bool Loading;
+
+    private string? Error;
+    private string? ErrorStats;
+
+    protected override Task OnInitializedAsync()
+     => ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        await LoadVencidosAsync();
+        await LoadStatsAsync();
+    }
+
+    public async Task LoadVencidosAsync()
+    {
+        Loading = true;
+
+        try
+        {
+            Items = await PagoApi.GetVencidosAsync(SucursalId);
+        }
+        catch (Exception ex)
+        {
+            ErrorStats = ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+
+
+    public async Task LoadStatsAsync()
+    {
+        loadingStats = true;
+
+        try
+        {
+            Stats = await PagoApi.GetVencimientoStatsAsync(SucursalId);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            loadingStats = false;
+        }
+    }
+}

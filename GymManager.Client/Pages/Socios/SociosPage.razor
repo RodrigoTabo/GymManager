@@ -32,7 +32,7 @@
 
 @code {
 
-    [Parameter] 
+    [Parameter]
     public Guid SucursalId { get; set; }
 
     private List<SocioResponse> socios = new();
@@ -86,7 +86,8 @@
     private async Task OpenCrear()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialog = await DialogService.ShowAsync<SocioDialog>("Crear Socio", options);
+        var parameters = new DialogParameters { ["SucursalId"] = SucursalId };
+        var dialog = await DialogService.ShowAsync<SocioDialog>("Crear Socio", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -96,7 +97,11 @@
     private async Task OpenEdit(SocioResponse socio)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        var parameters = new DialogParameters { ["Socio"] = socio };
+        var parameters = new DialogParameters
+        {
+            ["Socio"] = socio,
+            ["SucursalId"] = SucursalId
+        };
 
         var dialog = await DialogService.ShowAsync<SocioDialog>("Editar Socio", parameters, options);
         var result = await dialog.Result;
@@ -111,7 +116,8 @@
         var parameters = new DialogParameters
         {
             ["Socio"] = socio,
-            ["SocioNombre"] = $"{socio.Nombre} {socio.Apellido}"
+            ["SocioNombre"] = $"{socio.Nombre} {socio.Apellido}",
+            ["SucursalId"] = SucursalId
         };
 
         var dialog = await DialogService.ShowAsync<PagoDialog>("Agregar Pago", parameters, options);

@@ -1,0 +1,66 @@
+﻿@using GymManager.Shared.Contracts.Pagos
+
+<MudTable Items="@Items"
+          Hover="true"
+          Dense="true"
+          Striped="true"
+          Bordered="true"
+          Breakpoint="Breakpoint.None"
+          Loading="@Loading"
+          LoadingProgressColor="Color.Info"
+          HorizontalScrollbar="true"
+          Elevation="0">
+
+
+    <HeaderContent>
+        <MudTh>Nombre Completo</MudTh>
+        <MudTh>Plan</MudTh>
+        <MudTh>VenceEn</MudTh>
+        <MudTh>Importe</MudTh>
+        <MudTh>Telefono</MudTh>
+        <MudTh>Acción</MudTh>
+    </HeaderContent>
+
+
+    <RowTemplate>
+        <MudTd DataLabel="Socio">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                </MudAvatar>
+                <MudTd DataLabel="Socio">@context.NombreCompleto</MudTd>
+            </MudStack>
+        </MudTd>
+        <MudTd DataLabel="Plan">@context.Plan</MudTd>
+        <MudTd DataLabel="VenceEn">@context.VenceEn</MudTd>
+        <MudTd DataLabel="VenceEn">@context.Importe</MudTd>
+        <MudTd DataLabel="VenceEn">@context.Telefono</MudTd>
+        <MudTd DataLabel="Acciones">
+            <MudStack Row="true" Spacing="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                />
+            </MudStack>
+        </MudTd>
+    </RowTemplate>
+
+
+    <NoRecordsContent>
+        <MudStack Class="pa-6" AlignItems="AlignItems.Center" Spacing="1">
+            <MudIcon Icon="@Icons.Material.Filled.SearchOff" />
+            <MudText Typo="Typo.body1">No hay vencidos para mostrar</MudText>
+            <MudText Typo="Typo.caption">Probá cambiando los filtros.</MudText>
+        </MudStack>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+    </PagerContent>
+</MudTable>
+@code {
+
+    [Parameter]
+    public List<VencidoResponse> Items { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+}

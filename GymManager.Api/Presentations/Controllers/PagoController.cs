@@ -29,7 +29,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Post([FromRoute] Guid sucursalId,[FromBody] CreatePagoRequest request)
+        public async Task<ActionResult> Post([FromRoute] Guid sucursalId, [FromBody] CreatePagoRequest request)
         {
             var id = await _pagoService.CrearAsync(sucursalId, request);
             return Created($"api/sucursales/{sucursalId}/pagos/{id}", new { id });
@@ -43,9 +43,9 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromRoute] Guid sucursalId,[FromBody] UpdatePagoRequest request,[FromRoute] int id)
+        public async Task<ActionResult> Put([FromRoute] Guid sucursalId, [FromBody] UpdatePagoRequest request, [FromRoute] int id)
         {
-            await _pagoService.UpdateAsync(sucursalId ,request, id);
+            await _pagoService.UpdateAsync(sucursalId, request, id);
             return NoContent();
         }
 
@@ -55,7 +55,7 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId,[FromRoute] int id)
+        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId, [FromRoute] int id)
         {
             await _pagoService.SoftDeleteAsync(sucursalId, id);
             return NoContent();
@@ -68,6 +68,22 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(typeof(PagosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync([FromRoute] Guid sucursalId)
             => Ok(await _pagoStatsService.GetStatsAsync(sucursalId));
+
+        /// <summary>
+        /// Vencidos
+        /// </summary>
+        [HttpGet("vencidos")]
+        [ProducesResponseType(typeof(List<VencidoResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<VencidoResponse>>> GetVencidosAsync([FromRoute] Guid sucursalId)
+            => Ok(await _pagoService.GetVencidosAsync(sucursalId));
+
+        /// <summary>
+        /// Stats Vencidos
+        /// </summary>
+        [HttpGet("vencidos/stats")]
+        [ProducesResponseType(typeof(VencimientoStatsResponse), StatusCodes.Status200OK)]
+        public async Task<ActionResult<VencimientoStatsResponse>> GetVencidoStatsAsync([FromRoute] Guid sucursalId)
+            => Ok(await _pagoStatsService.GetVencidosStatsAsync(sucursalId));
 
     }
 }

@@ -37,7 +37,7 @@ namespace GymManager.Api.Application.Services
 
             var socios = _context.Socios.Where(s => s.EliminadoEn == null && s.SucursalId == sucursalId);
 
-            var top3 = socios
+            var top3 = await socios
                 .GroupBy(x => new { x.PlanId, x.Plan.Nombre, x.Plan.Precio })
                 .Select(g => new PlanContadorResponse
                 {
@@ -48,7 +48,7 @@ namespace GymManager.Api.Application.Services
                 })
                 .OrderByDescending(x => x.Cantidad)
                 .Take(3)
-                .ToList();
+                .ToListAsync();
 
 
             var stats = new StatsPlanRequest

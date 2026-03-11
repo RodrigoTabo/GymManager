@@ -12,7 +12,7 @@ namespace GymManager.Client.ApiClients
         public async Task<List<MetodoPagoResponse>> ListarAsync(Guid sucursalId)
         {
             var client = await _clientProvider.GetClientAsync();
-            return await client.GetJsonOrThrowAsync<List<MetodoPagoResponse>>($"api/sucursales/{sucursalId}/metodospagos");
+            return await client.GetJsonOrThrowAsync<List<MetodoPagoResponse>>($"api/sucursales/{sucursalId}/metodos-pago");
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using GymManager.Api.Application.Interfaces;
+﻿using Azure.Core;
+using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Pagos;
@@ -222,6 +223,45 @@ namespace GymManager.Api.Application.Services
             await _context.SaveChangesAsync();
 
         }
+
+        public async Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalid)
+        {
+
+            DateTime hoy = DateTime.UtcNow.Date;
+
+            var userId = _currentUserService.UserId
+                            ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
+            var consulta = _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.EliminadoEn != null && p.SucursalId == sucursalId && p.CubreHasta >= hoy);
+
+            var listar = await consulta
+                .Select(p => new VencidoResponse
+                {
+                    NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
+                    Plan = p.Socio.Plan.Nombre,
+                    VenceEn = p.CubreHasta,
+                    Importe = p.Importe,
+                    Telefono = null
+                }).ToListAsync();
+
+            return listar;
+
+        }
+
     }
 
 }

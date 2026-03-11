@@ -159,5 +159,65 @@ namespace GymManager.Api.Application.Services
 
             return stats;
         }
+
+        public async Task<VencimientoStatsResponse> GetVencidosStatsAsync(Guid sucursalid)
+        {
+            //Validamos las sucursalId y el userId.
+            var userId = _currentUserService.UserId
+               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+
+            var sucursalId = _currentSucursalService.SucursalId
+                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+
+            DateTime hoy = DateTime.UtcNow.Date;
+            DateTime mañana = hoy.AddDays(1);
+            DateTime semana = hoy.AddDays(-7);
+
+            var VencenHoy = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.EliminadoEn != null &&p.SucursalId == sucursalId)
+                .CountAsync();
+
+            var VencenEstaSemana = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.CubreHasta >= semana && p.CubreHasta < hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
+                .CountAsync();
+
+            var TotalCobrarHoy = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.EliminadoEn != null && p.SucursalId == sucursalId)
+                .SumAsync(p => p.Importe);
+
+            var TotalCobrarSemana = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.CubreHasta >= semana && p.CubreHasta < hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
+                .SumAsync(p=> p.Importe);
+
+            var vencidos = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.CubreHasta >= hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
+                .CountAsync();
+
+            var stats = new VencimientoStatsResponse
+            {
+                VencenHoy = VencenHoy,
+                VencenEstaSemana = VencenEstaSemana,
+                TotalCobrarHoy = TotalCobrarHoy,
+                TotalCobrarSemana = TotalCobrarSemana,
+                Vencidos = vencidos
+            };
+
+            return stats;
+
+        }
     }
 }

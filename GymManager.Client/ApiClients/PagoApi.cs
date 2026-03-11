@@ -43,6 +43,17 @@ namespace GymManager.Client.ApiClients
             await client.DeleteOrThrowAsync($"api/sucursales/{sucursalId}/{id}");
         }
 
+        public async Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<List<VencidoResponse>>($"api/sucursales/{sucursalId}/pagos/vencidos");
+        }
+
+        public async Task<VencimientoStatsResponse> GetVencimientoStatsAsync(Guid sucursalId)
+        {
+            var client = await _clientProvider.GetClientAsync();
+            return await client.GetJsonOrThrowAsync<VencimientoStatsResponse>($"api/sucursales/{sucursalId}/pagos/vencidos/stats");
+        }
 
         private class CreatedIdResponse
         {

@@ -34,7 +34,7 @@ namespace GymManager.Client.ApiClients
             if (filtro.Hasta.HasValue)
                 queryParams.Add($"hasta={Uri.EscapeDataString(filtro.Hasta.Value.ToString("O"))}");
 
-            var url = $"api/sucursales/{sucursalId}/intentosaccesos";
+            var url = $"api/sucursales/{sucursalId}/intentos-acceso";
 
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);

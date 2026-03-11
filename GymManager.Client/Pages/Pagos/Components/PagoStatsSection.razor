@@ -54,7 +54,7 @@
     <MudItem xs="12" lg="7">
         <MudPaper Elevation="5" Class="pa-3" Height="100%">
             <!--Tabla metodos-->
-            <MetodosPagoPage />
+            <MetodosPagoPage SucursalId="SucursalId" />
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -63,7 +63,11 @@
 @code {
 
     [Parameter]
+    public Guid SucursalId { get; set; }
+
+    [Parameter]
     public PagosStatsResponse Stats { get; set; } = new();
+
     [Parameter]
     public bool Loading { get; set; }
 }

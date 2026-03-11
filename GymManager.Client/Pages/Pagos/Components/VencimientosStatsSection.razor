@@ -1,0 +1,48 @@
+﻿@using GymManager.Client.Components
+@using GymManager.Shared.Contracts.Pagos
+
+<MudGrid Spacing="2" Class="mb-4">
+
+    <KpiCard Titulo="Vencen hoy"
+             Valor="@(Stats.VencenHoy.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <KpiCard Titulo="Vencen esta semana"
+             Valor="@(Stats.VencenEstaSemana.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <KpiCard Titulo="Total estimado a cobrar hoy"
+             Valor="@(Stats.TotalCobrarHoy.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <KpiCard Titulo="Total estimado a cobrar esta semana"
+             Valor="@(Stats.TotalCobrarSemana.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+    <KpiCard Titulo="Cantidad de vencidos"
+             Valor="@(Stats.Vencidos.ToString("N0"))"
+             Loading="@Loading"
+             Icon="@Icons.Material.Filled.CalendarMonth"
+             Color="Color.Primary" />
+
+</MudGrid>
+
+@code {
+
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
+    [Parameter]
+    public VencimientoStatsResponse Stats { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+}

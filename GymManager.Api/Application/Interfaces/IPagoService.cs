@@ -22,5 +22,9 @@ namespace GymManager.Api.Application.Interfaces
         /// Eliminacion logica 
         /// </summary>
         Task SoftDeleteAsync(Guid sucursalId, int id);
+        /// <summary>
+        /// Listar vencidos
+        /// </summary>
+        Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalId);
     }
 }
