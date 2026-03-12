@@ -57,7 +57,7 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(PlanResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<PlanResponse>> GetByIdAsync([FromRoute] Guid sucursalId,[FromRoute] int id)
+        public async Task<ActionResult<PlanResponse>> GetByIdAsync([FromRoute] Guid sucursalId, [FromRoute] int id)
         => Ok(await _planService.GetByIdAsync(sucursalId, id));
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId,[FromRoute] int id)
+        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId, [FromRoute] int id)
         {
             await _planService.SoftDeleteAsync(sucursalId, id);
             return NoContent();

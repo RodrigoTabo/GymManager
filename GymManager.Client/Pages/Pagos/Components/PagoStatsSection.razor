@@ -1,5 +1,5 @@
 ﻿@using GymManager.Client.Components
-@using GymManager.Client.Pages.MetodosPagos
+@using GymManager.Client.Pages.Panel_Administrativo.MetodosPagoComponents
 @using GymManager.Shared.Contracts.Pagos
 
 <MudGrid Spacing="2" Class="mb-4">
@@ -31,33 +31,24 @@
 
 
     <KpiCard Titulo="Efectivo (hoy)"
-             Valor="@(Stats.PagosDiariosEnEfectivo.ToString("N0") + "Pagos"
-                                                                 + Stats.TotalDiariosPagoEfectivo.ToString("N2"))"
+             Valor="@("$" + Stats.TotalDiariosPagoEfectivo.ToString("N2"))"
              Loading="@Loading"
              Icon="@Icons.Material.Filled.LocalAtm"
              Color="Color.Warning" />
 
     <KpiCard Titulo="Transferencia (hoy)"
-             Valor="@(Stats.PagosDiariosEnTransferencia.ToString("N0") + "Pagos"
-                                                                 + Stats.TotalDiariosPagoTransferencia.ToString("N2"))"
+             Valor="@("$" + Stats.TotalDiariosPagoTransferencia.ToString("N2"))"
              Loading="@Loading"
              Icon="@Icons.Material.Filled.SwapHoriz"
              Color="Color.Tertiary" />
 
 </MudGrid>
 
-<MudGrid Spacing="2">
+@* <MudGrid Spacing="2">
     <PagoActividadChartSection Stats="Stats"
                                Loading="Loading" />
 
-    <!--Tabla aca por orden.->
-    <MudItem xs="12" lg="7">
-        <MudPaper Elevation="5" Class="pa-3" Height="100%">
-            <!--Tabla metodos-->
-            <MetodosPagoPage SucursalId="SucursalId" />
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+</MudGrid> *@
 
 
 @code {

@@ -1,0 +1,56 @@
+﻿@using GymManager.Shared.Contracts.MetodoPago
+
+<MudCard elevation="0" Style="border-radius: 12px;">
+    <MudCardContent>
+        <MudStack Spacing="1">
+            @foreach (var item in Items)
+            {
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="w-100">
+                    @if (item.Nombre == "Transferencia")
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Style="background-color: rgba(255, 175, 80, 0.18);">
+                            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Warning" Class="me-1" />
+                        </MudChip>
+                        <MudText Typo="Typo.body1">@item.Nombre</MudText>
+                    }
+                    else if (item.Nombre == "Efectivo")
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Style="background-color: rgba(100, 250, 0, 0.18);">
+                            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Success" Class="me-1" />
+                        </MudChip>
+                        <MudText Typo="Typo.body1">@item.Nombre</MudText>
+                    }
+                    else if (item.Nombre == "Debito")
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Payments" Class="me-1" />
+                        <MudText Typo="Typo.body1">@item.Nombre</MudText>
+                    }
+                    else if (item.Nombre == "Credito")
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Payments" Class="me-1" />
+                        <MudText Typo="Typo.body1">@item.Nombre</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body1">@item.Nombre</MudText>
+                    }
+
+                    <MudSpacer />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+                </MudStack>
+
+                <MudDivider />
+            }
+        </MudStack>
+    </MudCardContent>
+</MudCard>
+
+@code {
+
+    [Parameter]
+    public List<MetodoPagoResponse> Items { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
+
+}

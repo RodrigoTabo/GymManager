@@ -44,8 +44,7 @@ namespace GymManager.Client.ApiClients
         public async Task UpdateAsync(Guid sucursalId, int id, UpdatePlanRequest request)
         {
             var client = await _clientProvider.GetClientAsync();
-            await client.PutJsonOrThrowAsync(
-                $"api/sucursales/{sucursalId}/planes/{id}", request);
+            await client.PutJsonOrThrowAsync($"api/sucursales/{sucursalId}/planes/{id}", request);
         }
 
         public async Task SoftDeleteAsync(Guid sucursalId, int id)

@@ -1,5 +1,4 @@
-﻿@page "/sucursal/{SucursalId:guid}/pagos/vencidos"
-@attribute [Authorize]
+﻿@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
@@ -19,10 +18,16 @@
     }
 
     <VencimientosStatsSection Loading="loadingStats"
-                               Stats="Stats"/>
+                              Stats="Stats" />
 
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.h5">Vencimientos</MudText>
+                <MudText Color="Color.Primary" Typo="Typo.subtitle2">Historial de socios que vencieron y vencerán</MudText>
+            </MudStack>
+        </MudStack>
 
-    <MudPaper Class="pa-4 mb-4" Elevation="5">
         <VencidoTable Items="Items"
                       Loading="Loading" />
     </MudPaper>

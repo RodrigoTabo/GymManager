@@ -9,15 +9,6 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
-    <!-- Header -->
-    <MudPaper Class="pa-4 mb-4" Elevation="5">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.h5">Gestionar Intentos de Accesos</MudText>
-            </MudStack>
-        </MudStack>
-    </MudPaper>
-
     <!-- Filtro de busqueda -->
     <IntentosAccesoFilterSection Filtro="Filtro"
                                  LimpiarFiltros="LimpiarFiltros"
@@ -29,7 +20,8 @@
                                  OnResultadoChanged="OnResultadoChanged" />
 
     <!--Table-->
-    <MudPaper Class="pa-0" Elevation="5">
+    <MudPaper Class="pa-0" Elevation="0">
+        <MudDivider Class="mb-3" />
         <IntentosAccesoTable Items="@intentosAccesos"
                              Loading="@loading" />
     </MudPaper>

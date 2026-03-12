@@ -1,35 +1,37 @@
 ﻿@using GymManager.Client.ApiClients
-@using GymManager.Client.Pages.MetodosPagos.Components
+@using GymManager.Client.Pages.Panel_Administrativo.MetodosPagoComponents
 @using GymManager.Shared.Contracts.MetodoPago
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @inject MetodoPagoApi MetodoPagoApi
 
-    <!--Table-->
+<!--Table-->
 <MudStack Row="true"
           AlignItems="AlignItems.Center"
           Justify="Justify.SpaceBetween"
           Class="mb-4">
 
 
-        <MudStack Spacing="0">
-            <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="me-1" />
+    <MudStack Spacing="0">
+        <MudText Style="font-weight: bold;" Typo="Typo.h6">
             Métodos de pagos
         </MudText>
-        </MudStack>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   Disabled="@(loading)"
-                   OnClick="ReloadAsync">
-            Nuevo método
-        </MudButton>
+        <MudText Typo="Typo.subtitle2">
+            Habilita o deshabilita las formas de pago aceptadas
+        </MudText>
     </MudStack>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               Disabled="@(loading)"
+               OnClick="ReloadAsync">
+        Nuevo método
+    </MudButton>
+</MudStack>
 
 <MudDivider></MudDivider>
-    <MetodosPagoTable Items="@metodoPagoResponse"
-                      Loading="@loading" />
+<MetodosPagoCard Items="@metodoPagoResponse"
+                  Loading="@loading" />
 
 
 @code {

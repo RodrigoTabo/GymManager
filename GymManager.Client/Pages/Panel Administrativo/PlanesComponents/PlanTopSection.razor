@@ -1,0 +1,77 @@
+﻿@using GymManager.Shared.Contracts.Planes
+
+<MudItem xs="12" sm="6" md="9">
+    <MudPaper Class="pa-3 h-100" Elevation="2" Style="border-radius: 12px;">
+        <MudStack Spacing="2">
+
+            <!-- Header -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small">
+                    <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Size="Size.Small" />
+                </MudAvatar>
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 700;">Top 3 Planes</MudText>
+            </MudStack>
+
+            @if (Loading)
+            {
+                <MudPaper Class="pa-2 d-flex justify-center" Outlined="true" Style="border-radius: 10px;">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+                </MudPaper>
+            }
+            else if (Stats.TopPlanes is not null && Stats.TopPlanes.Any())
+            {
+                @for (int i = 0; i < Stats.TopPlanes.Count; i++)
+                {
+                    var plan = Stats.TopPlanes[i];
+                    var posicion = i + 1;
+
+                    <MudPaper Class="pa-2" Outlined="true" Style="border-radius: 10px;">
+                        <MudStack Row="true"
+                                  AlignItems="AlignItems.Center"
+                                  Justify="Justify.SpaceBetween">
+
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudAvatar Variant="Variant.Filled"
+                                           Color="@(posicion == 1 ? Color.Warning : posicion == 2 ? Color.Info : Color.Secondary)"
+                                           Size="Size.Small">
+                                    @posicion
+                                </MudAvatar>
+
+                                <MudText Typo="Typo.body1" Style="font-weight: 600;">
+                                    @plan.NombrePlan
+                                </MudText>
+                            </MudStack>
+
+                            <MudChip T="int"
+                                     Color="Color.Primary"
+                                     Variant="Variant.Outlined"
+                                     Size="Size.Small">
+                                @plan.Cantidad
+                            </MudChip>
+
+                        </MudStack>
+                    </MudPaper>
+                }
+            }
+            else
+            {
+                <MudPaper Class="pa-2" Outlined="true" Style="border-radius: 10px;">
+                    <MudText Typo="Typo.body2" Class="text-muted">
+                        No hay datos para mostrar.
+                    </MudText>
+                </MudPaper>
+            }
+
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+
+    [Parameter]
+    public StatsPlanRequest Stats { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+}

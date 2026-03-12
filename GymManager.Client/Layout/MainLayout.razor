@@ -38,13 +38,10 @@
 
         <br />
 
-        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">OPERACIONES</MudText>
+        <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">REPORTES</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia/config")" Icon="@Icons.Material.Filled.CheckCircle">
-                Asistencia
-            </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/intentos-acceso")" Icon="@Icons.Material.Filled.Login">
-                Intentos de accesos
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/registro-de-accesos")" Icon="@Icons.Material.Filled.Login">
+                Registro de Accesos
             </MudNavLink>
         </MudNavMenu>
 
@@ -52,11 +49,8 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">COBRANZAS</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/pagos")" Icon="@Icons.Material.Filled.Payments">
-                Pagos
-            </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/pagos/vencidos")" Icon="@Icons.Material.Filled.WarningAmber">
-                Vencidos
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/control-de-pagos")" Icon="@Icons.Material.Filled.Payments">
+                Control de Pagos
             </MudNavLink>
         </MudNavMenu>
 
@@ -67,8 +61,8 @@
             <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/socios")" Icon="@Icons.Material.Filled.Group">
                 Socios
             </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/planes")" Icon="@Icons.Material.Filled.LibraryBooks">
-                Planes
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/panel-administrativo")" Icon="@Icons.Material.Filled.Settings">
+                Panel Administrativo
             </MudNavLink>
         </MudNavMenu>
 

@@ -1,5 +1,4 @@
-﻿@page "/sucursal/{SucursalId:guid}/pagos"
-@using Microsoft.AspNetCore.Authorization
+﻿@using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Client.Pages.Pagos.Components
@@ -24,10 +23,10 @@
 
     <PagoStatsSection Stats="Stats"
                       Loading="loadingStats"
-                      SucursalId="SucursalId"/>
+                      SucursalId="SucursalId" />
     <br />
 
-    <MudPaper Class="pa-4 mb-4" Elevation="5">
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
 
         <!-- Ya tenemos separado una sección para un futuro filtro. -->
         <PagoFiltersSection LoadingStats="loadingStats"

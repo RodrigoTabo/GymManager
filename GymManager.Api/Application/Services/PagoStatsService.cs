@@ -194,13 +194,13 @@ namespace GymManager.Api.Application.Services
                 });
 
             var VencenHoy = await _context.Pagos
-                .Where(p => p.EliminadoEn == null)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
                 .GroupBy(p => p.SocioId)
                 .Select(g => g.Max(p => p.CubreHasta))
                 .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < mañana);
 
             var VencenEstaSemana = await _context.Pagos
-                .Where(p => p.EliminadoEn == null)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
                 .GroupBy(p => p.SocioId)
                 .Select(g => g.Max(p => p.CubreHasta))
                 .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < semana);

@@ -1,0 +1,77 @@
+﻿@using GymManager.Shared.Contracts.Planes
+@using MudBlazor
+
+<MudGrid Spacing="3" Class="mb-2">
+    @foreach (var item in Items)
+    {
+        <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudCard Class="h-100 d-flex flex-column" Elevation="2" Style="min-height: 280px; border-radius: 12px;">
+                <MudCardHeader Class="pb-1">
+                    <CardHeaderContent>
+                        <MudStack Spacing="3">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.End">
+                                <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">
+                                    @item.Nombre
+                                </MudChip>
+                            </MudStack>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6" Style="font-weight: 700;">$@item.Precio</MudText>
+                            </MudStack>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+
+                <MudCardContent Class="pt-1 pb-1 flex-grow-1">
+                    <MudStack Spacing="4">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <MudIcon Color="Color.Primary"
+                                     Icon="@Icons.Material.Filled.CalendarMonth"
+                                     Size="Size.Small" />
+                            <MudText Typo="Typo.body2">Duración: @item.DuracionDias días</MudText>
+                        </MudStack>
+
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <MudIcon Color="Color.Primary"
+                                     Icon="@Icons.Material.Filled.CheckCircle"
+                                     Size="Size.Small" />
+                            <MudText Typo="Typo.body2">Acceso a todas las funcionalidades</MudText>
+                        </MudStack>
+
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <MudIcon Color="Color.Secondary"
+                                     Icon="@Icons.Material.Filled.Support"
+                                     Size="Size.Small" />
+                            <MudText Typo="Typo.body2">Soporte estándar</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+
+                <MudCardActions Class="pt-0 d-flex justify-center">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudButton Color="Color.Default" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => OnEdit.InvokeAsync(item))">
+                            Editar
+                        </MudButton>
+
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Variant="Variant.Filled" Size="Size.Small"
+                                       OnClick="@(() => OnDelete.InvokeAsync(item))" />
+                    </MudStack>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+    @code {
+
+    [Parameter]
+    public Guid SucursalId { get; set; }
+
+    [Parameter]
+    public List<PlanResponse> Items { get; set; } = new();
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public EventCallback<PlanResponse> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<PlanResponse> OnDelete { get; set; }
+}

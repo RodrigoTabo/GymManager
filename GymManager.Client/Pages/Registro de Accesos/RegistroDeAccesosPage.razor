@@ -1,0 +1,48 @@
+﻿@page "/sucursal/{SucursalId:guid}/registro-de-accesos"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@using GymManager.Client.Pages.Asistencia
+@using GymManager.Client.Pages.IntentosAcceso
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.h5">Control de accesos</MudText>
+            <MudText Typo="Typo.body2" Class="mud-primary-text">
+                Seguimiento detallado de asistencias confirmadas e intentos de ingreso denegados en tiempo real.
+            </MudText>
+        </MudStack>
+    </MudPaper>
+
+    <MudPaper Class="pa-2" Elevation="2">
+        <MudTabs Rounded="true"
+                 Elevation="0"
+                 PanelClass="pa-2"
+                 ActivePanelIndex="@activePanelIndex"
+                 ActivePanelIndexChanged="@OnPanelChanged">
+
+            <MudTabPanel Text="Asistencias" Icon="@Icons.Material.Filled.HowToReg">
+                <AsistenciaConfig SucursalId="SucursalId" />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Intentos de acceso" Icon="@Icons.Material.Filled.GppMaybe">
+                <IntentosAccesoPage SucursalId="SucursalId" />
+            </MudTabPanel>
+
+        </MudTabs>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private int activePanelIndex = 0;
+
+    [Parameter]
+    public Guid SucursalId { get; set; } 
+
+    private void OnPanelChanged(int index)
+    {
+        activePanelIndex = index;
+    }
+}

@@ -1,4 +1,5 @@
-﻿@page "/sucursal/{SucursalId:guid}/planes"
+﻿@page "/sucursal/{SucursalId:guid}/panel-administrativo"
+@using GymManager.Client.Pages.Panel_Administrativo.PlanesComponents
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @using GymManager.Client.ApiClients
@@ -7,21 +8,21 @@
 @inject PlanApi PlanApi
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
-
-    <!-- KPIs + Top -->
-    <PlanStatsSection Loading="LoadingStats"
-                      Stats="Stats" />
-
-    <!-- Tabla y Filtro -->
-    <MudPaper Class="pa-4 mb-3" Elevation="5">
+    <MudStack Spacing="4">
         <PlanFiltersSection OpenCrear="OpenCrear" />
 
-        <PlanTable Items="@planes"
-                   Loading="@loading"
-                   OnEdit="OpenEdit"
-                   OnDelete="ConfirmDelete" />
-    </MudPaper>
+        <PlanCard Items="@planes"
+                  Loading="@loading"
+                  OnEdit="OpenEdit"
+                  OnDelete="ConfirmDelete" />
 
+        <MudPaper Elevation="2" Class="pa-3">
+            <MetodosPagoPage SucursalId="SucursalId" />
+        </MudPaper>
+
+        <PlanStatsSection Loading="LoadingStats"
+                          Stats="Stats" />
+    </MudStack>
 </MudContainer>
 @code {
 
