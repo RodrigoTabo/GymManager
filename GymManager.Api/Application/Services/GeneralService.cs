@@ -43,7 +43,8 @@ namespace GymManager.Api.Application.Services
             //Calculamos la cantidad que se recaudo hoy
             var TotalPagoDiario = await _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= hoy)
+                .Where(p => p.FechaPago >= hoy
+                && p.EliminadoEn == null)
                 .SumAsync(p => p.Importe);
 
             //Buscamos la cantidad de este mes
@@ -81,12 +82,13 @@ namespace GymManager.Api.Application.Services
                 p.EliminadoEn == null)
             .OrderByDescending(p => p.FechaPago)
             .Take(5)
-            .Select(p => new PagosVencidos
+            .Select(p => new VencidoResponse
             {
-                PagoId = p.Id,
-                NombreSocio = p.Socio.Nombre + " " + p.Socio.Apellido,
-                Precio = p.Importe,
-                FechaVencimiento = p.CubreHasta
+                NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
+                Importe = p.Importe,
+                Plan = p.Socio.Plan.Nombre,
+                VenceEn = p.CubreHasta,
+                Telefono = null
             }
             )
             .ToListAsync();
@@ -98,12 +100,13 @@ namespace GymManager.Api.Application.Services
                 p.EliminadoEn == null)
             .OrderByDescending(p => p.FechaPago)
             .Take(5)
-            .Select(p => new PagosVencidos
+            .Select(p => new VencidoResponse
             {
-                PagoId = p.Id,
-                NombreSocio = p.Socio.Nombre + " " + p.Socio.Apellido,
-                Precio = p.Importe,
-                FechaVencimiento = p.CubreHasta
+                NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
+                Importe = p.Importe,
+                Plan = p.Socio.Plan.Nombre,
+                VenceEn = p.CubreHasta,
+                Telefono = null
             }
             )
             .ToListAsync();

@@ -1,11 +1,10 @@
-﻿@page "/general"
+﻿@page "/sucursal/{SucursalId:guid}/general"
+@using GymManager.Shared.Contracts.Pagos
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.General
 @inject GeneralApi GeneralApi
-<h3>GeneralPage</h3>
-
 
 <!-- KPI Cards -->
 
@@ -125,12 +124,14 @@
                                     </MudAvatar>
 
                                     <MudStack Spacing="0">
-                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreSocio</MudText>
-                                        <MudText Typo="Typo.subtitle1">@vencidos.FechaVencimiento</MudText>
+                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
+                                        <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
+                                        <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
                                     </MudStack>
                                 </MudStack>
 
-                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Precio</MudText>
+                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
+
 
                             </MudStack>
                         </MudPaper>
@@ -176,12 +177,13 @@
                                     </MudAvatar>
 
                                     <MudStack Spacing="0">
-                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreSocio</MudText>
-                                        <MudText Typo="Typo.subtitle1">@vencidos.FechaVencimiento</MudText>
+                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
+                                        <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
+                                        <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
                                     </MudStack>
                                 </MudStack>
 
-                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Precio</MudText>
+                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
 
                             </MudStack>
                         </MudPaper>
@@ -205,8 +207,8 @@
 
     private GeneralResponse stats = new()
     {
-        TopVencenHoy = new List<PagosVencidos>(),
-        TopVencenMes = new List<PagosVencidos>()
+        TopVencenHoy = new List<VencidoResponse>(),
+        TopVencenMes = new List<VencidoResponse>()
     };
 
 

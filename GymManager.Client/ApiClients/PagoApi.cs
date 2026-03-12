@@ -34,13 +34,13 @@ namespace GymManager.Client.ApiClients
         public async Task UpdateAsync(Guid sucursalId, UpdatePagoRequest request, int id)
         {
             var client = await _clientProvider.GetClientAsync();
-            await client.PutJsonOrThrowAsync($"api/sucursales/{sucursalId}/{id}", request);
+            await client.PutJsonOrThrowAsync($"api/sucursales/{sucursalId}/pagos/{id}", request);
         }
 
         public async Task SoftDeleteAsync(Guid sucursalId, int id)
         {
             var client = await _clientProvider.GetClientAsync();
-            await client.DeleteOrThrowAsync($"api/sucursales/{sucursalId}/{id}");
+            await client.DeleteOrThrowAsync($"api/sucursales/{sucursalId}/pagos/{id}");
         }
 
         public async Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalId)

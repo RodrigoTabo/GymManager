@@ -57,7 +57,7 @@
 
         try
         {
-            await PagoApi.SoftDeleteAsync(SucursalId ,Pago.Id);
+            await PagoApi.SoftDeleteAsync(SucursalId, Pago.Id);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)

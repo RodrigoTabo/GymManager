@@ -135,7 +135,8 @@
             ["Socio"] = socio,
             ["ContentText"] = $"¿Seguro que querés eliminar el Socio \"{socio.Nombre} {socio.Apellido}\"?",
             ["ButtonText"] = "Eliminar",
-            ["Color"] = Color.Error
+            ["Color"] = Color.Error,
+            ["SucursalId"] = SucursalId
         };
 
         var dialog = await DialogService.ShowAsync<SocioDialogDelete>("Eliminar Socio", parameters, options);

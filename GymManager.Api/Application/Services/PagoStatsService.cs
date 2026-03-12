@@ -180,31 +180,63 @@ namespace GymManager.Api.Application.Services
 
             DateTime hoy = DateTime.UtcNow.Date;
             DateTime mañana = hoy.AddDays(1);
-            DateTime semana = hoy.AddDays(-7);
+            DateTime semana = hoy.AddDays(+7);
+
+            var ultimosVencimientos = _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
+                .Where(p => p.Socio.EliminadoEn == null)
+                .GroupBy(p => p.SocioId)
+                .Select(g => new
+                {
+                    SocioId = g.Key,
+                    CubreHasta = g.Max(p => p.CubreHasta)
+                });
 
             var VencenHoy = await _context.Pagos
-                .AsNoTracking()
-                .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.EliminadoEn != null &&p.SucursalId == sucursalId)
-                .CountAsync();
+                .Where(p => p.EliminadoEn == null)
+                .GroupBy(p => p.SocioId)
+                .Select(g => g.Max(p => p.CubreHasta))
+                .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < mañana);
 
             var VencenEstaSemana = await _context.Pagos
-                .AsNoTracking()
-                .Where(p => p.CubreHasta >= semana && p.CubreHasta < hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
-                .CountAsync();
+                .Where(p => p.EliminadoEn == null)
+                .GroupBy(p => p.SocioId)
+                .Select(g => g.Max(p => p.CubreHasta))
+                .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < semana);
 
-            var TotalCobrarHoy = await _context.Pagos
-                .AsNoTracking()
-                .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.EliminadoEn != null && p.SucursalId == sucursalId)
-                .SumAsync(p => p.Importe);
+            //var TotalCobrarHoy = await _context.Pagos
+            //    .AsNoTracking()
+            //    .Where(p => p.EliminadoEn == null)
+            //    .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.SucursalId == sucursalId)
+            //    .Where(s => s.Socio.EliminadoEn == null && s.SucursalId == sucursalId)
+            //    .SumAsync(p => p.Importe);
 
-            var TotalCobrarSemana = await _context.Pagos
-                .AsNoTracking()
-                .Where(p => p.CubreHasta >= semana && p.CubreHasta < hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
-                .SumAsync(p=> p.Importe);
+            var TotalCobrarHoy = await (
+                from uv in ultimosVencimientos
+                join s in _context.Socios.AsNoTracking()
+                    on uv.SocioId equals s.Id
+                where uv.CubreHasta >= hoy
+                   && uv.CubreHasta < mañana
+                   && s.SucursalId == sucursalId
+                   && s.EliminadoEn == null
+                select (decimal?)s.Plan.Precio
+            ).SumAsync() ?? 0m;
 
-            var vencidos = await _context.Pagos
+            var TotalCobrarSemana = await (
+                from uv in ultimosVencimientos
+                join s in _context.Socios.AsNoTracking()
+                    on uv.SocioId equals s.Id
+                where uv.CubreHasta >= hoy
+                   && uv.CubreHasta < semana
+                   && s.SucursalId == sucursalId
+                   && s.EliminadoEn == null
+                select (decimal?)s.Plan.Precio
+            ).SumAsync() ?? 0m;
+
+            var vencidos = await _context.Socios
                 .AsNoTracking()
-                .Where(p => p.CubreHasta >= hoy && p.EliminadoEn != null && p.SucursalId == sucursalId)
+                .Where(p => p.FechaBaja != null && p.SucursalId == sucursalId)
                 .CountAsync();
 
             var stats = new VencimientoStatsResponse

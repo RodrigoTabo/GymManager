@@ -28,7 +28,7 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-2 mud-text-secondary">DASHBOARD</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/dashboard")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/general")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
                 General
             </MudNavLink>
             <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia")" Icon="@Icons.Material.Filled.FactCheck">
@@ -43,7 +43,7 @@
             <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia/config")" Icon="@Icons.Material.Filled.CheckCircle">
                 Asistencia
             </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/intentosaccesos")" Icon="@Icons.Material.Filled.Login">
+            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/intentos-acceso")" Icon="@Icons.Material.Filled.Login">
                 Intentos de accesos
             </MudNavLink>
         </MudNavMenu>

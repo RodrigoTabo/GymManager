@@ -246,7 +246,8 @@ namespace GymManager.Api.Application.Services
 
             var consulta = _context.Pagos
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn != null && p.SucursalId == sucursalId && p.CubreHasta >= hoy);
+                .Where(s=> s.Socio.EliminadoEn == null)
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId && p.CubreHasta >= hoy);
 
             var listar = await consulta
                 .Select(p => new VencidoResponse
