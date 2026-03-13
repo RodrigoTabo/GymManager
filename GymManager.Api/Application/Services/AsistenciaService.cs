@@ -57,6 +57,7 @@ namespace GymManager.Api.Application.Services
                 .Select(a => new AsistenciaResponse
                 {
                     FechaRegistro = a.FechaRegistro,
+                    DNI = a.Socio.DNI,
                     Socio = a.Socio.Nombre + " " + a.Socio.Apellido,
                     Id = a.Id,
                     SocioId = a.SocioId,

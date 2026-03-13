@@ -2,7 +2,6 @@
 <MudTable Items="@Items"
           Hover="true"
           Dense="true"
-          Striped="true"
           Breakpoint="Breakpoint.None"
           Loading="@Loading"
           Bordered="true"
@@ -12,19 +11,25 @@
 
     <HeaderContent>
         <MudTh>Fecha registro</MudTh>
+        <MudTh>DNI</MudTh>
         <MudTh>Socio</MudTh>
     </HeaderContent>
 
     <RowTemplate>
         <MudTd DataLabel="Fecha registro">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.body2">
-                    @context.FechaRegistro.ToString("dd/MM/yyyy")
-                </MudText>
-                <MudText Typo="Typo.caption">
-                    @context.FechaRegistro.ToString("HH:mm")
-                </MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark">
+                    <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Small" />
+                </MudAvatar>
+                <MudText Typo="Typo.body2">@context.FechaRegistro.ToString("dd/MM/yyyy") @context.FechaRegistro.ToString("HH:mm")</MudText>
             </MudStack>
+        </MudTd>
+
+        
+        <MudTd DataLabel="DNI ingresado">
+            <MudChip T="string" Variant="Variant.Outlined" Color="Color.Default" Size="Size.Small">
+                @context.DNI
+            </MudChip>
         </MudTd>
 
         <MudTd DataLabel="Socio">

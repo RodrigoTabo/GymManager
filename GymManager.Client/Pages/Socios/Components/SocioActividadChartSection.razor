@@ -1,9 +1,10 @@
-﻿@using GymManager.Shared.Contracts.Socios
+﻿@*Este componente queda inhabilitado hasta que le de un buen uso.*@
 
+@using GymManager.Shared.Contracts.Socios
 
 <MudItem xs="12" md="8">
     <MudPaper Class="pa-4" Elevation="2">
-        <MudText Typo="Typo.h6" Class="mb-2">Actividad (últimos 12 meses)</MudText>
+        <MudText Typo="Typo.h6" Class="mb-3">Actividad (últimos 12 meses)</MudText>
 
         @if (Loading)
         {
@@ -15,16 +16,19 @@
         }
         else
         {
-            <MudChart T="double"
-                      ChartType="ChartType.Bar"
-                      ChartSeries="@_chartSeries"
-                      XAxisLabels="@_chartLabels"
-                      Width="100%"
-                      Height="300px" />
+            <MudStack AlignItems="AlignItems.Center">
+                <div style="width: 100%; max-width: 950px;">
+                    <MudChart T="double"
+                              ChartType="ChartType.StackedBar"
+                              ChartSeries="@_chartSeries"
+                              ChartLabels="@_chartLabels"
+                              ChartOptions="@_stackedOptions"
+                              Height="420px" />
+                </div>
+            </MudStack>
         }
     </MudPaper>
 </MudItem>
-
 
 @code {
     [Parameter]
@@ -35,6 +39,11 @@
 
     private string[] _chartLabels = Array.Empty<string>();
     private List<ChartSeries<double>> _chartSeries = new();
+
+    private StackedBarChartOptions _stackedOptions = new()
+    {
+        BarWidthRatio = 0.7
+    };
 
     protected override void OnParametersSet()
     {
@@ -50,15 +59,26 @@
             return;
         }
 
-        _chartLabels = Stats.Meses.ToArray();
-
+        var labels = Stats.Meses.ToArray();
         var altas = (Stats.AltasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
         var bajas = (Stats.BajasPorMes ?? new List<int>()).Select(x => (double)x).ToArray();
 
+        var cantidad = new[] { labels.Length, altas.Length, bajas.Length }.Min();
+
+        _chartLabels = labels.Take(cantidad).ToArray();
+
         _chartSeries = new()
         {
-            new ChartSeries<double> { Name = "Altas", Data = altas },
-            new ChartSeries<double> { Name = "Bajas", Data = bajas }
+            new ChartSeries<double>
+            {
+                Name = "Altas",
+                Data = altas.Take(cantidad).ToArray()
+            },
+            new ChartSeries<double>
+            {
+                Name = "Bajas",
+                Data = bajas.Take(cantidad).ToArray()
+            }
         };
     }
 }

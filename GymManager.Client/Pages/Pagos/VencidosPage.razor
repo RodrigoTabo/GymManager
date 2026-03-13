@@ -3,6 +3,7 @@
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
 @using Microsoft.AspNetCore.Authorization
+@inject IJSRuntime JS
 @inject PagoApi PagoApi
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
@@ -29,7 +30,8 @@
         </MudStack>
 
         <VencidoTable Items="Items"
-                      Loading="Loading" />
+                      Loading="Loading"
+                      OnWhatsApp="MensajeWhatsapp"/>
     </MudPaper>
 
 </MudContainer>
@@ -75,6 +77,21 @@
         }
     }
 
+    public async Task MensajeWhatsapp(VencidoResponse items)
+    {
+        var hoy = DateTime.Today;
+        var vencimiento = items.VenceEn.Date;
+
+        string mensaje = vencimiento == hoy
+                 ? $"Hola {items.NombreCompleto}, te recordamos que tu plan vence hoy. Si querés renovarlo, escribinos."
+                 : $"Hola {items.NombreCompleto}, te recordamos que tu plan vence esta semana. Si querés renovarlo, escribinos.";
+
+        var telefono = items.Telefono;
+        var url = $"https://wa.me/{telefono}?text={Uri.EscapeDataString(mensaje)}";
+
+        await JS.InvokeVoidAsync("open", url, "_blank");
+
+    }
 
     public async Task LoadStatsAsync()
     {

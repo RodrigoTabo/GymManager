@@ -23,22 +23,28 @@
 
 
     <RowTemplate>
-        <MudTd DataLabel="Socio">
+        <MudTd DataLabel="Nombre Completo">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                 <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">
                     <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
                 </MudAvatar>
-                <MudTd DataLabel="Socio">@context.NombreCompleto</MudTd>
+                <MudTd DataLabel="Nombre Completo">@context.NombreCompleto</MudTd>
             </MudStack>
         </MudTd>
         <MudTd DataLabel="Plan">@context.Plan</MudTd>
         <MudTd DataLabel="VenceEn">@context.VenceEn</MudTd>
-        <MudTd DataLabel="VenceEn">@context.Importe</MudTd>
-        <MudTd DataLabel="VenceEn">@context.Telefono</MudTd>
+        <MudTd DataLabel="Importe">@context.Importe</MudTd>
+        <MudTd DataLabel="Telefono">@context.Telefono</MudTd>
         <MudTd DataLabel="Acciones">
             <MudStack Row="true" Spacing="1">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
-                                />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" />
+                @if (context.VenceEn >= DateTime.Today && context.VenceEn.Date <= DateTime.Today.AddDays(7))
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.PhoneIphone"
+                                   Color="Color.Success"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OnWhatsApp.InvokeAsync(context))" />
+                }
             </MudStack>
         </MudTd>
     </RowTemplate>
@@ -59,6 +65,9 @@
 
     [Parameter]
     public List<VencidoResponse> Items { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<VencidoResponse> OnWhatsApp { get; set; }
 
     [Parameter]
     public bool Loading { get; set; }

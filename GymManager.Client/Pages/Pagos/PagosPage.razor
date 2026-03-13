@@ -20,20 +20,15 @@
     }
 
     <!-- KPI Cards + Graficos + Tabla -->
-
-    <PagoStatsSection Stats="Stats"
-                      Loading="loadingStats"
-                      SucursalId="SucursalId" />
-    <br />
+    <!-- Ya tenemos separado una sección para un futuro filtro. -->
 
     <MudPaper Class="pa-4 mb-4" Elevation="2">
-
-        <!-- Ya tenemos separado una sección para un futuro filtro. -->
         <PagoFiltersSection LoadingStats="loadingStats"
                             Loading="loading"
                             ReloadAsync="ReloadAsync" />
+    </MudPaper>
 
-        <MudDivider></MudDivider>
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
 
         <PagoTable Items="@pagos"
                    Loading="@loading"
@@ -42,6 +37,9 @@
 
     </MudPaper>
 
+    <PagoStatsSection Stats="Stats"
+                      Loading="loadingStats"
+                      SucursalId="SucursalId" />
 
 </MudContainer>
 

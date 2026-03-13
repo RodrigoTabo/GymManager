@@ -3,8 +3,6 @@
 <MudTable Items="@Items"
           Hover="true"
           Dense="true"
-          Striped="true"
-          Bordered="true"
           Breakpoint="Breakpoint.None"
           Loading="@Loading"
           LoadingProgressColor="Color.Info"
@@ -36,20 +34,7 @@
         <MudTd DataLabel="Importe">@context.Importe</MudTd>
 
         <MudTd DataLabel="MetodoPago">
-            @if (context.MetodoPago == "Transferencia")
-            {
-                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="me-1" />
-                <span>@context.MetodoPago</span>
-            }
-            else if (context.MetodoPago == "Efectivo")
-            {
-                <MudIcon Icon="@Icons.Material.Filled.Payments" Class="me-1" />
-                <span>@context.MetodoPago</span>
-            }
-            else
-            {
-                <span>@context.MetodoPago</span>
-            }
+            <MudText Typo="Typo.body2">@context.MetodoPago</MudText>
         </MudTd>
 
 

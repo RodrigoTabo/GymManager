@@ -23,15 +23,12 @@
     <KpiCard Titulo="Bajas del mes"
              Valor="@(Stats.BajasMesCount.ToString())"
              Loading="@Loading"
-             Icon="@Icons.Material.Filled.PersonOff"
+             Icon="@Icons.Material.Filled.TrendingDown"
              Color="Color.Error" />
 </MudGrid>
 
-<MudGrid Spacing="2" Class="mb-4">
-    <SocioActividadChartSection Stats="Stats"
-                                Loading="Loading" />
-</MudGrid>
-
+@* <SocioActividadChartSection Stats="Stats"
+                            Loading="Loading" /> *@
 
 @code {
 

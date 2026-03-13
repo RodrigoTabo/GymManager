@@ -10,6 +10,7 @@ namespace GymManager.Shared.Contracts.Asistencias
     {
         public int Id { get; set; }
         public DateTime FechaRegistro { get; set; }
+        public string DNI { get; set; }
         public int SocioId { get; set; }
         public string Socio { get; set; } = default!;
     }

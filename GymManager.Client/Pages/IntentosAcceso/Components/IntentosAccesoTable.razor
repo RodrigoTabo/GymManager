@@ -3,7 +3,6 @@
 <MudTable Items="@Items"
           Hover="true"
           Dense="true"
-          Striped="true"
           Breakpoint="Breakpoint.None"
           Loading="@Loading"
           Bordered="true"
@@ -21,11 +20,11 @@
 
     <RowTemplate>
         <MudTd DataLabel="Fecha registro">
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.body2">@context.FechaRegistro.ToString("dd/MM/yyyy")</MudText>
-                <MudText Typo="Typo.caption">
-                    @context.FechaRegistro.ToString("HH:mm")
-                </MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark">
+                    <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Small" />
+                </MudAvatar>
+                <MudText Typo="Typo.body2">@context.FechaRegistro.ToString("dd/MM/yyyy") @context.FechaRegistro.ToString("HH:mm")</MudText>
             </MudStack>
         </MudTd>
 
@@ -56,7 +55,7 @@
         <MudTd DataLabel="Motivo">
             <MudChip T="string"
                      Size="Size.Small"
-                     Variant="Variant.Outlined"
+                     Variant="Variant.Filled"
                      Color="Color.Warning">
                 @context.Motivo
             </MudChip>

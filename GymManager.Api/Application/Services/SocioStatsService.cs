@@ -95,7 +95,7 @@ namespace GymManager.Api.Application.Services
                 var m = inicioMesInicial.AddMonths(i);
                 var mSiguiente = m.AddMonths(1);
 
-                labelsMeses.Add(m.ToString("MMM yy"));
+                labelsMeses.Add(m.ToString("MMM"));
 
                 var altas = await _context.Socios
                     .AsNoTracking()
