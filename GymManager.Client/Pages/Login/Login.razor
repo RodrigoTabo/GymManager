@@ -1,8 +1,8 @@
 ﻿@page "/login"
 @using Microsoft.AspNetCore.Authorization
 @using GymManager.Shared.Auth
+@layout AuthLayout
 @attribute [AllowAnonymous]
-
 @inject GymManager.Web.ApiClients.AuthApi AuthApi
 @inject GymManager.Web.Security.JwtAuthStateProvider JwtAuthStateProvider
 @inject NavigationManager Navigation
