@@ -4,13 +4,20 @@
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <Authorizing>
+                    <div class="d-flex justify-center align-center" style="min-height:100vh;">
+                        <p>Verificando sesión...</p>
+                    </div>
+                </Authorizing>
+
                 <NotAuthorized>
-                    <p>No autorizado</p>
+                    <RedirectToLogin />
                 </NotAuthorized>
             </AuthorizeRouteView>
 
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
+
         <NotFound>
             <p>No encontrado</p>
         </NotFound>
