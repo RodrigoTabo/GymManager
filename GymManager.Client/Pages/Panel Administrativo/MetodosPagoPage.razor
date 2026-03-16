@@ -6,33 +6,36 @@
 @inject MetodoPagoApi MetodoPagoApi
 
 <!--Table-->
-<MudStack Row="true"
-          AlignItems="AlignItems.Center"
-          Justify="Justify.SpaceBetween"
-          Class="mb-4">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+
+    <MudStack Row="true"
+              AlignItems="AlignItems.Center"
+              Justify="Justify.SpaceBetween"
+              Class="mb-4">
 
 
-    <MudStack Spacing="0">
-        <MudText Style="font-weight: bold;" Typo="Typo.h6">
-            Métodos de pagos
-        </MudText>
-        <MudText Typo="Typo.subtitle2">
-            Habilita o deshabilita las formas de pago aceptadas
-        </MudText>
+        <MudStack Spacing="0">
+            <MudText Style="font-weight: bold;" Typo="Typo.h6">
+                Métodos de pagos
+            </MudText>
+            <MudText Typo="Typo.subtitle2">
+                Habilita o deshabilita las formas de pago aceptadas
+            </MudText>
+        </MudStack>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Disabled="@(loading)"
+                   OnClick="ReloadAsync">
+            Nuevo método
+        </MudButton>
     </MudStack>
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               StartIcon="@Icons.Material.Filled.Add"
-               Disabled="@(loading)"
-               OnClick="ReloadAsync">
-        Nuevo método
-    </MudButton>
-</MudStack>
+</MudPaper>
 
-<MudDivider></MudDivider>
-<MetodosPagoCard Items="@metodoPagoResponse"
-                  Loading="@loading" />
-
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MetodosPagoCard Items="@metodoPagoResponse"
+                     Loading="@loading" />
+</MudPaper>
 
 @code {
     [Parameter]

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GymManager.Api.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMultiTenantWithEntities : Migration
+    public partial class AddTelefonoInSocio : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +16,13 @@ namespace GymManager.Api.Infrastructure.Data.Migrations
                 table: "Socios",
                 type: "uniqueidentifier",
                 nullable: true);
+
+            migrationBuilder.AddColumn<long>(
+                name: "Telefono",
+                table: "Socios",
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
 
             migrationBuilder.AddColumn<Guid>(
                 name: "SucursalId",
@@ -59,6 +66,10 @@ namespace GymManager.Api.Infrastructure.Data.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "SucursalId",
+                table: "Socios");
+
+            migrationBuilder.DropColumn(
+                name: "Telefono",
                 table: "Socios");
 
             migrationBuilder.DropColumn(

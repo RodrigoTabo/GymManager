@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GymManager.Api.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(GymManagerDbContext))]
-    [Migration("20260310234224_AddMultiTenantWithEntities")]
-    partial class AddMultiTenantWithEntities
+    [Migration("20260313201752_AddTelefonoInSocio")]
+    partial class AddTelefonoInSocio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -335,6 +335,9 @@ namespace GymManager.Api.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("SucursalId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("Telefono")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

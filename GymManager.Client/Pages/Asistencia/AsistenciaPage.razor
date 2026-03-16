@@ -9,10 +9,14 @@
 @inject IDialogService DialogService
 @inject AsistenciaApi AsistenciaApi;
 
-<AsistenciaCard Error="@Error"
-                Guardando="@Guardando"
-                enviarDNI="MarcarAsistencia" />
+<MudContainer MaxWidth="MaxWidth.False"
+              Class="pa-0 d-flex align-center justify-center"
+              Style="min-height: 75vh;">
 
+    <AsistenciaCard Error="@Error"
+                    Guardando="@Guardando"
+                    enviarDNI="MarcarAsistencia" />
+</MudContainer>
 @code {
 
     [Parameter]

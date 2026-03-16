@@ -22,7 +22,6 @@ namespace GymManager.Client.ApiClients.Common
 
             try
             {
-                // 1) ValidationProblemDetails (400) -> trae "errors"
                 var vpd = await resp.Content.ReadFromJsonAsync<ValidationProblemDetailsLite>();
                 if (vpd?.Errors is not null && vpd.Errors.Count > 0)
                 {
@@ -34,9 +33,8 @@ namespace GymManager.Client.ApiClients.Common
                         return new HttpApiException(first, status);
                 }
 
-                // 2) ProblemDetails normal -> title / detail
                 var pd = await resp.Content.ReadFromJsonAsync<ProblemDetailsLite>();
-                var msg = pd?.Title ?? pd?.Detail;
+                var msg = pd?.Title ?? "Ocurrió un error.";
 
                 if (!string.IsNullOrWhiteSpace(msg))
                     return new HttpApiException(msg, status);
@@ -62,6 +60,7 @@ namespace GymManager.Client.ApiClients.Common
         {
             public string? Title { get; set; }
             public string? Detail { get; set; }
+            public int? Status { get; set; }
         }
     }
 }

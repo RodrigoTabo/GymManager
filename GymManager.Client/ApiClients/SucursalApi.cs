@@ -1,7 +1,8 @@
-﻿using GymManager.Shared.Contracts.Sucursal;
+﻿using GymManager.Client.ApiClients.Common;
+using GymManager.Shared.Contracts.Sucursal;
 using GymManager.Web.Security;
 
-namespace GymManager.Client.ApiClients.Common
+namespace GymManager.Client.ApiClients
 {
     public class SucursalApi(ApiHttpClientProvider clientProvider)
     {

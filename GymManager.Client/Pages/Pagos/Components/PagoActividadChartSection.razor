@@ -1,9 +1,12 @@
 ﻿@using GymManager.Shared.Contracts.Pagos
 
 
-<MudItem xs="12" lg="5">
-    <MudPaper Class="pa-4" Elevation="2">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+<MudItem xs="12" lg="7">
+    <MudPaper Class="pa-7" Elevation="2" Style="border-radius:18px;">
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Justify="Justify.SpaceBetween"
+                  Class="mb-2">
             <MudText Typo="Typo.h6">Recaudación por mes (últimos 6)</MudText>
             <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">
                 @(Loading ? "—" : Stats.TotalPorMes.Sum(x => x.Total).ToString("N2"))
@@ -12,15 +15,15 @@
 
         @if (Loading)
         {
-            <MudProgressLinear Indeterminate="true" />
+            <MudProgressLinear Indeterminate="true" Class="mt-2" />
         }
         else
         {
             <MudChart T="double"
-                      ChartType="ChartType.Line"
+                      ChartType="ChartType.StackedBar"
                       ChartSeries="@barSeries"
-                      XAxisLabels="@barLabels"
-                      Height="260px" />
+                      ChartLabels="@barLabels"
+                      Height="340px" />
         }
     </MudPaper>
 </MudItem>
@@ -29,6 +32,7 @@
 
     [Parameter]
     public PagosStatsResponse Stats { get; set; } = new();
+
     [Parameter]
     public bool Loading { get; set; }
 
@@ -65,10 +69,14 @@
         {
             new ChartSeries<double>
             {
-                Name = "Total",
-                Data = serie.Select(x => (double)x.Total).ToArray()
+                Name = "Efectivo",
+                Data = serie.Select(x => (double)x.TotalEfectivo).ToArray()
+            },
+            new ChartSeries<double>
+            {
+                Name = "Transferencia",
+                Data = serie.Select(x => (double)x.TotalTransferencia).ToArray()
             }
         };
     }
-
 }

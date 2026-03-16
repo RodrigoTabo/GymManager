@@ -86,8 +86,7 @@ namespace GymManager.Api.Application.Middleware
                 var body = new
                 {
                     title,
-                    status,
-                    detail
+                    status
                 };
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize(body, JsonOptions));

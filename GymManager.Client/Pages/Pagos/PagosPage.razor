@@ -7,41 +7,37 @@
 @inject PagoApi PagoApi
 @inject IDialogService DialogService
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
+@if (!string.IsNullOrWhiteSpace(errorStats))
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorStats</MudAlert>
+}
 
-    @if (!string.IsNullOrWhiteSpace(errorStats))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorStats</MudAlert>
-    }
+@if (!string.IsNullOrWhiteSpace(errorPagos))
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorPagos</MudAlert>
+}
 
-    @if (!string.IsNullOrWhiteSpace(errorPagos))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorPagos</MudAlert>
-    }
+<!-- KPI Cards + Graficos + Tabla -->
+<!-- Ya tenemos separado una sección para un futuro filtro. -->
 
-    <!-- KPI Cards + Graficos + Tabla -->
-    <!-- Ya tenemos separado una sección para un futuro filtro. -->
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <PagoFiltersSection LoadingStats="loadingStats"
+                        Loading="loading"
+                        ReloadAsync="ReloadAsync" />
+</MudPaper>
 
-    <MudPaper Class="pa-4 mb-4" Elevation="2">
-        <PagoFiltersSection LoadingStats="loadingStats"
-                            Loading="loading"
-                            ReloadAsync="ReloadAsync" />
-    </MudPaper>
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
 
-    <MudPaper Class="pa-4 mb-4" Elevation="2">
+    <PagoTable Items="@pagos"
+               Loading="@loading"
+               OnDelete="ConfirmDelete"
+               OnEdit="OpenEdit" />
 
-        <PagoTable Items="@pagos"
-                   Loading="@loading"
-                   OnDelete="ConfirmDelete"
-                   OnEdit="OpenEdit" />
+</MudPaper>
 
-    </MudPaper>
-
-    <PagoStatsSection Stats="Stats"
-                      Loading="loadingStats"
-                      SucursalId="SucursalId" />
-
-</MudContainer>
+<PagoStatsSection Stats="Stats"
+                  Loading="loadingStats"
+                  SucursalId="SucursalId" />
 
 @code {
 

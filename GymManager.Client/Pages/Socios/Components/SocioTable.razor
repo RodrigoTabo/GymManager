@@ -14,6 +14,7 @@
     <HeaderContent>
         <MudTh>DNI</MudTh>
         <MudTh>Nombre completo</MudTh>
+        <MudTh>Telefono</MudTh>
         <MudTh>Fecha Nac.</MudTh>
         <MudTh>Alta</MudTh>
         <MudTh>Plan</MudTh>
@@ -35,6 +36,12 @@
                 </MudAvatar>
                 <MudTd DataLabel="Nombre">@context.Nombre @context.Apellido</MudTd>
             </MudStack>
+        </MudTd>
+
+        <MudTd DataLabel="Telefono">
+            <MudChip T="uint" Variant="Variant.Outlined" Color="Color.Default" Size="Size.Small">
+                @context.Telefono
+            </MudChip>
         </MudTd>
 
         <MudTd DataLabel="Fecha Nac.">

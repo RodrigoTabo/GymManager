@@ -20,5 +20,5 @@ namespace GymManager.Shared.Contracts.Pagos
         public List<PagoMesSerie> TotalPorMes { get; set; } = new();
     }
 
-    public record PagoMesSerie(string Mes, decimal Total, int Cantidad);
+    public record PagoMesSerie(string Mes, decimal Total, int Cantidad, decimal TotalEfectivo, decimal TotalTransferencia);
 }

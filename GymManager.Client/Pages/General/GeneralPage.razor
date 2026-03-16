@@ -6,200 +6,218 @@
 @using GymManager.Shared.Contracts.General
 @inject GeneralApi GeneralApi
 
-<!-- KPI Cards -->
+<MudContainer MaxWidth="MaxWidth.Large"
+              Class="mx-auto pa-0"
+              Style="background-color: #f7f8fc;">
+    <MudGrid Spacing="2" Class="mb-4">
 
-<MudGrid Spacing="2" Class="mb-4">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Small" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
+                    </MudAvatar>
 
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.People" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle2" Align="Align.Center">Asistidos diarios (Exitosos)</MudText>
-                <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.AsistidosHoyCount.ToString())</MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                    <MudText Typo="Typo.caption" Align="Align.Center">
+                        Asistidos diarios
+                    </MudText>
 
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Error" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.PersonOff" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle2" Align="Align.Center">Asistidos mensuales (Exitosos)</MudText>
-                <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.AsistidosMesCount.ToString())</MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center">
+                        @(loadingStats ? "—" : stats.AsistidosHoyCount.ToString())
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.People" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle2" Align="Align.Center">Intentos diarios (Denegados)</MudText>
-                <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosHoyCount.ToString())</MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Small" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.Beenhere" />
+                    </MudAvatar>
 
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack AlignItems="AlignItems.Center" Spacing="1">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Error" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.PersonOff" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle2" Align="Align.Center">Intentos mensuales(Denegados)</MudText>
-                <MudText Typo="Typo.h5" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosMesCount.ToString())</MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                    <MudText Typo="Typo.caption" Align="Align.Center">
+                        Asistidos mensuales (Exitosos)
+                    </MudText>
 
-    <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
-                </MudAvatar>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center">
+                        @(loadingStats ? "—" : stats.AsistidosMesCount.ToString())
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-                <MudStack Spacing="0" Class="flex-grow-1">
-                    <MudText Typo="Typo.subtitle2">Pagos diarios (@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0")))</MudText>
-                    <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                        <MudText Typo="Typo.h6">$@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.PersonOff" />
+                    </MudAvatar>
+
+                    <MudText Typo="Typo.caption" Align="Align.Center">
+                        Intentos diarios (Denegados)
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosHoyCount.ToString())</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.Block" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.caption" Align="Align.Center">Intentos mensuales(Denegados)</MudText>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosMesCount.ToString())</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="2">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium" Class="m,b">
+                        <MudIcon Icon="@Icons.Material.Filled.Payments" />
+                    </MudAvatar>
+
+                    <MudStack Spacing="0" Class="flex-grow-1">
+                        <MudText Typo="Typo.caption">
+                            Pagos diarios (@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0")))
+                        </MudText>
+                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
+                            <MudText Typo="Typo.subtitle1">$@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
+                        </MudStack>
                     </MudStack>
                 </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="5">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium">
-                    <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
-                </MudAvatar>
+        <MudItem xs="12" sm="6" md="2">
+            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Medium">
+                        <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
+                    </MudAvatar>
 
-                <MudStack Spacing="0" Class="flex-grow-1">
-                    <MudText Typo="Typo.subtitle2">Pagos mensuales (@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0")))</MudText>
-                    <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                        <MudText Typo="Typo.h6">$@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
+                    <MudStack Spacing="0" Class="flex-grow-1">
+                        <MudText Typo="Typo.caption">Pagos mensuales (@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0")))</MudText>
+                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
+                            <MudText Typo="Typo.subtitle1">$@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
+                        </MudStack>
                     </MudStack>
                 </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+            </MudPaper>
+        </MudItem>
 
 
-    <MudItem xs="12" sm="6" md="9">
-        <MudPaper Class="pa-4 h-100" Elevation="5">
-            <MudStack Spacing="3">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 h-100" Elevation="2" Style="border:18px;">
+                <MudStack Spacing="3">
 
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" />
-                    <MudText Typo="Typo.h6">Top 3 vencen hoy</MudText>
-                </MudStack>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" />
+                        <MudText Typo="Typo.h6">Top 5 vencen hoy</MudText>
+                    </MudStack>
 
-                @if (loadingStats)
-                {
-                    <MudText Typo="Typo.body2">Cargando datos...</MudText>
-                }
-                else if (stats.TopVencenHoy is not null && stats.TopVencenHoy.Any())
-                {
-
-                    @for (int i = 0; i < stats.TopVencenHoy.Count; i++)
+                    @if (loadingStats)
                     {
-                        var vencidos = stats.TopVencenHoy[i];
-                        var posicion = i + 1;
-
-
-                        <MudPaper Class="pa-3" Outlined="true">
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-
-                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
-                                        @posicion
-                                    </MudAvatar>
-
-                                    <MudStack Spacing="0">
-                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
-                                        <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
-                                        <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
-                                    </MudStack>
-                                </MudStack>
-
-                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
-
-
-                            </MudStack>
-                        </MudPaper>
+                        <MudText Typo="Typo.body2">Cargando datos...</MudText>
                     }
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
-                }
-
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12" sm="6" md="9">
-        <MudPaper Class="pa-4 h-100" Elevation="5">
-            <MudStack Spacing="3">
-
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" />
-                    <MudText Typo="Typo.h6">Top 3 vencen este mes</MudText>
-                </MudStack>
-
-                @if (loadingStats)
-                {
-                    <MudText Typo="Typo.body2">Cargando datos...</MudText>
-                }
-                else if (stats.TopVencenMes is not null && stats.TopVencenMes.Any())
-                {
-
-                    @for (int i = 0; i < stats.TopVencenMes.Count; i++)
+                    else if (stats.TopVencenHoy is not null && stats.TopVencenHoy.Any())
                     {
-                        var vencidos = stats.TopVencenMes[i];
-                        var posicion = i + 1;
+
+                        @for (int i = 0; i < stats.TopVencenHoy.Count; i++)
+                        {
+                            var vencidos = stats.TopVencenHoy[i];
+                            var posicion = i + 1;
 
 
-                        <MudPaper Class="pa-3" Outlined="true">
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudPaper Class="pa-3" Outlined="true">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
 
-                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
-                                        @posicion
-                                    </MudAvatar>
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+                                            @posicion
+                                        </MudAvatar>
 
-                                    <MudStack Spacing="0">
-                                        <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
-                                        <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
-                                        <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
+                                        <MudStack Spacing="0">
+                                            <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
+                                            <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
+                                            <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
+                                        </MudStack>
                                     </MudStack>
+
+                                    <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
+
+
                                 </MudStack>
-
-                                <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
-
-                            </MudStack>
-                        </MudPaper>
+                            </MudPaper>
+                        }
                     }
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
-                }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
+                    }
 
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-</MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 h-100" Elevation="2" Style="border:18px;">
+                <MudStack Spacing="3">
 
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" />
+                        <MudText Typo="Typo.h6">Top 5 vencen este mes</MudText>
+                    </MudStack>
+
+                    @if (loadingStats)
+                    {
+                        <MudText Typo="Typo.body2">Cargando datos...</MudText>
+                    }
+                    else if (stats.TopVencenMes is not null && stats.TopVencenMes.Any())
+                    {
+
+                        @for (int i = 0; i < stats.TopVencenMes.Count; i++)
+                        {
+                            var vencidos = stats.TopVencenMes[i];
+                            var posicion = i + 1;
+
+
+                            <MudPaper Class="pa-3" Outlined="true">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+                                            @posicion
+                                        </MudAvatar>
+
+                                        <MudStack Spacing="0">
+                                            <MudText Typo="Typo.subtitle1">@vencidos.NombreCompleto</MudText>
+                                            <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Plan</MudText>
+                                            <MudText Typo="Typo.subtitle1">@vencidos.VenceEn</MudText>
+                                        </MudStack>
+                                    </MudStack>
+
+                                    <MudText Typo="Typo.h6" Class="text-muted">@vencidos.Importe</MudText>
+
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">No hay datos para mostrar.</MudText>
+                    }
+
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
 @code {
 
     [Parameter]

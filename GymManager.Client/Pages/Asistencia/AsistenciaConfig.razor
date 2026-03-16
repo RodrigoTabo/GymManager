@@ -5,24 +5,22 @@
 @inject AsistenciaApi AsistenciaApi
 
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
 
-    <!-- Filtros -->
+<!-- Filtros -->
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
     <AsistenciaFiltersSection Filtro="Filtro"
                               LimpiarFiltros="LimpiarFiltros"
                               OnDesdeChanged="OnDesdeChanged"
                               OnHastaChanged="OnHastaChanged"
                               OnDniChanged="OnDniChanged"
                               OnNombreChanged="OnNombreChanged" />
+</MudPaper>
+<!-- Tabla -->
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <AsistenciaTable Items="@Asistencias"
+                     Loading="@loading" />
+</MudPaper>
 
-    <!-- Tabla -->
-    <MudPaper Class="pa-4" Elevation="0">
-        <MudDivider Class="mb-3" />
-        <AsistenciaTable Items="@Asistencias"
-                         Loading="@loading" />
-    </MudPaper>
-
-</MudContainer>
 
 @code {
 

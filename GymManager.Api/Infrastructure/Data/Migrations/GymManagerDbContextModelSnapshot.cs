@@ -333,6 +333,9 @@ namespace GymManager.Api.Infrastructure.Data.Migrations
                     b.Property<Guid?>("SucursalId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<long>("Telefono")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DNI")

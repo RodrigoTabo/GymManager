@@ -41,6 +41,7 @@ namespace GymManager.Api.Application.Services
 
             //Realizamos la consulta con la query optimizada.
             var listar = await query
+                .OrderByDescending(x => x.Precio)
                 .Select(p => new PlanResponse
                 (
                     p.Id,

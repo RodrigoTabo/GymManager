@@ -26,7 +26,6 @@ namespace GymManager.Api.Application.Services
             if(sucursalid != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
 
-
             var autorizado = await _context.UsuarioSucursales
                 .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
 
@@ -41,25 +40,32 @@ namespace GymManager.Api.Application.Services
             //Por DNI
             if (!string.IsNullOrWhiteSpace(filtro.Dni))
                 query = query.Where(i => i.DniIngresado.Contains(filtro.Dni));
+
             //Por nombre
             if (!string.IsNullOrWhiteSpace(filtro.Nombre))
                 query = query.Where(i =>
                     i.Socio != null &&
                     (i.Socio.Nombre + " " + i.Socio.Apellido).Contains(filtro.Nombre));
+
             //Por resultados
             if (filtro.Resultado.HasValue)
                 query = query.Where(i => i.Resultado == filtro.Resultado.Value);
+
             //Por Motivos
             if (filtro.Motivo.HasValue)
                 query = query.Where(i => i.Motivo == filtro.Motivo.Value);
+
             //Desde
             if (filtro.Desde.HasValue)
                 query = query.Where(i => i.FechaRegistro >= filtro.Desde.Value);
+
             //Hasta
             if (filtro.Hasta.HasValue)
                 query = query.Where(i => i.FechaRegistro <= filtro.Hasta.Value);
-            //Lista
+
+            //Lista y ordenamos por registro mas nuevo al mas viejo.
             var listar = await query
+                .OrderByDescending(i => i.FechaRegistro)
                 .Select(i => new IntentosAccesoResponse
                 {
                     FechaRegistro = i.FechaRegistro,

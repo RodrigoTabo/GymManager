@@ -26,13 +26,18 @@ namespace GymManager.Api.Application.Services
             var sucursalId = _currentSucursalService.SucursalId
                 ?? throw new UnauthorizedAccessException("Sucursal no informada.");
 
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+
             var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
+              .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
 
             if (!autorizado)
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
-            var query = _context.Asistencias.Include(s => s.Socio).AsNoTracking().Where(a => a.SucursalId == sucursalId);
+            var query = _context.Asistencias
+                .AsNoTracking()
+                .Where(a => a.SucursalId == sucursalId);
 
             //Filtramos por DNI
             if (!string.IsNullOrWhiteSpace(filtro.Dni))
@@ -52,8 +57,9 @@ namespace GymManager.Api.Application.Services
             if (filtro.Hasta.HasValue)
                 query = query.Where(a => a.FechaRegistro <= filtro.Hasta.Value);
 
-            //Hacemos la lista
+            //Hacemos la lista y la ordenamso desde la mas nueva a la mas vieja.
             var listar = await query
+                .OrderByDescending(a => a.FechaRegistro)
                 .Select(a => new AsistenciaResponse
                 {
                     FechaRegistro = a.FechaRegistro,
@@ -61,7 +67,8 @@ namespace GymManager.Api.Application.Services
                     Socio = a.Socio.Nombre + " " + a.Socio.Apellido,
                     Id = a.Id,
                     SocioId = a.SocioId,
-                }).ToListAsync();
+                })
+                .ToListAsync();
 
             return listar;
 
@@ -86,6 +93,7 @@ namespace GymManager.Api.Application.Services
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             var hoy = DateTime.UtcNow;
+
             //Normalizamos el DNI
             var dniNormalizado = new string((DNI ?? "").Trim().Where(char.IsDigit).ToArray());
 
@@ -106,15 +114,17 @@ namespace GymManager.Api.Application.Services
 
                 throw new BadRequestException("Ingresá un DNI válido (sin puntos).");
             }
+
             //Buscamos el socio
             var socio = await _context.Socios
                 .FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == dniNormalizado && s.SucursalId == sucursalId);
+
             //Si el socio es nulo registramos que es nulo.
             if (socio is null)
             {
                 _context.IntentosAccesos.Add(new IntentosAcceso
                 {
-                    FechaRegistro = DateTime.UtcNow,
+                    FechaRegistro = DateTime.Now,
                     DniIngresado = dniNormalizado,
                     SocioId = null,
                     Resultado = ResultadoAcceso.Denegada,
@@ -137,6 +147,7 @@ namespace GymManager.Api.Application.Services
                 Motivo = MotivoAcceso.Ninguno,
                 SucursalId = sucursalid
             };
+
             //Si el socio esta dado de baja, lo registramos que intento entrar un usuario dado de baja.
             if (socio.FechaBaja != null)
             {
@@ -148,9 +159,10 @@ namespace GymManager.Api.Application.Services
 
                 throw new ConflictException("Acceso denegado: socio inactivo.");
             }
+
             //Buscamos si tiene cuota vigente
             var cuotaVigente = await _context.Pagos
-                .AnyAsync(p => p.SocioId == socio.Id && p.CubreDesde <= hoy && hoy <= p.CubreHasta);
+                .AnyAsync(p => p.SocioId == socio.Id && p.CubreDesde <= hoy && hoy <= p.CubreHasta && p.SucursalId == sucursalId);
             //Si no tiene cuota vigente, lo registramos que intento y no tiene la cuota vigente.
             if (!cuotaVigente)
             {
@@ -161,15 +173,15 @@ namespace GymManager.Api.Application.Services
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
 
-                throw new ConflictException("Acceso denegado: no tenés una cuota vigente.");
+                throw new ConflictException("Acceso denegado: no tenés una cuota vigente. Hablá con el recepcionista.");
             }
+
             //Guardamos la asistencia
             var asistencia = new Asistencia
             {
                 FechaRegistro = DateTime.UtcNow,
                 SocioId = socio.Id,
                 SucursalId = sucursalid
-
             };
 
             //Guardamos los intentos y las asistencias.

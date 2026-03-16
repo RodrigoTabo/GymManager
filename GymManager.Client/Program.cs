@@ -5,7 +5,6 @@ using MudBlazor.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using GymManager.Web.Security;
 using GymManager.Web.ApiClients;
-using GymManager.Client.ApiClients.Common;
 
 namespace GymManager.Client;
 

@@ -1,34 +1,55 @@
 ﻿@page "/sucursales"
-@using GymManager.Client.ApiClients.Common
+@attribute [Authorize]
+@using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Sucursal
+@using Microsoft.AspNetCore.Authorization
 @inject SucursalApi SucursalApi
 
-<MudContainer MaxWidth="MaxWidth.False" Class="pa-0" Style="min-height: 100vh;">
-    <MudGrid Spacing="0" Class="ma-0" Style="min-height: 100vh;">
-        <MudItem xs="12" md="5">
-            
+<MudContainer MaxWidth="MaxWidth.False"
+              Class="pa-0 d-flex align-center justify-center"
+              Style="min-height: 75vh;">
+
+    <MudPaper Elevation="6"
+              Class="pa-6"
+              Style="width: 100%; max-width: 620px; border-radius: 20px;">
+
+        <MudStack Spacing="3">
+
+            <MudStack Spacing="0" Class="mb-2">
+                <MudText Typo="Typo.h4">Seleccionar sucursal</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Primary">
+                    Elegí la sucursal con la que querés trabajar.
+                </MudText>
+            </MudStack>
+
             @foreach (var sucursal in Sucursales)
             {
-                <MudTextField T="string"
-                              Label="@sucursal.Nombre"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
-                              FullWidth="true"
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Email" />
+                <MudPaper Outlined="true" Class="pa-4">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        
+                        <MudStack Spacing="0">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudIcon Icon="@Icons.Material.Filled.Store" Color="Color.Primary" />
+                                <MudText Typo="Typo.h6">@sucursal.Nombre</MudText>
+                            </MudStack>
 
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           FullWidth="true"
-                           Size="Size.Large"
-                           Style="height: 48px; border-radius: 12px;"
-                           OnClick="() => Acceder(sucursal.Id)">
-                    Acceder
-                </MudButton>
-                
+                            <MudText Typo="Typo.body2" Color="Color.Primary">
+                                Ingresá a esta sucursal para gestionar socios, pagos y asistencia.
+                            </MudText>
+                        </MudStack>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="() => Acceder(sucursal.Id)">
+                            Acceder
+                        </MudButton>
+
+                    </MudStack>
+                </MudPaper>
             }
-        </MudItem>
-    </MudGrid>
+
+        </MudStack>
+    </MudPaper>
 </MudContainer>
 
 @code {

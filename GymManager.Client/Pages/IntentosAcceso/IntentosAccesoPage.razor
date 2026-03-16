@@ -7,9 +7,7 @@
 @using GymManager.Shared.Contracts.IntentosAcceso
 @using GymManager.Shared.Enums
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
-
-    <!-- Filtro de busqueda -->
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
     <IntentosAccesoFilterSection Filtro="Filtro"
                                  LimpiarFiltros="LimpiarFiltros"
                                  OnDesdeChanged="OnDesdeChanged"
@@ -18,15 +16,12 @@
                                  OnMotivoChanged="OnMotivoChanged"
                                  OnNombreChanged="OnNombreChanged"
                                  OnResultadoChanged="OnResultadoChanged" />
+</MudPaper>
 
-    <!--Table-->
-    <MudPaper Class="pa-0" Elevation="0">
-        <MudDivider Class="mb-3" />
-        <IntentosAccesoTable Items="@intentosAccesos"
-                             Loading="@loading" />
-    </MudPaper>
-
-</MudContainer>
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <IntentosAccesoTable Items="@intentosAccesos"
+                         Loading="@loading" />
+</MudPaper>
 
 @code {
 

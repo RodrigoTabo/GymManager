@@ -112,34 +112,46 @@ namespace GymManager.Api.Application.Services
                 .SumAsync(p => p.Importe);
 
             var serieRaw = await pagosBase
-                .Where(p => p.FechaPago >= inicioSerie && p.FechaPago < mañana && p.SucursalId == sucursalId)
+                .Where(p => p.FechaPago >= inicioSerie && p.FechaPago < mañana)
                 .GroupBy(p => new { p.FechaPago.Year, p.FechaPago.Month })
                 .Select(g => new
                 {
                     g.Key.Year,
                     g.Key.Month,
                     Total = g.Sum(x => x.Importe),
-                    Cantidad = g.Count()
+                    Cantidad = g.Count(),
+                    TotalEfectivo = g
+                        .Where(x => x.MetodoPagoId == efectivoId.Value)
+                        .Sum(x => x.Importe),
+                    TotalTransferencia = g
+                        .Where(x => x.MetodoPagoId == transferenciaId.Value)
+                        .Sum(x => x.Importe)
                 })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
                 .ToListAsync();
 
 
             var dic = serieRaw.ToDictionary(
-                x => $"{x.Year:D4}-{x.Month:D2}",
-                x => new PagoMesSerie($"{x.Year:D4}-{x.Month:D2}", x.Total, x.Cantidad)
-            );
+        x => $"{x.Year:D4}-{x.Month:D2}",
+        x => new PagoMesSerie(
+            $"{x.Year:D4}-{x.Month:D2}",
+            x.Total,
+            x.Cantidad,
+            x.TotalEfectivo,
+            x.TotalTransferencia
+        )
+    );
 
             var totalPorMes = new List<PagoMesSerie>(capacity: 6);
             var cursor = new DateTime(inicioSerie.Year, inicioSerie.Month, 1);
-
 
             for (int i = 0; i < 6; i++)
             {
                 var key = $"{cursor.Year:D4}-{cursor.Month:D2}";
                 totalPorMes.Add(dic.TryGetValue(key, out var v)
                     ? v
-                    : new PagoMesSerie(key, 0m, 0));
+                    : new PagoMesSerie(key, 0m, 0, 0m, 0m));
 
                 cursor = cursor.AddMonths(1);
             }

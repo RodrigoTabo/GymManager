@@ -18,7 +18,6 @@ namespace GymManager.Client.ApiClients.Common
                 return data;
             }
 
-            // Si no fue success, convertimos el response en TurnosApiException
             throw await HttpApiException.FromHttpResponse(resp);
         }
 
@@ -48,7 +47,6 @@ namespace GymManager.Client.ApiClients.Common
             throw await HttpApiException.FromHttpResponse(resp);
         }
 
-        // PUT (con response body) - por si alguna vez devolvés algo
         public static async Task<TResp> PutJsonOrThrowAsync<TReq, TResp>(this HttpClient http, string url, TReq body)
         {
             var resp = await http.PutAsJsonAsync(url, body);
@@ -65,7 +63,6 @@ namespace GymManager.Client.ApiClients.Common
             throw await HttpApiException.FromHttpResponse(resp);
         }
 
-        // DELETE (sin response body) - típico: 204 NoContent
         public static async Task DeleteOrThrowAsync(this HttpClient http, string url)
         {
             var resp = await http.DeleteAsync(url);

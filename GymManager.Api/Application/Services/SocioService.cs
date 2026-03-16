@@ -71,6 +71,7 @@ namespace GymManager.Api.Application.Services
                 DNI = dni,
                 Nombre = nombre,
                 Apellido = apellido,
+                Telefono = request.Telefono,
                 PlanId = request.PlanId,
                 FechaAlta= DateTime.UtcNow,
                 FechaNacimiento = request.FechaNacimiento,
@@ -113,6 +114,7 @@ namespace GymManager.Api.Application.Services
                  s.DNI,
                  s.Nombre,
                  s.Apellido,
+                 s.Telefono,
                  s.FechaNacimiento,
                  s.FechaAlta,
                  s.FechaBaja,
@@ -167,12 +169,14 @@ namespace GymManager.Api.Application.Services
 
             //Pedimos datos.
             var listar = await consulta
+                .OrderByDescending(s => s.FechaAlta)
                 .Select(s => new SocioResponse
                 (
                     s.Id,
                     s.DNI,
                     s.Nombre,
                     s.Apellido,
+                    s.Telefono,
                     s.FechaNacimiento,
                     s.FechaAlta,
                     s.FechaBaja,
@@ -282,6 +286,7 @@ namespace GymManager.Api.Application.Services
             socio.DNI = dni;
             socio.Nombre = nombre;
             socio.Apellido = apellido;
+            socio.Telefono = request.Telefono;
             socio.FechaNacimiento = request.FechaNacimiento;
             socio.PlanId = request.PlanId;
             socio.DocumentoId = request.documentoId;

@@ -9,7 +9,7 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
     
-    <MudPaper Class="pa-3 mb-3" Elevation="1">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         
             <MudStack Spacing="0">
@@ -18,23 +18,25 @@
                     Gestiona los socios de la sucursal (Alta, baja y pago del plan asignado).
                 </MudText>
             </MudStack>
-
             <MudButton OnClick="OpenCrear"
                        Variant="Variant.Filled"
                        Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.AddBox">
                 Agregar socio
             </MudButton>
-
         </MudStack>
     </MudPaper>
 
-    <MudPaper Class="pa-3 mb-3" Elevation="1">
-        <!-- Barra de filtro -->
+
+    <!-- Barra de filtro -->
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <SocioFiltersSection Filtro="@Filtro"
                              OnFiltroChanged="HandleFiltroChanged"
                              OnCrear="OpenCrear" />
-        <!-- Tabla -->
+    </MudPaper>
+
+    <!-- Tabla -->
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <SocioTable Items="@socios"
                     Loading="@loading"
                     OnEdit="OpenEdit"

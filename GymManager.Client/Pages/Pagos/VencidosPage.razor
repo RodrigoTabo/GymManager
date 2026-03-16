@@ -18,21 +18,23 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@Error</MudAlert>
     }
 
-    <VencimientosStatsSection Loading="loadingStats"
-                              Stats="Stats" />
-
-    <MudPaper Class="pa-4 mb-4" Elevation="2">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
             <MudStack Spacing="0">
                 <MudText Typo="Typo.h5">Vencimientos</MudText>
                 <MudText Color="Color.Primary" Typo="Typo.subtitle2">Historial de socios que vencieron y vencerán</MudText>
             </MudStack>
         </MudStack>
+    </MudPaper>
 
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <VencidoTable Items="Items"
                       Loading="Loading"
-                      OnWhatsApp="MensajeWhatsapp"/>
+                      OnWhatsApp="MensajeWhatsapp" />
     </MudPaper>
+
+    <VencimientosStatsSection Loading="loadingStats"
+                              Stats="Stats" />
 
 </MudContainer>
 

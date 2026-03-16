@@ -5,22 +5,57 @@
 
 <MudDialog>
     <DialogContent>
-        @if (!string.IsNullOrWhiteSpace(Error))
-        {
-            <MudAlert Severity="Severity.Error">@Error</MudAlert>
-        }
-        <MudText>@ContentText</MudText>
+        <MudStack Spacing="3" Class="pt-2">
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Variant="Variant.Filled" Color="@Color" Size="Size.Medium">
+                    <MudIcon Icon="@Icons.Material.Filled.WarningAmber" />
+                </MudAvatar>
+
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h6">Confirmar acción</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Esta acción requiere tu confirmación.
+                    </MudText>
+                </MudStack>
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <MudAlert Severity="Severity.Error"
+                          Dense="true"
+                          Variant="Variant.Filled"
+                          Elevation="0">
+                    @Error
+                </MudAlert>
+            }
+
+            <MudPaper Class="pa-4" Outlined="true">
+                <MudText Typo="Typo.body1">
+                    @ContentText
+                </MudText>
+            </MudPaper>
+
+        </MudStack>
     </DialogContent>
 
     <DialogActions>
-        <MudButton OnClick="Cancel" Disabled="@Guardando">Cancelar</MudButton>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="w-100">
+            <MudButton OnClick="Cancel"
+                       Disabled="@Guardando"
+                       Variant="Variant.Text"
+                       Color="Color.Default">
+                Cancelar
+            </MudButton>
 
-        <MudButton Color="@Color"
-                   Variant="Variant.Filled"
-                   OnClick="Delete"
-                   Disabled="@Guardando">
-            @ButtonText
-        </MudButton>
+            <MudButton Color="@Color"
+                       Variant="Variant.Filled"
+                       OnClick="Delete"
+                       Disabled="@Guardando"
+                       StartIcon="@Icons.Material.Filled.Delete">
+                @(Guardando ? "Procesando..." : ButtonText)
+            </MudButton>
+        </MudStack>
     </DialogActions>
 </MudDialog>
 

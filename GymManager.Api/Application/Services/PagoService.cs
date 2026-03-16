@@ -59,15 +59,18 @@ namespace GymManager.Api.Application.Services
             //Guardamos el importe dependiendo el plan del usuario.
             var plan = await _context.Planes
                 .FirstOrDefaultAsync(p => p.Id == socio.PlanId && p.SucursalId == sucursalId);
+
             //Si el importe es menor o 0, entonces el socio no tiene ningun Plan asignado.
             if (plan is null)
                 throw new BadRequestException("El Socio no tiene ningun Plan asignado.");
 
+            //Si eliminado esta cargado.
             if (plan.EliminadoEn != null)
                 throw new ConflictException("El plan está deshabilitado.");
 
+            //Si quieren romper aproposito
             if (plan.DuracionDias <= 0)
-                throw new BadRequestException("Hubo un problema con la duración de días");
+                throw new ConflictException("Hubo un problema con la duración de días del plan");
 
             //Calculamos desde cuando cubre el dia, hasta cuando.
             var CubreDesde = DateTime.UtcNow;
@@ -118,6 +121,7 @@ namespace GymManager.Api.Application.Services
 
             //Pedimos la consulta y la guardamos como lista.
             var listar = await consulta
+                .OrderByDescending(p => p.FechaPago)
                 .Select(p => new PagoResponse
                 (
                     p.Id,
@@ -129,7 +133,9 @@ namespace GymManager.Api.Application.Services
                     p.MetodoPago.Nombre,
                     p.CubreDesde,
                     p.CubreHasta
-                    )).ToListAsync();
+                    ))
+                .ToListAsync();
+
 
             //Retornamos la lista.
             return listar;
@@ -212,7 +218,7 @@ namespace GymManager.Api.Application.Services
             if (metodoExiste.EliminadoEn != null)
                 throw new ConflictException("El Metodo de Pago esta deshabilitado.");
 
-            // Fecha válida (opcional pero recomendable)
+            // Fecha válida 
             if (request.FechaPago == default)
                 throw new BadRequestException("La fecha de pago es inválida.");
 
@@ -250,13 +256,14 @@ namespace GymManager.Api.Application.Services
                 .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId && p.CubreHasta >= hoy);
 
             var listar = await consulta
+                .OrderByDescending(p => p.CubreHasta)
                 .Select(p => new VencidoResponse
                 {
                     NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
                     Plan = p.Socio.Plan.Nombre,
                     VenceEn = p.CubreHasta,
                     Importe = p.Importe,
-                    Telefono = null
+                    Telefono = p.Socio.Telefono
                 }).ToListAsync();
 
             return listar;
