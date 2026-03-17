@@ -1,13 +1,9 @@
 ﻿using GymManager.Api.Domain.Entities;
 
-public class CurrentSucursalService : ICurrentSucursalService
+public class CurrentSucursalService(IHttpContextAccessor httpContextAccessor) : ICurrentSucursalService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CurrentSucursalService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public Guid? SucursalId
     {

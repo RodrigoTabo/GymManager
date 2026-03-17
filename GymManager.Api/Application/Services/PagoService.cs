@@ -234,6 +234,8 @@ namespace GymManager.Api.Application.Services
         {
 
             DateTime hoy = DateTime.UtcNow.Date;
+            DateTime mañana = hoy.AddDays(1);
+            DateTime semana = hoy.AddDays(+7);
 
             var userId = _currentUserService.UserId
                             ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
@@ -253,7 +255,7 @@ namespace GymManager.Api.Application.Services
             var consulta = _context.Pagos
                 .AsNoTracking()
                 .Where(s=> s.Socio.EliminadoEn == null)
-                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId && p.CubreHasta >= hoy);
+                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId && p.CubreHasta >= hoy && p.CubreHasta < semana);
 
             var listar = await consulta
                 .OrderByDescending(p => p.CubreHasta)

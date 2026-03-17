@@ -8,6 +8,6 @@ namespace GymManager.Shared.Enums
         DniInvalido = 2,
         SocioInactivo = 3,
         SocioInexistente = 4,
-        YaMarcoHoy = 5,
+        YaMarcoHoy = 5
     }
 }

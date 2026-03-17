@@ -9,6 +9,7 @@ namespace GymManager.Api.Application.Services
     {
         private readonly GymManagerDbContext _context = context;
         private readonly ICurrentUserService _currentUserService = currentUserService;
+
         public async Task<List<SucursalResponse>> GetSucursalAsync()
         {
             var userId = _currentUserService.UserId;

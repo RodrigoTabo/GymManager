@@ -57,19 +57,7 @@
         {
             if (ex.StatusCode == HttpStatusCode.Conflict)
             {
-                var parameters = new DialogParameters
-                {
-                    ["Title"] = "Acceso denegado",
-                    ["Description"] = "No se pudo marcar la asistencia.",
-                    ["ContentText"] = ex.Message,
-                    ["Icon"] = Icons.Material.Filled.Block,
-                    ["IconColor"] = Color.Error,
-                    ["OkText"] = "Entendido",
-                    ["CancelText"] = null
-                };
-
-                var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-                await DialogService.ShowAsync<AsistenciaDialog>("", parameters, options);
+                Snackbar.Add(ex.Message, Severity.Warning);
             }
             else
             {

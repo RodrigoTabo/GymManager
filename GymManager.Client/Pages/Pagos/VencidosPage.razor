@@ -57,6 +57,7 @@
 
     private async Task ReloadAsync()
     {
+        Console.WriteLine($"SucursalId actual: {SucursalId}");
         await LoadVencidosAsync();
         await LoadStatsAsync();
     }
@@ -64,6 +65,7 @@
     public async Task LoadVencidosAsync()
     {
         Loading = true;
+        Error = null;
 
         try
         {
@@ -71,7 +73,7 @@
         }
         catch (Exception ex)
         {
-            ErrorStats = ex.Message;
+            Error = ex.Message;
         }
         finally
         {
@@ -98,6 +100,7 @@
     public async Task LoadStatsAsync()
     {
         loadingStats = true;
+        ErrorStats = null;
 
         try
         {
@@ -105,7 +108,7 @@
         }
         catch (Exception ex)
         {
-            Error = ex.Message;
+            ErrorStats = ex.Message;
         }
         finally
         {

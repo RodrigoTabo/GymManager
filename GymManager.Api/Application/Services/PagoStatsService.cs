@@ -174,15 +174,14 @@ namespace GymManager.Api.Application.Services
 
         public async Task<VencimientoStatsResponse> GetVencidosStatsAsync(Guid sucursalid)
         {
-            //Validamos las sucursalId y el userId.
             var userId = _currentUserService.UserId
-               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
 
             var sucursalId = _currentSucursalService.SucursalId
                 ?? throw new UnauthorizedAccessException("Sucursal no informada.");
 
             if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
 
             var autorizado = await _context.UsuarioSucursales
                 .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
@@ -190,78 +189,64 @@ namespace GymManager.Api.Application.Services
             if (!autorizado)
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
-            DateTime hoy = DateTime.UtcNow.Date;
-            DateTime mañana = hoy.AddDays(1);
-            DateTime semana = hoy.AddDays(+7);
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+            var finSemana = hoy.AddDays(7);
 
-            var ultimosVencimientos = _context.Pagos
+            var sociosConPagoActual = await _context.Socios
                 .AsNoTracking()
-                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
-                .Where(p => p.Socio.EliminadoEn == null)
-                .GroupBy(p => p.SocioId)
-                .Select(g => new
+                .Where(s => s.SucursalId == sucursalId)
+                .Where(s => s.EliminadoEn == null)
+                .Where(s => s.FechaBaja == null)
+                .Select(s => new
                 {
-                    SocioId = g.Key,
-                    CubreHasta = g.Max(p => p.CubreHasta)
-                });
+                    SocioId = s.Id,
+                    Nombre = s.Nombre,
+                    PagoActual = _context.Pagos
+                        .Where(p => p.SocioId == s.Id)
+                        .Where(p => p.SucursalId == sucursalId)
+                        .Where(p => p.EliminadoEn == null)
+                        .OrderByDescending(p => p.FechaPago)
+                        .ThenByDescending(p => p.Id)
+                        .Select(p => new
+                        {
+                            p.CubreHasta,
+                            Precio = s.Plan.Precio
+                        })
+                        .FirstOrDefault()
+                })
+                .Where(x => x.PagoActual != null)
+                .ToListAsync();
 
-            var VencenHoy = await _context.Pagos
-                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
-                .GroupBy(p => p.SocioId)
-                .Select(g => g.Max(p => p.CubreHasta))
-                .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < mañana);
+            var normalizada = sociosConPagoActual
+                .Select(x => new
+                {
+                    x.SocioId,
+                    x.Nombre,
+                    PrecioPlan = x.PagoActual!.Precio,
+                    Vence = DateOnly.FromDateTime(x.PagoActual.CubreHasta)
+                })
+                .ToList();
 
-            var VencenEstaSemana = await _context.Pagos
-                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId)
-                .GroupBy(p => p.SocioId)
-                .Select(g => g.Max(p => p.CubreHasta))
-                .CountAsync(cubreHasta => cubreHasta >= hoy && cubreHasta < semana);
+            var vencenHoyItems = normalizada
+                .Where(x => x.Vence == hoy)
+                .ToList();
 
-            //var TotalCobrarHoy = await _context.Pagos
-            //    .AsNoTracking()
-            //    .Where(p => p.EliminadoEn == null)
-            //    .Where(p => p.CubreHasta >= hoy && p.CubreHasta < mañana && p.SucursalId == sucursalId)
-            //    .Where(s => s.Socio.EliminadoEn == null && s.SucursalId == sucursalId)
-            //    .SumAsync(p => p.Importe);
+            var vencenEstaSemanaItems = normalizada
+                .Where(x => x.Vence > hoy && x.Vence <= finSemana)
+                .ToList();
 
-            var TotalCobrarHoy = await (
-                from uv in ultimosVencimientos
-                join s in _context.Socios.AsNoTracking()
-                    on uv.SocioId equals s.Id
-                where uv.CubreHasta >= hoy
-                   && uv.CubreHasta < mañana
-                   && s.SucursalId == sucursalId
-                   && s.EliminadoEn == null
-                select (decimal?)s.Plan.Precio
-            ).SumAsync() ?? 0m;
+            var vencidosItems = normalizada
+                .Where(x => x.Vence < hoy)
+                .ToList();
 
-            var TotalCobrarSemana = await (
-                from uv in ultimosVencimientos
-                join s in _context.Socios.AsNoTracking()
-                    on uv.SocioId equals s.Id
-                where uv.CubreHasta >= hoy
-                   && uv.CubreHasta < semana
-                   && s.SucursalId == sucursalId
-                   && s.EliminadoEn == null
-                select (decimal?)s.Plan.Precio
-            ).SumAsync() ?? 0m;
-
-            var vencidos = await _context.Socios
-                .AsNoTracking()
-                .Where(p => p.FechaBaja != null && p.SucursalId == sucursalId)
-                .CountAsync();
-
-            var stats = new VencimientoStatsResponse
+            return new VencimientoStatsResponse
             {
-                VencenHoy = VencenHoy,
-                VencenEstaSemana = VencenEstaSemana,
-                TotalCobrarHoy = TotalCobrarHoy,
-                TotalCobrarSemana = TotalCobrarSemana,
-                Vencidos = vencidos
+                VencenHoy = vencenHoyItems.Count,
+                VencenEstaSemana = vencenEstaSemanaItems.Count,
+                TotalCobrarHoy = vencenHoyItems.Sum(x => x.PrecioPlan),
+                TotalCobrarSemana = vencenEstaSemanaItems.Sum(x => x.PrecioPlan),
+                Vencidos = vencidosItems.Count
             };
-
-            return stats;
-
         }
     }
 }

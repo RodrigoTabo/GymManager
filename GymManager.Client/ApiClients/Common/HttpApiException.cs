@@ -44,7 +44,6 @@ namespace GymManager.Client.ApiClients.Common
                 // ignore parse errors
             }
 
-            // 3) fallback
             var text = await resp.Content.ReadAsStringAsync();
             var fallback = string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)status}" : text;
             return new HttpApiException(fallback, status);

@@ -92,7 +92,9 @@ namespace GymManager.Api.Application.Services
             if (!autorizado)
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
-            var hoy = DateTime.UtcNow;
+            var hoy = DateTime.Today;
+            DateTime hoyInicio = DateTime.Today;
+            var mañana = hoyInicio.AddDays(1);
 
             //Normalizamos el DNI
             var dniNormalizado = new string((DNI ?? "").Trim().Where(char.IsDigit).ToArray());
@@ -161,8 +163,14 @@ namespace GymManager.Api.Application.Services
             }
 
             //Buscamos si tiene cuota vigente
-            var cuotaVigente = await _context.Pagos
-                .AnyAsync(p => p.SocioId == socio.Id && p.CubreDesde <= hoy && hoy <= p.CubreHasta && p.SucursalId == sucursalId);
+            var ultimoPago = await _context.Pagos
+                .AsNoTracking()
+                .Where(p => p.SocioId == socio.Id && p.SucursalId == sucursalId && p.EliminadoEn == null)
+                .OrderByDescending(p => p.FechaPago)
+                .ThenByDescending(p => p.Id)
+                .FirstOrDefaultAsync();
+
+            var cuotaVigente = ultimoPago is not null && ultimoPago.CubreHasta.Date >= hoy.Date;
             //Si no tiene cuota vigente, lo registramos que intento y no tiene la cuota vigente.
             if (!cuotaVigente)
             {
@@ -174,6 +182,25 @@ namespace GymManager.Api.Application.Services
                 await _context.SaveChangesAsync();
 
                 throw new ConflictException("Acceso denegado: no tenés una cuota vigente. Hablá con el recepcionista.");
+            }
+
+            var existeAsistencia = await _context.Asistencias
+                .AnyAsync(a =>
+                    a.Socio.DNI == dniNormalizado &&
+                    a.SucursalId == sucursalId &&
+                    a.FechaRegistro >= hoyInicio &&
+                    a.FechaRegistro < mañana);
+
+            if (existeAsistencia)
+            {
+                    intento.Resultado = ResultadoAcceso.Denegada;
+                    intento.Motivo = MotivoAcceso.YaMarcoHoy;
+                    intento.SucursalId = sucursalid;
+
+                    _context.IntentosAccesos.Add(intento);
+                    await _context.SaveChangesAsync();
+
+                    throw new ConflictException("Ya ha marcado el dia de hoy.");
             }
 
             //Guardamos la asistencia
