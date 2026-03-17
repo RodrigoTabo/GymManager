@@ -74,7 +74,7 @@ namespace GymManager.Api.Application.Services
 
             //Calculamos desde cuando cubre el dia, hasta cuando.
             var CubreDesde = DateTime.UtcNow;
-            var CubreHasta = CubreDesde.AddDays(plan.DuracionDias - 1);
+            var CubreHasta = CubreDesde.AddDays(plan.DuracionDias);
             // Si eligio un plan, colocamos el precio del plan y lo que pago.
             var importe = plan.Precio;
 
@@ -95,7 +95,7 @@ namespace GymManager.Api.Application.Services
             await _context.SaveChangesAsync();
 
             return crearPago.Id;
-        }      
+        }
 
         public async Task<List<PagoResponse>> ListarAsync(Guid sucursalid)
         {
@@ -252,21 +252,44 @@ namespace GymManager.Api.Application.Services
             if (!autorizado)
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
-            var consulta = _context.Pagos
+            var pagosFiltrados = await _context.Pagos
                 .AsNoTracking()
-                .Where(s=> s.Socio.EliminadoEn == null)
-                .Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId && p.CubreHasta >= hoy && p.CubreHasta < semana);
-
-            var listar = await consulta
-                .OrderByDescending(p => p.CubreHasta)
-                .Select(p => new VencidoResponse
+                .Where(p => p.Socio.EliminadoEn == null)
+                .Where(p => p.EliminadoEn == null
+                    && p.SucursalId == sucursalId
+                    && p.CubreHasta >= hoy
+                    && p.CubreHasta < semana)
+                .Select(p => new
                 {
-                    NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
+                    p.Id,
+                    p.SocioId,
+                    p.FechaPago,
+                    p.CubreHasta,
+                    p.Importe,
+                    Nombre = p.Socio.Nombre,
+                    Apellido = p.Socio.Apellido,
                     Plan = p.Socio.Plan.Nombre,
-                    VenceEn = p.CubreHasta,
-                    Importe = p.Importe,
                     Telefono = p.Socio.Telefono
-                }).ToListAsync();
+                })
+                .ToListAsync();
+
+            var listar = pagosFiltrados
+                .GroupBy(p => p.SocioId)
+                .Select(g => g
+                    .OrderByDescending(x => x.FechaPago)
+                    .ThenByDescending(x => x.Id)
+                    .First())
+                .OrderBy(x => x.CubreHasta)
+                .Select(x => new VencidoResponse
+                {
+                    NombreCompleto = x.Nombre + " " + x.Apellido,
+                    SocioId = x.SocioId,
+                    Plan = x.Plan,
+                    VenceEn = x.CubreHasta,
+                    Importe = x.Importe,
+                    Telefono = x.Telefono
+                })
+                .ToList();
 
             return listar;
 

@@ -39,7 +39,7 @@
     private void Cancel() => MudDialog.Cancel();
 
     [Parameter]
-    public SocioResponse? Socio { get; set; }
+    public int SocioId { get; set; }
     [Parameter]
     public Guid SucursalId { get; set; }
     [Parameter]
@@ -51,13 +51,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Socio is not null)
-            Model.SocioId = Socio.Id;
+        if (SocioId > 0)
+            Model.SocioId = SocioId;
 
-        await LoadMetodsoPagosAsync();
+        await LoadMetodosPagosAsync();
     }
 
-    private async Task LoadMetodsoPagosAsync()
+    private async Task LoadMetodosPagosAsync()
     {
         ErrorMetodosPagos = null;
         GuardandoMetodosPagos = true;

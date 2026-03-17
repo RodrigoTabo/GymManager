@@ -1,0 +1,124 @@
+﻿@using GymManager.Shared.Contracts.General
+@using GymManager.Shared.Contracts.Pagos
+<MudItem xs="12" sm="6" md="3">
+    <MudPaper Class="pa-3 h-100" Elevation="1" Style="border-radius:20px;">
+        <MudStack Spacing="2">
+
+            <!-- Header -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                    <MudAvatar Variant="Variant.Filled"
+                               Color="@Color"
+                               Size="Size.Small">
+                        <MudIcon Icon="@Icons.Material.Filled.WarningAmber" Size="Size.Small" />
+                    </MudAvatar>
+
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.caption" Class="mud-text">@SubTitulo</MudText>
+                        <MudText Typo="Typo.subtitle2">@Titulo</MudText>
+                    </MudStack>
+                </MudStack>
+
+                <MudChip T="string"
+                         Variant="Variant.Text"
+                         Color="Color.Error"
+                         Size="Size.Small">
+                    @(Loading ? "..." : $"{Items?.Take(CantidadMostrar).Count() ?? 0}")
+                </MudChip>
+            </MudStack>
+
+            @if (Loading)
+            {
+                <MudPaper Class="pa-3" Outlined="true" Style="border-radius:14px;">
+                    <MudStack Spacing="1">
+                        <MudSkeleton Height="18px" Width="70%" />
+                        <MudSkeleton Height="14px" Width="50%" />
+                        <MudSkeleton Height="14px" Width="40%" />
+                    </MudStack>
+                </MudPaper>
+            }
+            else if (Items is not null && Items.Any())
+            {
+                <MudStack Spacing="1">
+                    @foreach (var item in Items.Take(CantidadMostrar).Select((value, index) => new { value, index }))
+                    {
+                        var vencido = item.value;
+                        var posicion = item.index + 1;
+                        var dias = vencido.VenceEn.Day;
+
+                        <MudPaper Class="pa-2" Outlined="true" Style="border-radius:14px;">
+                            <MudStack Spacing="1">
+
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudAvatar Variant="Variant.Filled"
+                                                   Color="Color.Primary"
+                                                   Size="Size.Small">
+                                            @posicion
+                                        </MudAvatar>
+
+                                        <MudStack Spacing="0">
+                                            <MudText Typo="Typo.body2">@vencido.NombreCompleto</MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text">
+                                                @vencido.Plan
+                                            </MudText>
+                                        </MudStack>
+                                    </MudStack>
+
+                                    <MudText Typo="Typo.caption" Class="mud-text">
+                                        @vencido.Importe.ToString("C")
+                                    </MudText>
+                                </MudStack>
+
+                                <MudChip T="string"
+                                         Variant="Variant.Text"
+                                         Color="@(dias <= 3 ? Color.Error : Color.Error)"
+                                         Size="Size.Small">
+                                    Vence en @dias días
+                                </MudChip>
+                            </MudStack>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+            else
+            {
+                <MudPaper Class="pa-4 text-center" Outlined="true" Style="border-radius:14px;">
+                    <MudIcon Icon="@Icons.Material.Filled.EventAvailable"
+                             Size="Size.Medium"
+                             Color="Color.Success"
+                             Class="mb-1" />
+                    <MudText Typo="Typo.subtitle2">No hay datos</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text">
+                        @TextoVacio
+                    </MudText>
+                </MudPaper>
+            }
+
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+    [Parameter]
+    public string Titulo { get; set; } = "Top 3 del mes";
+
+    [Parameter]
+    public string SubTitulo { get; set; } = "Vencimientos";
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    [Parameter]
+    public List<VencidoResponse> Items { get; set; } = new();
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public int CantidadMostrar { get; set; } = 3;
+
+    [Parameter]
+    public string TextoVacio { get; set; } = "No hay vencimientos próximos.";
+
+}

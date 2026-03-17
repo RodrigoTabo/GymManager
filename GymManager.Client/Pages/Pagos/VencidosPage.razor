@@ -1,9 +1,12 @@
 ﻿@attribute [Authorize]
+@using MudBlazor
 @using GymManager.Client.ApiClients
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
+@using GymManager.Shared.Contracts.Socios
 @using Microsoft.AspNetCore.Authorization
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 @inject PagoApi PagoApi
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
@@ -30,7 +33,8 @@
     <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
         <VencidoTable Items="Items"
                       Loading="Loading"
-                      OnWhatsApp="MensajeWhatsapp" />
+                      OnWhatsApp="MensajeWhatsapp"
+                      OnPago="OpenPago"/>
     </MudPaper>
 
     <VencimientosStatsSection Loading="loadingStats"
@@ -114,5 +118,22 @@
         {
             loadingStats = false;
         }
+    }
+
+    private async Task OpenPago(VencidoResponse vencido)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+        {
+            ["SocioId"] = vencido.SocioId,
+            ["SocioNombre"] = $"{vencido.NombreCompleto}",
+            ["SucursalId"] = SucursalId
+        };
+
+        var dialog = await DialogService.ShowAsync<PagoDialog>("Agregar Pago", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await ReloadAsync();
     }
 }

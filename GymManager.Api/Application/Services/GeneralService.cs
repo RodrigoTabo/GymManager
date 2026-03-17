@@ -103,7 +103,9 @@ namespace GymManager.Api.Application.Services
                 p.CubreHasta >= hoy && p.CubreHasta <= mañana &&
                 p.EliminadoEn == null && p.SucursalId == sucursalId)
             .OrderByDescending(p => p.FechaPago)
-            .Take(5)
+            .OrderByDescending(p => p.Id)
+            .ThenByDescending(x => x.Id)
+            .Take(3)
             .Select(p => new VencidoResponse
             {
                 NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
@@ -120,8 +122,10 @@ namespace GymManager.Api.Application.Services
             .AsNoTracking()
             .Where(p => p.CubreDesde >= inicioMes && p.CubreHasta <= inicioMesSiguiente &&
                 p.EliminadoEn == null && p.SucursalId == sucursalId)
-            .OrderByDescending(p => p.FechaPago)
-            .Take(5)
+            .OrderByDescending(p => p.Importe)
+            .OrderByDescending(p => p.Id)
+            .ThenByDescending(x => x.Id)
+            .Take(3)
             .Select(p => new VencidoResponse
             {
                 NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
