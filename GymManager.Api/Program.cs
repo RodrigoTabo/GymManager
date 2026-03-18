@@ -52,6 +52,9 @@ namespace GymManager.Api
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<ICurrentSucursalService, CurrentSucursalService>();
 
+            //Helper para validaciones de sucursalId y UserId
+            builder.Services.AddScoped<ISucursalAccessValidator, SucursalAccessValidator>();
+
             // DbContext
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
                 options.UseSqlServer(

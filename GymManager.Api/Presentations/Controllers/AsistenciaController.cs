@@ -15,6 +15,7 @@ namespace GymManager.Api.Presentations.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<AsistenciaResponse>>> Get([FromRoute] Guid sucursalId, [FromQuery] AsistenciaFiltro filtro)
             => Ok(await _asistenciaService.ListarAsync(sucursalId, filtro));
 

@@ -10,30 +10,16 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace GymManager.Api.Application.Services
 {
     public class AsistenciaService(GymManagerDbContext context,
-        ICurrentSucursalService currentSucursalService,
-        ICurrentUserService currentUserService) : IAsistenciaService
+        ISucursalAccessValidator sucursalAccessValidator) : IAsistenciaService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
 
         public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalid, AsistenciaFiltro filtro)
         {
 
-            var userId = _currentUserService.UserId
-                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-              .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+            //Separe esto para una mejor legibilidad... si ven en los commits, estaba hecho feo
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             var query = _context.Asistencias
                 .AsNoTracking()
@@ -77,20 +63,8 @@ namespace GymManager.Api.Application.Services
         public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalid, string DNI)
         {
 
-            var userId = _currentUserService.UserId
-           ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+            //Separe esto para una mejor legibilidad... si ven en los commits, estaba hecho feo
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             var hoy = DateTime.Today;
             DateTime hoyInicio = DateTime.Today;
@@ -193,14 +167,14 @@ namespace GymManager.Api.Application.Services
 
             if (existeAsistencia)
             {
-                    intento.Resultado = ResultadoAcceso.Denegada;
-                    intento.Motivo = MotivoAcceso.YaMarcoHoy;
-                    intento.SucursalId = sucursalid;
+                intento.Resultado = ResultadoAcceso.Denegada;
+                intento.Motivo = MotivoAcceso.YaMarcoHoy;
+                intento.SucursalId = sucursalid;
 
-                    _context.IntentosAccesos.Add(intento);
-                    await _context.SaveChangesAsync();
+                _context.IntentosAccesos.Add(intento);
+                await _context.SaveChangesAsync();
 
-                    throw new ConflictException("Ya ha marcado el dia de hoy.");
+                throw new ConflictException("Ya ha marcado el dia de hoy.");
             }
 
             //Guardamos la asistencia
@@ -211,11 +185,27 @@ namespace GymManager.Api.Application.Services
                 SucursalId = sucursalid
             };
 
-            //Guardamos los intentos y las asistencias.
-            _context.IntentosAccesos.Add(intento);
-            _context.Asistencias.Add(asistencia);
+            //Guardo la transacción en la variable.
+            using var tx = await _context.Database.BeginTransactionAsync();
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.IntentosAccesos.Add(intento);
+                _context.Asistencias.Add(asistencia);
+
+                await _context.SaveChangesAsync();
+                ///Confirmnamos la transacción
+                await tx.CommitAsync();
+
+            }
+            catch
+            {
+                //Si no se pudo confirmar y se rompio en medio, volvemos para atrás.
+                await tx.RollbackAsync();
+                throw;
+            }
+
+            //Guardamos los intentos y las asistencias.
 
             return new MarcarAsistenciaResponse(
                 asistencia.Id,

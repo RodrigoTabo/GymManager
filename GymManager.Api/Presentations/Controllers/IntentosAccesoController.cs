@@ -12,7 +12,10 @@ namespace GymManager.Api.Presentations.Controllers
     public class IntentosAccesoController(IIntentosAccesoService intentosAcceso) : ControllerBase
     {
         private readonly IIntentosAccesoService _intentosAccesoService = intentosAcceso;
+
+
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<IntentosAccesoResponse>>> Listar([FromRoute] Guid sucursalId, [FromQuery] IntentosAccesoFiltro filtro)
         {
             var result = await _intentosAccesoService.ListarAsync(sucursalId, filtro);

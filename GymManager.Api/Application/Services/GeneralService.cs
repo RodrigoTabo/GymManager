@@ -96,35 +96,55 @@ namespace GymManager.Api.Application.Services
                 .Where(i => i.FechaRegistro >= inicioMes && i.FechaRegistro <= inicioMesSiguiente && i.Resultado == ResultadoAcceso.Denegada && i.SucursalId == sucursalId)
                 .CountAsync();
 
+
+
+
             //Listamos los que vencen hoy
-            var TotalVencenHoy = await _context.Pagos
+            var ListaHoy = await _context.Pagos
+                .AsNoTracking()
+                .Include(p => p.Socio)
+                    .ThenInclude(s => s.Plan)
+                .Where(p =>
+                    p.CubreHasta >= hoy &&
+                    p.CubreHasta <= mañana &&
+                    p.EliminadoEn == null &&
+                    p.SucursalId == sucursalId)
+                .ToListAsync();
+
+            var TopVencenHoy = ListaHoy
+                .GroupBy(p => p.SocioId)
+                .Select(g => g.OrderBy(p => p.CubreHasta).First())
+                .OrderByDescending(p => p.FechaPago)
+                .ThenByDescending(p => p.Importe)
+                .Take(3)
+                .Select(p => new VencidoResponse
+                {
+                    NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
+                    Importe = p.Importe,
+                    Plan = p.Socio.Plan.Nombre,
+                    VenceEn = p.CubreHasta,
+                    Telefono = p.Socio.Telefono,
+                })
+                .ToList();
+
+            var ListaMes = await _context.Pagos
             .AsNoTracking()
+            .Include(p => p.Socio)
+                .ThenInclude(s => s.Plan)
             .Where(p =>
-                p.CubreHasta >= hoy && p.CubreHasta <= mañana &&
-                p.EliminadoEn == null && p.SucursalId == sucursalId)
-            .OrderByDescending(p => p.FechaPago)
-            .OrderByDescending(p => p.Id)
-            .ThenByDescending(x => x.Id)
-            .Take(3)
-            .Select(p => new VencidoResponse
-            {
-                NombreCompleto = p.Socio.Nombre + " " + p.Socio.Apellido,
-                Importe = p.Importe,
-                Plan = p.Socio.Plan.Nombre,
-                VenceEn = p.CubreHasta,
-                Telefono = p.Socio.Telefono,
-            }
-            )
+            p.CubreDesde >= inicioMes &&
+            p.CubreHasta <= inicioMesSiguiente &&
+            p.EliminadoEn == null &&
+            p.SucursalId == sucursalId)
             .ToListAsync();
 
+
             //Listamos los que vencen en todo el mes
-            var TotalVencenMes = await _context.Pagos
-            .AsNoTracking()
-            .Where(p => p.CubreDesde >= inicioMes && p.CubreHasta <= inicioMesSiguiente &&
-                p.EliminadoEn == null && p.SucursalId == sucursalId)
-            .OrderByDescending(p => p.Importe)
-            .OrderByDescending(p => p.Id)
-            .ThenByDescending(x => x.Id)
+            var TotalVencenMes = ListaMes
+            .GroupBy(p => p.SocioId)
+            .Select(g => g.OrderBy(p=> p.CubreHasta).First())
+            .OrderByDescending(p => p.FechaPago)
+            .ThenByDescending(x => x.Importe)
             .Take(3)
             .Select(p => new VencidoResponse
             {
@@ -133,9 +153,8 @@ namespace GymManager.Api.Application.Services
                 Plan = p.Socio.Plan.Nombre,
                 VenceEn = p.CubreHasta,
                 Telefono = p.Socio.Telefono
-            }
-            )
-            .ToListAsync();
+            })
+            .ToList();
 
             var stats = new GeneralResponse
             {
@@ -147,7 +166,7 @@ namespace GymManager.Api.Application.Services
                 PagosMensualesCount = PagosMensualesCount,
                 TotalPagoDiario = TotalPagoDiario,
                 TotalPagoMensual = TotalPagoMensual,
-                TopVencenHoy = TotalVencenHoy,
+                TopVencenHoy = TopVencenHoy,
                 TopVencenMes = TotalVencenMes,
             };
 
