@@ -1,10 +1,8 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+﻿@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @using GymManager.Shared.Contracts.Asistencias
 @using GymManager.Client.ApiClients
 @inject AsistenciaApi AsistenciaApi
-
-
 
 <!-- Filtros -->
 <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
@@ -23,9 +21,6 @@
 
 
 @code {
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private List<AsistenciaResponse> Asistencias = new();
     private bool loading;
@@ -50,7 +45,7 @@
         loading = true;
         try
         {
-            Asistencias = await AsistenciaApi.ListarAsync(SucursalId, Filtro);
+            Asistencias = await AsistenciaApi.ListarAsync(Filtro);
         }
         finally
         {

@@ -18,8 +18,10 @@ namespace GymManager.Api.Application.Services
         public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalid, AsistenciaFiltro filtro)
         {
 
-            //Separe esto para una mejor legibilidad... si ven en los commits, estaba hecho feo
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             var query = _context.Asistencias
                 .AsNoTracking()
@@ -63,8 +65,10 @@ namespace GymManager.Api.Application.Services
         public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalid, string DNI)
         {
 
-            //Separe esto para una mejor legibilidad... si ven en los commits, estaba hecho feo
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             var hoy = DateTime.Today;
             DateTime hoyInicio = DateTime.Today;

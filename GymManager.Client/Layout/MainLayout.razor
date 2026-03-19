@@ -28,12 +28,12 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">DASHBOARD</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/general")"
+            <MudNavLink Href="@($"/general")"
                         Match="NavLinkMatch.All"
                         Icon="@Icons.Material.Filled.Dashboard">
                 General
             </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/asistencia")"
+            <MudNavLink Href="@($"/asistencias")"
                         Icon="@Icons.Material.Filled.FactCheck">
                 Asistencias
             </MudNavLink>
@@ -41,7 +41,7 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">REPORTES</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/registro-de-accesos")"
+            <MudNavLink Href="@($"/registro-de-accesos")"
                         Icon="@Icons.Material.Filled.Login">
                 Registro de Accesos
             </MudNavLink>
@@ -49,7 +49,7 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">COBRANZAS</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/control-de-pagos")"
+            <MudNavLink Href="@($"/control-de-pagos")"
                         Icon="@Icons.Material.Filled.Payments">
                 Control de Pagos
             </MudNavLink>
@@ -57,11 +57,11 @@
 
         <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">ADMINISTRACIÓN</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/socios")"
+            <MudNavLink Href="@($"/socios")"
                         Icon="@Icons.Material.Filled.Group">
                 Socios
             </MudNavLink>
-            <MudNavLink Href="@($"/sucursal/{CurrentSucursalId}/panel-administrativo")"
+            <MudNavLink Href="@($"/panel-administrativo")"
                         Icon="@Icons.Material.Filled.Settings">
                 Panel Administrativo
             </MudNavLink>

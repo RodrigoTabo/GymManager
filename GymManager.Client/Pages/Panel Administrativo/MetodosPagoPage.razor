@@ -38,8 +38,6 @@
 </MudPaper>
 
 @code {
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private List<MetodoPagoResponse> metodoPagoResponse = new();
     private bool loading;
@@ -59,7 +57,7 @@
 
         try
         {
-            metodoPagoResponse = await MetodoPagoApi.ListarAsync(SucursalId);
+            metodoPagoResponse = await MetodoPagoApi.ListarAsync();
         }
         finally
         {

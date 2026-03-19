@@ -43,6 +43,7 @@ public class Program
         builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
             sp.GetRequiredService<JwtAuthStateProvider>());
 
+
         builder.Services.AddScoped<ApiHttpClientProvider>();
 
         builder.Services.AddScoped<AuthApi>();

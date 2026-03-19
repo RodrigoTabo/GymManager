@@ -9,30 +9,18 @@ using Microsoft.EntityFrameworkCore;
 namespace GymManager.Api.Application.Services
 {
     public class GeneralService(GymManagerDbContext context,
-        ICurrentSucursalService currentSucursalService,
-        ICurrentUserService currentUserService) : IGeneralService
+        ISucursalAccessValidator sucursalAccessValidator) : IGeneralService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
 
         public async Task<GeneralResponse> GetStatsGeneralAsync(Guid sucursalid)
         {
 
-            var userId = _currentUserService.UserId
-                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-              .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Declaramos que hoy es hoy...
             DateTime hoy = DateTime.UtcNow.Date;

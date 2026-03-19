@@ -4,9 +4,15 @@ using GymManager.Api.Application.Services;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Api.Infrastructure.Data.Seeds;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace GymManager.Api
 {
@@ -16,55 +22,39 @@ namespace GymManager.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // TODOS LOS SERVICIOS
+            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+
+            // ------------------------------
+            // SERVICIOS GENERALES
+            // ------------------------------
             builder.Services.AddScoped<IdentitySeedService>();
             builder.Services.AddHttpContextAccessor();
 
-
-            // Socios
             builder.Services.AddScoped<ISocioService, SocioService>();
             builder.Services.AddScoped<ISocioStatsService, SocioStatsService>();
-
-            // Planes
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<IPlanStatsService, PlanStatsService>();
-
-            // Pagos
             builder.Services.AddScoped<IPagoService, PagoService>();
             builder.Services.AddScoped<IPagoStatsService, PagoStatsService>();
-
-            // Asistencias
             builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
-
-            // Métodos de pago
             builder.Services.AddScoped<IMetodoPagoService, MetodoPagoService>();
-
-            // Intentos de acceso
             builder.Services.AddScoped<IIntentosAccesoService, IntentosAccessoService>();
-
-            // Stats general
             builder.Services.AddScoped<IGeneralService, GeneralService>();
-
-            // sucursal
             builder.Services.AddScoped<ISucursalService, SucursalService>();
-
-            //CurrentUser & CurrentSucursal
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<ICurrentSucursalService, CurrentSucursalService>();
-
-            //Helper para validaciones de sucursalId y UserId
             builder.Services.AddScoped<ISucursalAccessValidator, SucursalAccessValidator>();
 
-            // DbContext
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("GymManagerDbContext")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));
 
             builder.Services.AddControllers();
-            builder.Services.AddApiExceptionHandling();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddApiExceptionHandling();
 
+            // ------------------------------
+            // CORS
+            // ------------------------------
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("Client", policy =>
@@ -73,6 +63,9 @@ namespace GymManager.Api
                           .AllowAnyMethod());
             });
 
+            // ------------------------------
+            // SWAGGER
+            // ------------------------------
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -94,25 +87,32 @@ namespace GymManager.Api
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
+                    new OpenApiSecurityScheme
+                {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+                },
+                    Array.Empty<string>()
                     }
                 });
-            });
 
-            // Identity
+                // Ignorar endpoints que no sean de controladores
+                options.DocInclusionPredicate((docName, apiDesc) =>
+                {
+                    return apiDesc.ActionDescriptor is ControllerActionDescriptor;
+                });
+                });
+
+            // ------------------------------
+            // IDENTITY CORE
+            // ------------------------------
             builder.Services
                 .AddIdentityCore<AppUser>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
-
                     options.Password.RequiredLength = 8;
                     options.Password.RequireDigit = true;
                     options.Password.RequireUppercase = true;
@@ -123,11 +123,53 @@ namespace GymManager.Api
                 .AddEntityFrameworkStores<GymManagerDbContext>()
                 .AddApiEndpoints();
 
-            builder.Services.AddAuthentication()
-                .AddBearerToken(IdentityConstants.BearerScheme);
+            // ------------------------------
+            // JWT AUTHENTICATION
+            // ------------------------------
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+ .AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = true,
+         ValidateAudience = true,
+         ValidateLifetime = true,
+         ValidateIssuerSigningKey = true,
+         ValidIssuer = builder.Configuration["Jwt:Issuer"],
+         ValidAudience = builder.Configuration["Jwt:Audience"],
+         IssuerSigningKey = new SymmetricSecurityKey(
+             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+     };
+
+     // Este evento mapea claims personalizados
+     options.Events = new JwtBearerEvents
+     {
+         OnTokenValidated = context =>
+         {
+             // Leer "SucursalId" del claim y ponerlo como ClaimType.NameIdentifier (opcional)
+             var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+
+             var sucursalClaim = claimsIdentity?.FindFirst("SucursalId");
+             if (sucursalClaim != null)
+             {
+                 // Ojo: si querés puedes mapearlo a otro tipo de claim
+                 claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, sucursalClaim.Value));
+             }
+
+             return Task.CompletedTask;
+         }
+     };
+ });
 
             builder.Services.AddAuthorization();
 
+            // ------------------------------
+            // BUILD APP
+            // ------------------------------
             var app = builder.Build();
 
             app.UseApiExceptionHandling();
@@ -136,17 +178,18 @@ namespace GymManager.Api
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "GymManager API v1");
+                });
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
             app.MapIdentityApi<AppUser>();
-
 
             using (var scope = app.Services.CreateScope())
             {

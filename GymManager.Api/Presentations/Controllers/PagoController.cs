@@ -7,7 +7,7 @@ namespace GymManager.Api.Presentations.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/sucursales/{sucursalId:guid}/pagos")]
+    [Route("api/pagos")]
     [Produces("application/json")]
     public class PagoController(IPagoService pagoService, IPagoStatsService pagoStatsService) : ControllerBase
     {
@@ -19,8 +19,16 @@ namespace GymManager.Api.Presentations.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(List<PagoResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<PagoResponse>>> Get([FromRoute] Guid sucursalId)
-            => Ok(await _pagoService.ListarAsync(sucursalId));
+        public async Task<ActionResult<List<PagoResponse>>> Get()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+            return Ok(await _pagoService.ListarAsync(sucursalId));
+        }
 
         /// <summary>
         /// Creamos
@@ -29,10 +37,17 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Post([FromRoute] Guid sucursalId, [FromBody] CreatePagoRequest request)
+        public async Task<ActionResult> Post([FromBody] CreatePagoRequest request)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
             var id = await _pagoService.CrearAsync(sucursalId, request);
-            return Created($"api/sucursales/{sucursalId}/pagos/{id}", new { id });
+            return Created($"api/pagos/{id}", new { id });
         }
 
         /// <summary>
@@ -43,8 +58,14 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromRoute] Guid sucursalId, [FromBody] UpdatePagoRequest request, [FromRoute] int id)
+        public async Task<ActionResult> Put([FromBody] UpdatePagoRequest request, [FromRoute] int id)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
             await _pagoService.UpdateAsync(sucursalId, request, id);
             return NoContent();
         }
@@ -55,8 +76,14 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId, [FromRoute] int id)
+        public async Task<ActionResult> SoftDeleteAsync([FromRoute] int id)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
             await _pagoService.SoftDeleteAsync(sucursalId, id);
             return NoContent();
         }
@@ -66,24 +93,48 @@ namespace GymManager.Api.Presentations.Controllers
         /// </summary>
         [HttpGet("stats")]
         [ProducesResponseType(typeof(PagosStatsResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync([FromRoute] Guid sucursalId)
-            => Ok(await _pagoStatsService.GetStatsAsync(sucursalId));
+        public async Task<ActionResult<PagosStatsResponse>> GetStatsAsync()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+            return Ok(await _pagoStatsService.GetStatsAsync(sucursalId));
+        }
 
         /// <summary>
         /// Vencidos
         /// </summary>
         [HttpGet("vencidos")]
         [ProducesResponseType(typeof(List<VencidoResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<VencidoResponse>>> GetVencidosAsync([FromRoute] Guid sucursalId)
-            => Ok(await _pagoService.GetVencidosAsync(sucursalId));
+        public async Task<ActionResult<List<VencidoResponse>>> GetVencidosAsync()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+            return Ok(await _pagoService.GetVencidosAsync(sucursalId));
+        }
 
         /// <summary>
         /// Stats Vencidos
         /// </summary>
         [HttpGet("vencidos/stats")]
         [ProducesResponseType(typeof(VencimientoStatsResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<VencimientoStatsResponse>> GetVencidoStatsAsync([FromRoute] Guid sucursalId)
-            => Ok(await _pagoStatsService.GetVencidosStatsAsync(sucursalId));
+        public async Task<ActionResult<VencimientoStatsResponse>> GetVencidoStatsAsync()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+            return Ok(await _pagoStatsService.GetVencidosStatsAsync(sucursalId));
+        }
 
     }
 }

@@ -11,7 +11,7 @@ namespace GymManager.Client.ApiClients
         private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
 
-        public async Task<List<IntentosAccesoResponse>> ListarAsync(Guid sucursalId, IntentosAccesoFiltro filtro)
+        public async Task<List<IntentosAccesoResponse>> ListarAsync(IntentosAccesoFiltro filtro)
         {
             var client = await _clientProvider.GetClientAsync();
             var queryParams = new List<string>();
@@ -34,7 +34,7 @@ namespace GymManager.Client.ApiClients
             if (filtro.Hasta.HasValue)
                 queryParams.Add($"hasta={Uri.EscapeDataString(filtro.Hasta.Value.ToString("O"))}");
 
-            var url = $"api/sucursales/{sucursalId}/intentos-acceso";
+            var url = $"api/intentos-acceso";
 
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);

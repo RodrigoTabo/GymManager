@@ -34,7 +34,7 @@
         <VencidoTable Items="Items"
                       Loading="Loading"
                       OnWhatsApp="MensajeWhatsapp"
-                      OnPago="OpenPago"/>
+                      OnPago="OpenPago" />
     </MudPaper>
 
     <VencimientosStatsSection Loading="loadingStats"
@@ -43,9 +43,6 @@
 </MudContainer>
 
 @code {
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private List<VencidoResponse> Items = new();
     private VencimientoStatsResponse Stats = new();
@@ -61,7 +58,6 @@
 
     private async Task ReloadAsync()
     {
-        Console.WriteLine($"SucursalId actual: {SucursalId}");
         await LoadVencidosAsync();
         await LoadStatsAsync();
     }
@@ -73,7 +69,7 @@
 
         try
         {
-            Items = await PagoApi.GetVencidosAsync(SucursalId);
+            Items = await PagoApi.GetVencidosAsync();
         }
         catch (Exception ex)
         {
@@ -108,7 +104,7 @@
 
         try
         {
-            Stats = await PagoApi.GetVencimientoStatsAsync(SucursalId);
+            Stats = await PagoApi.GetVencimientoStatsAsync();
         }
         catch (Exception ex)
         {
@@ -126,8 +122,7 @@
         var parameters = new DialogParameters
         {
             ["SocioId"] = vencido.SocioId,
-            ["SocioNombre"] = $"{vencido.NombreCompleto}",
-            ["SucursalId"] = SucursalId
+            ["SocioNombre"] = $"{vencido.NombreCompleto}"
         };
 
         var dialog = await DialogService.ShowAsync<PagoDialog>("Agregar Pago", parameters, options);

@@ -7,7 +7,7 @@ namespace GymManager.Api.Presentations.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/sucursales/{sucursalId:guid}/asistencias")]
+    [Route("api/asistencias")]
     [Produces("application/json")]
     public class AsistenciaController(IAsistenciaService asistenciaService) : ControllerBase
     {
@@ -16,20 +16,36 @@ namespace GymManager.Api.Presentations.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<AsistenciaResponse>>> Get([FromRoute] Guid sucursalId, [FromQuery] AsistenciaFiltro filtro)
-            => Ok(await _asistenciaService.ListarAsync(sucursalId, filtro));
+        public async Task<ActionResult<List<AsistenciaResponse>>> Get([FromQuery] AsistenciaFiltro filtro)
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
+            return Ok(await _asistenciaService.ListarAsync(sucursalId, filtro));
+        }
 
 
-        [HttpPost("marcar")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<MarcarAsistenciaResponse>> Post([FromRoute] Guid sucursalId, [FromBody] MarcarAsistenciaRequest request)
+        public async Task<ActionResult<MarcarAsistenciaResponse>> Post([FromBody] MarcarAsistenciaRequest request)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
             var resp = await _asistenciaService.MarcarPorDniAsync(sucursalId, request.DNI);
 
-            return Created($"api/sucursales/{sucursalId}/asistencias/{resp.Id}", resp);
+            return Created($"api/asistencias/{resp.Id}", resp);
         }
 
     }

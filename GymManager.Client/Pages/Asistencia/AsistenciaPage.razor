@@ -1,6 +1,6 @@
-﻿@page "/sucursal/{SucursalId:guid}/asistencia"
+﻿@attribute [Authorize]
+@page "/asistencias"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Client.ApiClients.Common
 @using GymManager.Shared.Contracts.Asistencias
@@ -18,9 +18,6 @@
                     enviarDNI="MarcarAsistencia" />
 </MudContainer>
 @code {
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private string? Error;
     private bool Guardando;
@@ -48,7 +45,7 @@
         try
         {
             var asistencia = new MarcarAsistenciaRequest(dniNormalizado);
-            var resp = await AsistenciaApi.MarcarPorDniAsync(SucursalId, asistencia);
+            var resp = await AsistenciaApi.MarcarPorDniAsync(asistencia);
 
             Snackbar.Add(resp.Mensaje, Severity.Success);
 

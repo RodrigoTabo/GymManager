@@ -139,7 +139,8 @@
 
             var result = await AuthApi.LoginAsync(model);
 
-            await JwtAuthStateProvider.MarkUserAsAuthenticatedAsync(result.AccessToken);
+            await JwtAuthStateProvider.MarkUserAsAuthenticatedAsync(result.Token);
+
 
             Navigation.NavigateTo("/sucursales");
         }

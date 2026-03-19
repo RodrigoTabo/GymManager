@@ -9,36 +9,32 @@ namespace GymManager.Api.Application.Services
     {
         private readonly GymManagerDbContext _context;
         private readonly ICurrentUserService _currentUserService;
-        private readonly ICurrentSucursalService _currentSucursalService;
 
-        public SucursalAccessValidator(
-            GymManagerDbContext context,
-            ICurrentUserService currentUserService,
-            ICurrentSucursalService currentSucursalService)
+        public SucursalAccessValidator(GymManagerDbContext context, ICurrentUserService currentUserService)
         {
             _context = context;
             _currentUserService = currentUserService;
-            _currentSucursalService = currentSucursalService;
         }
 
         public async Task<Guid> ValidarYObtenerSucursalAsync(Guid sucursalIdParam)
         {
             var userId = _currentUserService.UserId
-                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
+                         ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
 
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalesPermitidas = _currentUserService.Sucursales;
 
-            if (sucursalIdParam != sucursalId)
-                throw new UnauthorizedAccessException("Sucursal inválida.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
+            if (!sucursalesPermitidas.Contains(sucursalIdParam))
                 throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
-            return sucursalId;
+            var autorizado = await _context.UsuarioSucursales
+                .AnyAsync(x => x.UsuarioId == userId &&
+                               x.SucursalId == sucursalIdParam &&
+                               x.Sucursal.Activa);
+
+            if (!autorizado)
+                throw new UnauthorizedAccessException("Sucursal inválida o inactiva.");
+
+            return sucursalIdParam;
         }
     }
 }

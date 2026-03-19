@@ -1,6 +1,6 @@
-﻿@page "/sucursal/{SucursalId:guid}/control-de-pagos"
+﻿@attribute [Authorize]
+@page "/control-de-pagos"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
 @using GymManager.Client.Pages.Pagos
 
 <MudContainer MaxWidth="MaxWidth.Large"
@@ -24,11 +24,11 @@
                  ActivePanelIndexChanged="@OnPanelChanged">
 
             <MudTabPanel Text="Pagos realizados" Icon="@Icons.Material.Filled.Payments">
-                <PagosPage SucursalId="SucursalId" />
+                <PagosPage />
             </MudTabPanel>
 
             <MudTabPanel Text="Vencimientos" Icon="@Icons.Material.Filled.PersonAddDisabled">
-                <VencidosPage SucursalId="SucursalId" />
+                <VencidosPage />
             </MudTabPanel>
 
         </MudTabs>
@@ -39,9 +39,6 @@
 
 @code {
     private int activePanelIndex = 0;
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private void OnPanelChanged(int index)
     {

@@ -1,6 +1,6 @@
-﻿@page "/sucursal/{SucursalId:guid}/registro-de-accesos"
+﻿@attribute [Authorize]
+@page "/registro-de-accesos"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
 @using GymManager.Client.Pages.Asistencia
 @using GymManager.Client.Pages.IntentosAcceso
 
@@ -25,11 +25,11 @@
                  ActivePanelIndexChanged="@OnPanelChanged">
 
             <MudTabPanel Text="Asistencias" Icon="@Icons.Material.Filled.HowToReg">
-                <AsistenciaConfig SucursalId="SucursalId" />
+                <AsistenciaConfig/>
             </MudTabPanel>
 
             <MudTabPanel Text="Intentos de acceso" Icon="@Icons.Material.Filled.GppMaybe">
-                <IntentosAccesoPage SucursalId="SucursalId" />
+                <IntentosAccesoPage/>
             </MudTabPanel>
 
         </MudTabs>
@@ -39,9 +39,6 @@
 
 @code {
     private int activePanelIndex = 0;
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private void OnPanelChanged(int index)
     {

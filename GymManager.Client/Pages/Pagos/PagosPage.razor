@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+﻿@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @using GymManager.Client.ApiClients
 @using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
@@ -36,13 +36,10 @@
 </MudPaper>
 
 <PagoStatsSection Stats="Stats"
-                  Loading="loadingStats"
-                  SucursalId="SucursalId" />
+                  Loading="loadingStats" />
 
 @code {
 
-    [Parameter]
-    public Guid SucursalId { get; set; }
     private List<PagoResponse> pagos = new();
 
     private PagosStatsResponse Stats = new()
@@ -73,7 +70,7 @@
 
         try
         {
-            pagos = await PagoApi.ListarAsync(SucursalId);
+            pagos = await PagoApi.ListarAsync();
         }
         catch (Exception ex)
         {
@@ -93,7 +90,7 @@
 
         try
         {
-            Stats = await PagoApi.GetPagosStatsAsync(SucursalId);
+            Stats = await PagoApi.GetPagosStatsAsync();
 
             StateHasChanged();
         }
@@ -113,8 +110,7 @@
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters
         {
-            ["Pago"] = pago,
-            ["SucursalId"] = SucursalId
+            ["Pago"] = pago
         };
 
         var dialog = await DialogService.ShowAsync<UpdatePagoDialog>("Editar Pago", parameters, options);
@@ -132,8 +128,7 @@
             ["Pago"] = pago,
             ["ContentText"] = $"¿Seguro que querés eliminar el pago del Socio \"{pago.Socio}\"?",
             ["ButtonText"] = "Eliminar",
-            ["Color"] = Color.Error,
-            ["SucursalId"] = SucursalId
+            ["Color"] = Color.Error
         };
 
         var dialog = await DialogService.ShowAsync<PagoDialogDelete>("Eliminar Pago", parameters, options);

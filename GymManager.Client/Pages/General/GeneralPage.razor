@@ -1,8 +1,8 @@
-﻿@page "/sucursal/{SucursalId:guid}/general"
+﻿@attribute [Authorize]
+@page "/general"
 @using GymManager.Client.Pages.General.Components
 @using GymManager.Shared.Contracts.Pagos
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.General
 @inject GeneralApi GeneralApi
@@ -131,9 +131,6 @@
 </MudContainer>
 @code {
 
-    [Parameter]
-    public Guid SucursalId { get; set; }
-
     private GeneralResponse stats = new()
     {
         TopVencenHoy = new List<VencidoResponse>(),
@@ -151,7 +148,7 @@
         loadingStats = true;
         try
         {
-            stats = await GeneralApi.GetStatsAsync(SucursalId);
+            stats = await GeneralApi.GetStatsAsync();
         }
         finally
         {

@@ -19,6 +19,9 @@ namespace GymManager.Api.Application.Services
 
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
             ///Normalizamos y validamos
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
@@ -58,6 +61,9 @@ namespace GymManager.Api.Application.Services
 
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
             //Consultamos => Trae el que no esta deshabilitado.
             var query = _context.MetodosPago
                 .AsNoTracking()
@@ -78,6 +84,9 @@ namespace GymManager.Api.Application.Services
         {
 
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             var metodo = await _context.MetodosPago.FindAsync(id);
 
@@ -111,6 +120,9 @@ namespace GymManager.Api.Application.Services
         {
 
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
+
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             var metodo = await _context.MetodosPago.FindAsync(id);
 

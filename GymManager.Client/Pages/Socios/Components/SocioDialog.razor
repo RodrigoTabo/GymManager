@@ -128,9 +128,6 @@
     [Parameter]
     public SocioResponse? Socio { get; set; }
 
-    [Parameter]
-    public Guid SucursalId { get; set; }
-
     private string? Error;
     private bool Guardando;
     private bool CargandoPlanes = true;
@@ -166,7 +163,7 @@
 
         try
         {
-            var lista = await PlanApi.ListarAsync(SucursalId);
+            var lista = await PlanApi.ListarAsync();
 
             Planes = lista
                 .Select(p => new PlanFormVM(p.Id, p.Nombre))
@@ -210,7 +207,7 @@
                     Model.PlanId,
                     Model.DocumentoId);
 
-                await SocioApi.CrearAsync(SucursalId, request);
+                await SocioApi.CrearAsync(request);
 
             }
             else
@@ -223,7 +220,7 @@
                      Model.PlanId,
                      Model.DocumentoId);
 
-                await SocioApi.UpdateAsync(SucursalId, Socio.Id, request);
+                await SocioApi.UpdateAsync(Socio.Id, request);
             }
 
 

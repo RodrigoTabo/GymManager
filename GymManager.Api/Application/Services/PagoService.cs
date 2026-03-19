@@ -191,14 +191,16 @@ namespace GymManager.Api.Application.Services
         public async Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalid)
         {
 
-            DateTime hoy = DateTime.UtcNow.Date;
-            DateTime mañana = hoy.AddDays(1);
-            DateTime semana = hoy.AddDays(+7);
-
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
+
+            DateTime hoy = DateTime.UtcNow.Date;
+            DateTime mañana = hoy.AddDays(1);
+            DateTime semana = hoy.AddDays(+7);
+
 
             var pagosFiltrados = await _context.Pagos
                 .AsNoTracking()

@@ -1,4 +1,4 @@
-﻿@page "/sucursal/{SucursalId:guid}/panel-administrativo"
+﻿@page "/panel-administrativo"
 @using GymManager.Client.Pages.Panel_Administrativo.PlanesComponents
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
@@ -16,16 +16,13 @@
                   OnEdit="OpenEdit"
                   OnDelete="ConfirmDelete" />
 
-            <MetodosPagoPage SucursalId="SucursalId" />
+            <MetodosPagoPage />
 
         <PlanStatsSection Loading="LoadingStats"
                           Stats="Stats" />
     </MudStack>
 </MudContainer>
 @code {
-
-    [Parameter]
-    public Guid SucursalId { get; set; }
 
     private List<PlanResponse> planes = new();
     private bool loading;
@@ -44,7 +41,7 @@
     private async Task LoadPlanesAsync()
     {
         loading = true;
-        planes = await PlanApi.ListarAsync(SucursalId);
+        planes = await PlanApi.ListarAsync();
         loading = false;
         await LoadStatsAsync();
     }
@@ -56,7 +53,7 @@
 
         try
         {
-            Stats = await PlanApi.GetPlanStatsAsync(SucursalId);
+            Stats = await PlanApi.GetPlanStatsAsync();
 
             StateHasChanged();
         }
@@ -76,12 +73,7 @@
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var parameters = new DialogParameters
-        {
-            ["SucursalId"] = SucursalId
-        };
-
-        var dialog = await DialogService.ShowAsync<PlanDialog>("Crear Plan", parameters, options);
+        var dialog = await DialogService.ShowAsync<PlanDialog>("Crear Plan", options);
 
 
         var result = await dialog.Result;
@@ -97,8 +89,7 @@
 
         var parameters = new DialogParameters
         {
-            ["Plan"] = plan,
-            ["SucursalId"] = SucursalId
+            ["Plan"] = plan
         };
 
         var dialog = await DialogService.ShowAsync<PlanDialog>("Editar Plan", parameters, options);
@@ -119,8 +110,7 @@
             ["Plan"] = plan,
             ["ContentText"] = $"¿Seguro que querés eliminar el plan \"{plan.Nombre}\"?",
             ["ButtonText"] = "Eliminar",
-            ["Color"] = Color.Error,
-            ["SucursalId"] = SucursalId
+            ["Color"] = Color.Error
         };
 
         var dialog = await DialogService.ShowAsync<PlanDialogDelete>("Eliminar Plan", parameters, options);

@@ -17,6 +17,9 @@ namespace GymManager.Api.Application.Services
 
             var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
+            if (sucursalid != sucursalId)
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+
             //armo la query
             var query = _context.IntentosAccesos
                 .AsNoTracking()

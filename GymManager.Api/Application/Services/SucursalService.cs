@@ -5,21 +5,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymManager.Api.Application.Services
 {
-    public class SucursalService(GymManagerDbContext context, ICurrentUserService currentUserService) : ISucursalService
+    public class SucursalService : ISucursalService
     {
-        private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly GymManagerDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public async Task<List<SucursalResponse>> GetSucursalAsync()
+        public SucursalService(GymManagerDbContext context, ICurrentUserService currentUserService)
         {
-            var userId = _currentUserService.UserId;
+            _context = context;
+            _currentUserService = currentUserService;
+        }
 
-            if (userId is null)
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
+        public async Task<List<SucursalResponse>> GetSucursalAsync(string userId)
+        {
+            var sucursalesPermitidas = _currentUserService.Sucursales;
 
             var sucursales = await _context.UsuarioSucursales
                 .AsNoTracking()
-                .Where(x => x.UsuarioId == userId && x.Sucursal.Activa)
+                .Where(x => x.UsuarioId.ToString() == userId &&
+                            sucursalesPermitidas.Contains(x.SucursalId) &&
+                            x.Sucursal.Activa)
                 .Select(x => new SucursalResponse
                 {
                     Id = x.SucursalId,

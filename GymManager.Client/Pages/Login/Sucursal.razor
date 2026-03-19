@@ -1,10 +1,12 @@
 ﻿@page "/sucursales"
-@layout AuthLayout
 @attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Sucursal
+@using GymManager.Web.ApiClients
+@using GymManager.Web.Security
 @using Microsoft.AspNetCore.Authorization
 @inject SucursalApi SucursalApi
+@inject AuthApi AuthApi
 
 <MudContainer MaxWidth="MaxWidth.False"
               Class="pa-0 d-flex align-center justify-center"
@@ -59,6 +61,9 @@
     private string? Error;
     private bool Loading;
 
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private JwtAuthStateProvider JwtAuthStateProvider { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     => await LoadSucursalesAsync();
 
@@ -81,11 +86,29 @@
 
     }
 
-    [Inject] private NavigationManager Nav { get; set; } = default!;
-
-    private void Acceder(Guid sucursalId)
+    private async Task Acceder(Guid sucursalId)
     {
-        Nav.NavigateTo($"/sucursal/{sucursalId}/general");
+        Loading = true;
+        Error = null;
+
+        try
+        {
+            var result = await AuthApi.SelectBranchAsync(sucursalId.ToString());
+
+            await JwtAuthStateProvider.MarkUserAsAuthenticatedAsync(result.Token);
+
+            // 3. Navegamos al panel general
+            Nav.NavigateTo("/general");
+        }
+        catch (Exception ex)
+        {
+            Error = "Error al conectar con la sucursal: " + ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+        }
     }
+
 
 }

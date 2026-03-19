@@ -30,11 +30,8 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
-    [Parameter] 
-    public PlanResponse? Plan { get; set; }  
-
     [Parameter]
-    public Guid SucursalId { get; set; }
+    public PlanResponse? Plan { get; set; }
 
     private string? Error;
     private bool Guardando;
@@ -90,7 +87,7 @@
                     Model.Precio
                 );
 
-                await PlanApi.CrearAsync(SucursalId, request);
+                await PlanApi.CrearAsync(request);
             }
             else
             {
@@ -100,7 +97,7 @@
                     Model.Precio
                 );
 
-                await PlanApi.UpdateAsync(SucursalId, Plan.Id, request);
+                await PlanApi.UpdateAsync(Plan.Id, request);
 
             }
 

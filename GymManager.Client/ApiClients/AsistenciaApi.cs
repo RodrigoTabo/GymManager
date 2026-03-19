@@ -9,7 +9,7 @@ namespace GymManager.Client.ApiClients
 
         private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
-        public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalId, AsistenciaFiltro filtro)
+        public async Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro)
         {
             var queryParams = new List<string>();
 
@@ -25,7 +25,7 @@ namespace GymManager.Client.ApiClients
             if (filtro.Hasta.HasValue)
                 queryParams.Add($"hasta={Uri.EscapeDataString(filtro.Hasta.Value.ToString("O"))}");
 
-            var url = $"api/sucursales/{sucursalId}/asistencias";
+            var url = $"api/asistencias";
 
             var client = await _clientProvider.GetClientAsync();
 
@@ -36,12 +36,12 @@ namespace GymManager.Client.ApiClients
             return await client.GetJsonOrThrowAsync<List<AsistenciaResponse>>(url);
 
         }
-        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalId, MarcarAsistenciaRequest request)
+        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(MarcarAsistenciaRequest request)
         {
             var client = await _clientProvider.GetClientAsync();
 
             var resp = await client.PostJsonOrThrowAsync<MarcarAsistenciaRequest, MarcarAsistenciaResponse>(
-                $"api/sucursales/{sucursalId}/asistencias/marcar",
+                $"api/asistencias",
                 request);
 
             return resp;

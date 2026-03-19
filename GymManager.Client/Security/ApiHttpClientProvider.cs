@@ -1,37 +1,34 @@
 ﻿using System.Net.Http.Headers;
 
-namespace GymManager.Web.Security;
-
-public class ApiHttpClientProvider
+namespace GymManager.Web.Security
 {
-    private readonly HttpClient _httpClient;
-    private readonly TokenStorageService _tokenStorage;
-
-    public ApiHttpClientProvider(HttpClient httpClient, TokenStorageService tokenStorage)
+    public class ApiHttpClientProvider
     {
-        _httpClient = httpClient;
-        _tokenStorage = tokenStorage;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly TokenStorageService _tokenStorage;
 
-    public async Task<HttpClient> GetClientAsync()
-    {
-        var token = await _tokenStorage.GetTokenAsync();
+        public ApiHttpClientProvider(HttpClient httpClient, TokenStorageService tokenStorage)
+        {
+            _httpClient = httpClient;
+            _tokenStorage = tokenStorage;
+        }
 
-        if (string.IsNullOrWhiteSpace(token))
+        public async Task<HttpClient> GetClientAsync()
+        {
+            var token = await _tokenStorage.GetTokenAsync();
+
+            if (!string.IsNullOrWhiteSpace(token))
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            else
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+
+            return _httpClient;
+        }
+
+        public void ClearAuthorization()
         {
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }
-        else
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
-        }
-
-        return _httpClient;
-    }
-
-    public void ClearAuthorization()
-    {
-        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 }

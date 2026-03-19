@@ -8,29 +8,17 @@ using System.Numerics;
 namespace GymManager.Api.Application.Services
 {
     public class SocioStatsService(GymManagerDbContext context,
-        ICurrentSucursalService currentSucursalService,
-        ICurrentUserService currentUserService) : ISocioStatsService
+        ISucursalAccessValidator sucursalAccessValidator) : ISocioStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
 
         public async Task<SociosStatsResponse> GetStatsAsync(Guid sucursalid)
         {
-            var userId = _currentUserService.UserId
-              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             DateTime inicioMesSiguiente = inicioMes.AddMonths(1);

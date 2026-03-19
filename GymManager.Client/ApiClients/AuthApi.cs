@@ -14,7 +14,7 @@ public class AuthApi
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("login?useCookies=false&useSessionCookies=false", request);
+        var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
@@ -24,4 +24,15 @@ public class AuthApi
 
         return result;
     }
+    public async Task<LoginResponse> SelectBranchAsync(string sucursalId)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/select-branch", sucursalId);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        if (result is null) throw new Exception("Error al obtener el token de sucursal.");
+
+        return result;
+    }
+
 }

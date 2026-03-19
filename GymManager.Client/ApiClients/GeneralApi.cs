@@ -10,10 +10,10 @@ namespace GymManager.Client.ApiClients
         private readonly ApiHttpClientProvider _clientProvider = clientProvider;
 
 
-        public async Task<GeneralResponse> GetStatsAsync(Guid sucursalId)
+        public async Task<GeneralResponse> GetStatsAsync()
         {
             var client = await _clientProvider.GetClientAsync();
-            return await client.GetJsonOrThrowAsync<GeneralResponse>($"api/sucursales/{sucursalId}/general");
+            return await client.GetJsonOrThrowAsync<GeneralResponse>("api/general");
         }
 
     }

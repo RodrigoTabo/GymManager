@@ -7,7 +7,7 @@ namespace GymManager.Api.Presentations.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/sucursales/{sucursalId:guid}/intentos-acceso")]
+    [Route("api/intentos-acceso")]
     [Produces("application/json")]
     public class IntentosAccesoController(IIntentosAccesoService intentosAcceso) : ControllerBase
     {
@@ -16,8 +16,14 @@ namespace GymManager.Api.Presentations.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<IntentosAccesoResponse>>> Listar([FromRoute] Guid sucursalId, [FromQuery] IntentosAccesoFiltro filtro)
+        public async Task<ActionResult<List<IntentosAccesoResponse>>> Listar([FromQuery] IntentosAccesoFiltro filtro)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
             var result = await _intentosAccesoService.ListarAsync(sucursalId, filtro);
             return Ok(result);
         }

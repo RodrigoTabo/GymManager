@@ -119,7 +119,7 @@
 
         try
         {
-            var lista = await SocioApi.ListarAsync(SucursalId, filtro);
+            var lista = await SocioApi.ListarAsync(filtro);
 
             Socios = lista
                 .Select(s => new SociosVM(s.Id, s.Nombre, s.Apellido))
@@ -144,7 +144,7 @@
 
         try
         {
-            var lista = await MetodoPagoApi.ListarAsync(SucursalId);
+            var lista = await MetodoPagoApi.ListarAsync();
 
             MetodosPagos = lista
                 .Select(p => new MetodosPagoVM(p.Id, p.Nombre))
@@ -186,7 +186,7 @@
                 FechaPago: Model.FechaPago.Value
             );
 
-            await PagoApi.UpdateAsync(SucursalId, request, Pago.Id);
+            await PagoApi.UpdateAsync(request, Pago.Id);
 
             MudDialog.Close(DialogResult.Ok(true));
         }

@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace GymManager.Web.Security;
@@ -6,6 +7,7 @@ namespace GymManager.Web.Security;
 public class JwtAuthStateProvider : AuthenticationStateProvider
 {
     private readonly TokenStorageService _tokenStorage;
+    private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
     public JwtAuthStateProvider(TokenStorageService tokenStorage)
     {
@@ -14,46 +16,57 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _tokenStorage.GetTokenAsync();
-
-        if (string.IsNullOrWhiteSpace(token))
+        try
         {
-            var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
-            return new AuthenticationState(anonymous);
+            var token = await _tokenStorage.GetTokenAsync();
+
+            // Si no hay token o no parece un JWT (mínimo 2 puntos), es anónimo
+            if (string.IsNullOrWhiteSpace(token) || !token.Contains("."))
+            {
+                return new AuthenticationState(_anonymous);
+            }
+
+            var user = BuildUserFromToken(token);
+            return new AuthenticationState(user);
         }
-
-        var identity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "UsuarioLogueado")
-        ], "Bearer");
-
-        var user = new ClaimsPrincipal(identity);
-
-        return new AuthenticationState(user);
+        catch
+        {
+            // Si algo falla al leer el token, lo tratamos como no autenticado
+            return new AuthenticationState(_anonymous);
+        }
     }
 
     public async Task MarkUserAsAuthenticatedAsync(string token)
     {
         await _tokenStorage.SetTokenAsync(token);
-
-        var identity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "UsuarioLogueado")
-        ], "Bearer");
-
-        var user = new ClaimsPrincipal(identity);
-
-        NotifyAuthenticationStateChanged(
-            Task.FromResult(new AuthenticationState(user)));
+        var user = BuildUserFromToken(token);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
 
     public async Task MarkUserAsLoggedOutAsync()
     {
         await _tokenStorage.RemoveTokenAsync();
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
+    }
 
-        var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+    private ClaimsPrincipal BuildUserFromToken(string token)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
 
-        NotifyAuthenticationStateChanged(
-            Task.FromResult(new AuthenticationState(anonymous)));
+            // Verificamos si el handler puede leerlo antes de intentar
+            if (!handler.CanReadToken(token))
+                return _anonymous;
+
+            var jwt = handler.ReadJwtToken(token);
+            var identity = new ClaimsIdentity(jwt.Claims, "Bearer");
+
+            return new ClaimsPrincipal(identity);
+        }
+        catch
+        {
+            return _anonymous;
+        }
     }
 }

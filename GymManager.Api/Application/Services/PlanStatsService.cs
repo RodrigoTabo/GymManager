@@ -7,30 +7,18 @@ using Microsoft.EntityFrameworkCore;
 namespace GymManager.Api.Application.Services
 {
     public class PlanStatsService(GymManagerDbContext context,
-        ICurrentSucursalService currentSucursalService,
-        ICurrentUserService currentUserService) : IPlanStatsService
+        ISucursalAccessValidator sucursalAccessValidator) : IPlanStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
 
 
         public async Task<StatsPlanRequest> GetStatsAsync(Guid sucursalid)
         {
-            var userId = _currentUserService.UserId
-              ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             ///Contamos la cantidad de Planes activos
             var cantidadPlanesActivos = await _context.Planes.Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId).CountAsync();

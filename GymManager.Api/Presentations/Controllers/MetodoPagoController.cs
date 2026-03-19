@@ -7,7 +7,7 @@ namespace GymManager.Api.Presentations.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/sucursales/{sucursalId:guid}/metodos-pago")]
+    [Route("api/metodos-pago")]
     [Produces("application/json")]
     public class MetodoPagoController(IMetodoPagoService metodoPago) : ControllerBase
     {
@@ -15,8 +15,17 @@ namespace GymManager.Api.Presentations.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(List<MetodoPagoResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<MetodoPagoResponse>>> Get([FromRoute] Guid sucursalId)
-            => Ok(await _metodoPago.ListarAsync(sucursalId));
+        public async Task<ActionResult<List<MetodoPagoResponse>>> Get()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
+            return Ok(await _metodoPago.ListarAsync(sucursalId));
+        }
 
         /// <summary>
         /// Creamos un Metodo de pago
@@ -25,18 +34,31 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> CrearAsync([FromRoute] Guid sucursalId, [FromBody] CreateMetodoPagoRequest request)
+        public async Task<ActionResult> CrearAsync([FromBody] CreateMetodoPagoRequest request)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
             var id = await _metodoPago.CrearAsync(sucursalId, request);
-            return Created($"api/sucursales/{sucursalId}/metodos-pago/{id}", new { id });
+            return Created($"api/metodos-pago/{id}", new { id });
         }
 
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> UpdateAsync([FromRoute] Guid sucursalId, [FromRoute] int id, [FromBody] UpdateMetodoPagoRequest request)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateMetodoPagoRequest request)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
             await _metodoPago.UpdateAsync(sucursalId, request, id);
             return NoContent();
         }
@@ -45,8 +67,14 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> SoftDeleteAsync([FromRoute] Guid sucursalId, [FromRoute] int id)
+        public async Task<ActionResult> SoftDeleteAsync([FromRoute] int id)
         {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
+
+            var sucursalId = Guid.Parse(sucursalIdClaim);
             await _metodoPago.SoftDeleteAsync(sucursalId, id);
             return NoContent();
         }

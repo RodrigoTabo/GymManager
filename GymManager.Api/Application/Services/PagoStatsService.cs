@@ -8,29 +8,17 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class PagoStatsService(GymManagerDbContext context,
-        ICurrentSucursalService currentSucursalService,
-        ICurrentUserService currentUserService) : IPagoStatsService
+         ISucursalAccessValidator sucursalAccessValidator) : IPagoStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ICurrentSucursalService _currentSucursalService = currentSucursalService;
-        private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
 
         public async Task<PagosStatsResponse> GetStatsAsync(Guid sucursalid)
         {
-            var userId = _currentUserService.UserId
-               ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
 
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var inicioSerie = inicioMes.AddMonths(-5); // 6 meses: mes actual + 5 atrás
@@ -174,20 +162,10 @@ namespace GymManager.Api.Application.Services
 
         public async Task<VencimientoStatsResponse> GetVencidosStatsAsync(Guid sucursalid)
         {
-            var userId = _currentUserService.UserId
-                ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var sucursalId = _currentSucursalService.SucursalId
-                ?? throw new UnauthorizedAccessException("Sucursal no informada.");
+            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
             if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
-
-            var autorizado = await _context.UsuarioSucursales
-                .AnyAsync(x => x.UsuarioId == userId && x.SucursalId == sucursalId);
-
-            if (!autorizado)
-                throw new UnauthorizedAccessException("No tenés acceso a esta sucursal.");
+                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             var hoy = DateOnly.FromDateTime(DateTime.Today);
             var finSemana = hoy.AddDays(7);

@@ -8,17 +8,31 @@ namespace GymManager.Api.Presentations.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/sucursales/{sucursalId:guid}/general")]
-
+    [Route("api/general")]
     [Produces("application/json")]
-    public class GeneralController(IGeneralService generalService) : ControllerBase
+    public class GeneralController : ControllerBase
     {
-        private readonly IGeneralService _generalService = generalService;
+        private readonly IGeneralService _generalService;
+
+        public GeneralController(IGeneralService generalService)
+        {
+            _generalService = generalService;
+        }
 
         [HttpGet]
         [ProducesResponseType(typeof(GeneralResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GeneralResponse>> Get([FromRoute] Guid sucursalId)
-            => Ok(await _generalService.GetStatsGeneralAsync(sucursalId));
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<GeneralResponse>> Get()
+        {
+            // Obtenemos el SucursalId del JWT
+            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
+            if (sucursalIdClaim == null)
+                return Forbid(); // usuario no autorizado si no tiene claim
 
+            var sucursalId = Guid.Parse(sucursalIdClaim);
+
+            var stats = await _generalService.GetStatsGeneralAsync(sucursalId);
+            return Ok(stats);
+        }
     }
 }
