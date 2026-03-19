@@ -17,16 +17,8 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<IntentosAccesoResponse>>> Listar([FromQuery] IntentosAccesoFiltro filtro)
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _intentosAccesoService.ListarAsync(filtro));
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            var result = await _intentosAccesoService.ListarAsync(sucursalId, filtro);
-            return Ok(result);
-        }
 
     }
 }

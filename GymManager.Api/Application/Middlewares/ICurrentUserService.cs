@@ -4,7 +4,9 @@ using System.Security.Claims;
 public interface ICurrentUserService
 {
     Guid? UserId { get; }
-    List<Guid> Sucursales { get; }
+    Guid? SucursalId { get; }
+    Guid SucursalIdOrThrow { get; }
+    List <Guid> Sucursales { get; }
 }
 
 public class CurrentUserService : ICurrentUserService
@@ -29,6 +31,34 @@ public class CurrentUserService : ICurrentUserService
                    ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             return Guid.TryParse(sub, out var id) ? id : null;
+        }
+    }
+
+    public Guid? SucursalId
+    {
+        get
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user == null || !user.Identity!.IsAuthenticated)
+                return null;
+
+            var claim = user.FindFirst("SucursalId")?.Value;
+
+            return Guid.TryParse(claim, out var id) ? id : null;
+        }
+    }
+
+    public Guid SucursalIdOrThrow
+    {
+        get
+        {
+            var id = SucursalId;
+
+            if (id is null)
+                throw new UnauthorizedAccessException("Sucursal no definida en el token");
+
+            return id.Value;
         }
     }
 

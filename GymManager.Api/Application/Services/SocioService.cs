@@ -8,18 +8,15 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class SocioService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : ISocioService
+        ICurrentUserService currentUserService) : ISocioService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<int> CrearAsync(Guid sucursalid, CreateSocioRequest request)
+        public async Task<int> CrearAsync(CreateSocioRequest request)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Carga DNI
             var dni = (request.DNI ?? "").Trim();
@@ -43,14 +40,14 @@ namespace GymManager.Api.Application.Services
 
             //Existe? Existe Deshabilitado?
             var plan = await _context.Planes.FindAsync(request.PlanId);
-            
+
             if (plan is null)
                 throw new NotFoundException("Debes agregar un Plan.");
 
             if (plan.EliminadoEn is not null)
                 throw new ConflictException("El plan existe, pero está deshabilitado.");
 
-            if(plan.SucursalId != sucursalId)
+            if (plan.SucursalId != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Creamos socio
@@ -61,7 +58,7 @@ namespace GymManager.Api.Application.Services
                 Apellido = apellido,
                 Telefono = request.Telefono,
                 PlanId = request.PlanId,
-                FechaAlta= DateTime.UtcNow,
+                FechaAlta = DateTime.UtcNow,
                 FechaNacimiento = request.FechaNacimiento,
                 DocumentoId = request.documentoId,
                 EliminadoEn = null,
@@ -76,12 +73,9 @@ namespace GymManager.Api.Application.Services
             return crearSocio.Id;
         }
 
-        public async Task<SocioResponse> GetByIdAsync(Guid sucursalid, int id)
+        public async Task<SocioResponse> GetByIdAsync(int id)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Optimizamos query, buscamos el socio, filtramos y pedimos los datos.
             var socio = await _context.Socios.AsNoTracking()
@@ -108,12 +102,9 @@ namespace GymManager.Api.Application.Services
             return socio;
         }
 
-        public async Task<List<SocioResponse>> ListarAsync(Guid sucursalid, SocioQuery query)
+        public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Optimizamos la query y filtramos.
             var consulta = _context.Socios.AsNoTracking().Where(s => s.SucursalId == sucursalId);
@@ -157,12 +148,9 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task SoftDeleteAsync(Guid sucursalid, int id)
+        public async Task SoftDeleteAsync(int id)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Buscamos el socio
             var socio = await _context.Socios.FindAsync(id);
@@ -173,7 +161,7 @@ namespace GymManager.Api.Application.Services
             //Existe socio deshabilitado?
             if (socio.EliminadoEn != null)
                 throw new ConflictException("El socio ya está deshabilitado");
-            if(socio.SucursalId != sucursalId)
+            if (socio.SucursalId != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             //Actualizamos
@@ -183,12 +171,9 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task UpdateAsync(Guid sucursalid, int id, UpdateSocioRequest request)
+        public async Task UpdateAsync(int id, UpdateSocioRequest request)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var socio = await _context.Socios.FindAsync(id);
 

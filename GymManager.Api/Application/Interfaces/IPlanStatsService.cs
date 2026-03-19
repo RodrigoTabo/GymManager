@@ -7,6 +7,6 @@ namespace GymManager.Api.Application.Interfaces
         /// <summary>
         /// Stats planes
         /// </summary>
-        Task<StatsPlanRequest> GetStatsAsync(Guid sucursalId);
+        Task<StatsPlanRequest> GetStatsAsync();
     }
 }

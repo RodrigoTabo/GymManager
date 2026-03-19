@@ -9,18 +9,15 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class PagoService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IPagoService
+        ICurrentUserService currentUserService) : IPagoService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<int> CrearAsync(Guid sucursalid, CreatePagoRequest request)
+        public async Task<int> CrearAsync(CreatePagoRequest request)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Buscamos un Socio que coincida con el ingresado
             var socio = await _context.Socios
@@ -85,12 +82,9 @@ namespace GymManager.Api.Application.Services
             return crearPago.Id;
         }
 
-        public async Task<List<PagoResponse>> ListarAsync(Guid sucursalid)
+        public async Task<List<PagoResponse>> ListarAsync()
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Optimizamos consulta y la filtramos.
             var consulta = _context.Pagos
@@ -121,12 +115,10 @@ namespace GymManager.Api.Application.Services
         }
 
 
-        public async Task SoftDeleteAsync(Guid sucursalid, int id)
+        public async Task SoftDeleteAsync(int id)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
 
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Buscamos el Pago
             var pagosExiste = await _context.Pagos.FindAsync(id);
@@ -146,13 +138,10 @@ namespace GymManager.Api.Application.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Guid sucursalid, UpdatePagoRequest request, int id)
+        public async Task UpdateAsync(UpdatePagoRequest request, int id)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var pago = await _context.Pagos.FindAsync(id);
 
@@ -188,14 +177,10 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<List<VencidoResponse>> GetVencidosAsync(Guid sucursalid)
+        public async Task<List<VencidoResponse>> GetVencidosAsync()
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             DateTime hoy = DateTime.UtcNow.Date;
             DateTime mañana = hoy.AddDays(1);

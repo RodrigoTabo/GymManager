@@ -8,17 +8,14 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class PagoStatsService(GymManagerDbContext context,
-         ISucursalAccessValidator sucursalAccessValidator) : IPagoStatsService
+         ICurrentUserService currentUserService) : IPagoStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<PagosStatsResponse> GetStatsAsync(Guid sucursalid)
+        public async Task<PagosStatsResponse> GetStatsAsync()
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var inicioSerie = inicioMes.AddMonths(-5); // 6 meses: mes actual + 5 atrás
@@ -160,12 +157,9 @@ namespace GymManager.Api.Application.Services
             return stats;
         }
 
-        public async Task<VencimientoStatsResponse> GetVencidosStatsAsync(Guid sucursalid)
+        public async Task<VencimientoStatsResponse> GetVencidosStatsAsync()
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var hoy = DateOnly.FromDateTime(DateTime.Today);
             var finSemana = hoy.AddDays(7);

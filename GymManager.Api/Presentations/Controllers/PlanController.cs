@@ -22,15 +22,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(List<PlanResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<PlanResponse>>> Get()
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _planService.ListarAsync());
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _planService.ListarAsync(sucursalId));
-        }
 
         /// <summary>
         /// Crea un nuevo plan.
@@ -41,14 +34,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CreatePlanRequest request)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            var id = await _planService.CrearAsync(sucursalId, request);
-            return Created($"/api/sucursales/{sucursalId}/planes/{id}", new { id });
+            var id = await _planService.CrearAsync(request);
+            return Created($"/api/planes/{id}", new { id });
         }
 
         /// <summary>
@@ -61,13 +48,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromRoute] int id, [FromBody] UpdatePlanRequest request)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            await _planService.UpdateAsync(sucursalId, id, request);
+            await _planService.UpdateAsync(id, request);
             return NoContent();
         }
 
@@ -78,15 +59,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(typeof(PlanResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PlanResponse>> GetByIdAsync([FromRoute] int id)
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+           => Ok(await _planService.GetByIdAsync(id));
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _planService.GetByIdAsync(sucursalId, id));
-        }
 
         /// <summary>
         /// Eliminamos logico
@@ -97,28 +71,15 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> SoftDeleteAsync([FromRoute] int id)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            await _planService.SoftDeleteAsync(sucursalId, id);
+            await _planService.SoftDeleteAsync(id);
             return NoContent();
         }
 
         [HttpGet("stats")]
         [ProducesResponseType(typeof(StatsPlanRequest), StatusCodes.Status200OK)]
         public async Task<ActionResult<StatsPlanRequest>> GetStatsAsync()
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _planStatsService.GetStatsAsync());
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _planStatsService.GetStatsAsync(sucursalId));
-        }
 
     }
 }

@@ -8,18 +8,15 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class PlanService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IPlanService
+        ICurrentUserService currentUserService) : IPlanService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<List<PlanResponse>> ListarAsync(Guid sucursalid)
-      {
+        public async Task<List<PlanResponse>> ListarAsync()
+        {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Optimizamos la consulta que vamos a realizar.
             var query = _context.Planes
@@ -41,12 +38,9 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task<int> CrearAsync(Guid sucursalid, CreatePlanRequest request)
+        public async Task<int> CrearAsync(CreatePlanRequest request)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Validamos que haya cargado el nombre
             var nombre = (request.Nombre ?? "").Trim();
@@ -90,12 +84,9 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task UpdateAsync(Guid sucursalid, int id, UpdatePlanRequest request)
+        public async Task UpdateAsync(int id, UpdatePlanRequest request)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Validamos que exista el Id que queremos modificar.
             var plan = await _context.Planes.FindAsync(id);
@@ -136,12 +127,9 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<PlanResponse> GetByIdAsync(Guid sucursalid, int id)
+        public async Task<PlanResponse> GetByIdAsync(int id)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             ///Buscamos el plan.
             var plan = await _context.Planes
@@ -162,12 +150,9 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task SoftDeleteAsync(Guid sucursalid, int id)
+        public async Task SoftDeleteAsync(int id)
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var plan = await _context.Planes.FindAsync(id);
 
@@ -178,7 +163,7 @@ namespace GymManager.Api.Application.Services
             if (plan.EliminadoEn != null)
                 throw new ConflictException("El plan ya está deshabilitado.");
 
-            if(plan.SucursalId != sucursalId)
+            if (plan.SucursalId != sucursalId)
                 throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
 
             plan.EliminadoEn = DateTime.UtcNow;

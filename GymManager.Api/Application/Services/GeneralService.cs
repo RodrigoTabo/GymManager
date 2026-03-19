@@ -9,18 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GymManager.Api.Application.Services
 {
     public class GeneralService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IGeneralService
+        ICurrentUserService currentUserService) : IGeneralService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<GeneralResponse> GetStatsGeneralAsync(Guid sucursalid)
+        public async Task<GeneralResponse> GetStatsGeneralAsync()
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Declaramos que hoy es hoy...
             DateTime hoy = DateTime.UtcNow.Date;

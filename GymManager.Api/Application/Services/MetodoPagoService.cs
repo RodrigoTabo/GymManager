@@ -8,19 +8,16 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class MetodoPagoService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IMetodoPagoService
+        ICurrentUserService currentUserService) : IMetodoPagoService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
 
-        public async Task<int> CrearAsync(Guid sucursalid, CreateMetodoPagoRequest request)
+        public async Task<int> CrearAsync(CreateMetodoPagoRequest request)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             ///Normalizamos y validamos
             var nombre = (request.Nombre ?? "").Trim();
@@ -56,13 +53,10 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<List<MetodoPagoResponse>> ListarAsync(Guid sucursalid)
+        public async Task<List<MetodoPagoResponse>> ListarAsync()
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Consultamos => Trae el que no esta deshabilitado.
             var query = _context.MetodosPago
@@ -80,13 +74,10 @@ namespace GymManager.Api.Application.Services
             return listar;
         }
 
-        public async Task UpdateAsync(Guid sucursalid, UpdateMetodoPagoRequest request, int id)
+        public async Task UpdateAsync(UpdateMetodoPagoRequest request, int id)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var metodo = await _context.MetodosPago.FindAsync(id);
 
@@ -116,13 +107,10 @@ namespace GymManager.Api.Application.Services
         }
 
 
-        public async Task SoftDeleteAsync(Guid sucursalid, int id)
+        public async Task SoftDeleteAsync(int id)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var metodo = await _context.MetodosPago.FindAsync(id);
 

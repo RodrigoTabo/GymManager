@@ -7,10 +7,10 @@ namespace GymManager.Api.Application.Interfaces
         /// <summary>
         /// Stats Pagos
         /// </summary>
-        Task<PagosStatsResponse> GetStatsAsync(Guid sucursalId);
+        Task<PagosStatsResponse> GetStatsAsync();
         /// <summary>
         /// Stats Vencidos
         /// </summary>
-        Task<VencimientoStatsResponse> GetVencidosStatsAsync(Guid sucursalId);
+        Task<VencimientoStatsResponse> GetVencidosStatsAsync();
     }
 }

@@ -20,29 +20,15 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<SocioResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<SocioResponse>>> Get([FromQuery] SocioQuery query)
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _socioService.ListarAsync(query));
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _socioService.ListarAsync(sucursalId, query));
-        }
 
 
         [HttpGet("stats")]
         [ProducesResponseType(typeof(SociosStatsResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<SociosStatsResponse>> GetStats()
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _socioStatsService.GetStatsAsync());
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _socioStatsService.GetStatsAsync(sucursalId));
-        }
 
         /// <summary>
         /// Crea un nuevo socio.
@@ -53,13 +39,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CreateSocioRequest request)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            var id = await _socioService.CrearAsync(sucursalId, request);
+            var id = await _socioService.CrearAsync(request);
             return Created($"api/socios/{id}", new { id });
         }
 
@@ -73,13 +53,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromRoute] int id, [FromBody] UpdateSocioRequest request)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            await _socioService.UpdateAsync(sucursalId ,id, request);
+            await _socioService.UpdateAsync(id, request);
             return NoContent();
         }
 
@@ -90,15 +64,8 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(typeof(SocioResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SocioResponse>> GetByIdAsync([FromRoute] int id)
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _socioService.GetByIdAsync(id));
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            return Ok(await _socioService.GetByIdAsync(sucursalId, id));
-        }
 
         /// <summary>
         /// Eliminamos Socio Logico.
@@ -107,15 +74,9 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> SoftDeleteAsync([FromRoute]int id)
+        public async Task<ActionResult> SoftDeleteAsync([FromRoute] int id)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-            await _socioService.SoftDeleteAsync(sucursalId, id);
+            await _socioService.SoftDeleteAsync(id);
             return NoContent();
         }
 

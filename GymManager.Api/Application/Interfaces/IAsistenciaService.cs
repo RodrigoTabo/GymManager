@@ -8,10 +8,10 @@ namespace GymManager.Api.Application.Interfaces
         /// <summary>
         /// Registrar Asistencia/Intentos Accesos
         /// </summary>
-        Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalId, string DNI);
+        Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI);
         /// <summary>
         /// Listar Asistencias
         /// </summary>
-        Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalId, AsistenciaFiltro filtro);
+        Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro);
     }
 }

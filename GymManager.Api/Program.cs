@@ -42,8 +42,6 @@ namespace GymManager.Api
             builder.Services.AddScoped<IGeneralService, GeneralService>();
             builder.Services.AddScoped<ISucursalService, SucursalService>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-            builder.Services.AddScoped<ICurrentSucursalService, CurrentSucursalService>();
-            builder.Services.AddScoped<ISucursalAccessValidator, SucursalAccessValidator>();
 
             builder.Services.AddDbContext<GymManagerDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("GymManagerDbContext")));

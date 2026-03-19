@@ -5,23 +5,18 @@ using GymManager.Shared.Contracts.Asistencias;
 using GymManager.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GymManager.Api.Application.Services
 {
     public class AsistenciaService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IAsistenciaService
+        ICurrentUserService currentUserService) : IAsistenciaService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<List<AsistenciaResponse>> ListarAsync(Guid sucursalid, AsistenciaFiltro filtro)
+        public async Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro)
         {
-
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var query = _context.Asistencias
                 .AsNoTracking()
@@ -62,13 +57,10 @@ namespace GymManager.Api.Application.Services
 
         }
 
-        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(Guid sucursalid, string DNI)
+        public async Task<MarcarAsistenciaResponse> MarcarPorDniAsync(string DNI)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var hoy = DateTime.Today;
             DateTime hoyInicio = DateTime.Today;
@@ -109,7 +101,7 @@ namespace GymManager.Api.Application.Services
                     SocioId = null,
                     Resultado = ResultadoAcceso.Denegada,
                     Motivo = MotivoAcceso.SocioInexistente,
-                    SucursalId = sucursalid
+                    SucursalId = sucursalId
                 });
 
                 await _context.SaveChangesAsync();
@@ -125,7 +117,7 @@ namespace GymManager.Api.Application.Services
                 SocioId = socio.Id,
                 Resultado = ResultadoAcceso.Aceptada,
                 Motivo = MotivoAcceso.Ninguno,
-                SucursalId = sucursalid
+                SucursalId = sucursalId
             };
 
             //Si el socio esta dado de baja, lo registramos que intento entrar un usuario dado de baja.
@@ -133,7 +125,7 @@ namespace GymManager.Api.Application.Services
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.SocioInactivo;
-                intento.SucursalId = sucursalid;
+                intento.SucursalId = sucursalId;
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
 
@@ -154,7 +146,7 @@ namespace GymManager.Api.Application.Services
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.CuotaVencida;
-                intento.SucursalId = sucursalid;
+                intento.SucursalId = sucursalId;
 
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
@@ -173,7 +165,7 @@ namespace GymManager.Api.Application.Services
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.YaMarcoHoy;
-                intento.SucursalId = sucursalid;
+                intento.SucursalId = sucursalId;
 
                 _context.IntentosAccesos.Add(intento);
                 await _context.SaveChangesAsync();
@@ -186,7 +178,7 @@ namespace GymManager.Api.Application.Services
             {
                 FechaRegistro = DateTime.UtcNow,
                 SocioId = socio.Id,
-                SucursalId = sucursalid
+                SucursalId = sucursalId
             };
 
             //Guardo la transacción en la variable.

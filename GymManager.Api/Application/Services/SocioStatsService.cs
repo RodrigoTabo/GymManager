@@ -1,24 +1,19 @@
 ﻿using GymManager.Api.Application.Interfaces;
-using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Socios;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace GymManager.Api.Application.Services
 {
     public class SocioStatsService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : ISocioStatsService
+        ICurrentUserService currentUserService) : ISocioStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<SociosStatsResponse> GetStatsAsync(Guid sucursalid)
+        public async Task<SociosStatsResponse> GetStatsAsync()
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             DateTime inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             DateTime inicioMesSiguiente = inicioMes.AddMonths(1);
@@ -49,34 +44,6 @@ namespace GymManager.Api.Application.Services
                 .AsNoTracking()
                 .Where(s => s.EliminadoEn >= inicioMes && s.EliminadoEn < inicioMesSiguiente && s.SucursalId == sucursalId)
                 .CountAsync();
-
-            //De lo que iba a ser uno de los graficos.
-            //var CobroMestotal = await _context.Pagos
-            //    .AsNoTracking()
-            //    .Where(p => p.FechaPago >= inicioMes && p.FechaPago < inicioMesSiguiente && p.EliminadoEn == null)
-            //    .SumAsync(p => p.Importe);
-
-            //var ultimosPagos = await _context.Pagos
-            // .AsNoTracking()
-            // .Where(p =>
-            //     p.FechaPago >= inicioMes &&
-            //     p.FechaPago < inicioMesSiguiente &&
-            //     p.EliminadoEn == null)
-            // .OrderByDescending(p => p.FechaPago)
-            // .Take(5)
-            // .Select(p => new PagoResponse(
-            //     p.Id,
-            //     p.SocioId,
-            //     p.Socio.Nombre,
-            //     p.FechaPago,
-            //     (decimal)p.Importe,
-            //     p.MetodoPagoId,
-            //     p.MetodoPago.Nombre,
-            //     p.CubreDesde,
-            //     p.CubreHasta
-            // ))
-            // .ToListAsync();
-
 
             for (int i = 0; i < meses; i++)
             {

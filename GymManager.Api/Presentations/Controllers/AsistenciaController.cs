@@ -17,16 +17,8 @@ namespace GymManager.Api.Presentations.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<AsistenciaResponse>>> Get([FromQuery] AsistenciaFiltro filtro)
-        {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
+            => Ok(await _asistenciaService.ListarAsync(filtro));
 
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-
-            return Ok(await _asistenciaService.ListarAsync(sucursalId, filtro));
-        }
 
 
         [HttpPost]
@@ -36,14 +28,7 @@ namespace GymManager.Api.Presentations.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<MarcarAsistenciaResponse>> Post([FromBody] MarcarAsistenciaRequest request)
         {
-            // Obtenemos el SucursalId del JWT
-            var sucursalIdClaim = User.FindFirst("SucursalId")?.Value;
-            if (sucursalIdClaim == null)
-                return Forbid(); // usuario no autorizado si no tiene claim
-
-            var sucursalId = Guid.Parse(sucursalIdClaim);
-
-            var resp = await _asistenciaService.MarcarPorDniAsync(sucursalId, request.DNI);
+            var resp = await _asistenciaService.MarcarPorDniAsync(request.DNI);
 
             return Created($"api/asistencias/{resp.Id}", resp);
         }

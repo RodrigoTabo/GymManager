@@ -7,18 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GymManager.Api.Application.Services
 {
     public class IntentosAccessoService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IIntentosAccesoService
+        ICurrentUserService currentUserService) : IIntentosAccesoService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
-        public async Task<List<IntentosAccesoResponse>> ListarAsync(Guid sucursalid, IntentosAccesoFiltro filtro)
+        public async Task<List<IntentosAccesoResponse>> ListarAsync(IntentosAccesoFiltro filtro)
         {
 
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //armo la query
             var query = _context.IntentosAccesos

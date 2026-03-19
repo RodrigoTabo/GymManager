@@ -7,18 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GymManager.Api.Application.Services
 {
     public class PlanStatsService(GymManagerDbContext context,
-        ISucursalAccessValidator sucursalAccessValidator) : IPlanStatsService
+        ICurrentUserService currentUserService) : IPlanStatsService
     {
         private readonly GymManagerDbContext _context = context;
-        private readonly ISucursalAccessValidator _sucursalAccessValidator = sucursalAccessValidator;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
 
-        public async Task<StatsPlanRequest> GetStatsAsync(Guid sucursalid)
+        public async Task<StatsPlanRequest> GetStatsAsync()
         {
-            var sucursalId = await _sucursalAccessValidator.ValidarYObtenerSucursalAsync(sucursalid);
-
-            if (sucursalid != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             ///Contamos la cantidad de Planes activos
             var cantidadPlanesActivos = await _context.Planes.Where(p => p.EliminadoEn == null && p.SucursalId == sucursalId).CountAsync();
