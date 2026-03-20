@@ -90,7 +90,7 @@ namespace GymManager.Api.Application.Services
 
             //Buscamos el socio
             var socio = await _context.Socios
-                .FirstOrDefaultAsync(s => s.EliminadoEn == null && s.DNI == dniNormalizado && s.SucursalId == sucursalId);
+                .FirstOrDefaultAsync(s => s.DNI == dniNormalizado && s.SucursalId == sucursalId);
 
             //Si el socio es nulo registramos que es nulo.
             if (socio is null)
@@ -122,7 +122,7 @@ namespace GymManager.Api.Application.Services
             };
 
             //Si el socio esta dado de baja, lo registramos que intento entrar un usuario dado de baja.
-            if (socio.FechaBaja != null)
+            if (socio.EliminadoEn != null)
             {
                 intento.Resultado = ResultadoAcceso.Denegada;
                 intento.Motivo = MotivoAcceso.SocioInactivo;

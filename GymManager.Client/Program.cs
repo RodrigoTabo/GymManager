@@ -19,10 +19,12 @@ public class Program
 
         builder.Services.AddMudServices();
 
-    
-        builder.Services.AddScoped(_ => new HttpClient
+
+        var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7093/";
+
+        builder.Services.AddScoped(sp => new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:7093/")
+            BaseAddress = new Uri(apiBaseUrl)
         });
 
         // ApiClient

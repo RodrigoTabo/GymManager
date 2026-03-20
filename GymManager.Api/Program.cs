@@ -51,9 +51,21 @@ namespace GymManager.Api
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("Client", policy =>
-                    policy.WithOrigins("https://localhost:7083")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod());
+                {
+                    // En lugar de una URL fija, permitimos todo en desarrollo
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    }
+                    else
+                    {
+                        policy.WithOrigins("https://localhost:7083")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    }
+                });
             });
 
             // SWAGGER
@@ -165,20 +177,31 @@ namespace GymManager.Api
                 });
             }
 
-            app.UseHttpsRedirection();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
             app.MapIdentityApi<AppUser>();
 
-            using (var scope = app.Services.CreateScope())
+            try
             {
-                var db = scope.ServiceProvider.GetRequiredService<GymManagerDbContext>();
-                await db.Database.MigrateAsync();
+                using (var scope = app.Services.CreateScope())
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<GymManagerDbContext>();
+                    await db.Database.MigrateAsync();
 
-                var seed = scope.ServiceProvider.GetRequiredService<IdentitySeedService>();
-                await seed.SeedAsync();
+                    var seed = scope.ServiceProvider.GetRequiredService<IdentitySeedService>();
+                    await seed.SeedAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($" >>> OJO: No se pudo conectar/migrar la DB todavía: {ex.Message}");
             }
 
             app.Run();

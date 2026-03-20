@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
+		<BlazorCacheBootResources>false</BlazorCacheBootResources>
+		<ServiceWorkerAssetsManifest>none</ServiceWorkerAssetsManifest>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>

@@ -131,7 +131,7 @@
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters
         {
-            ["Socio"] = socio,
+            ["SocioId"] = socio.Id,
             ["SocioNombre"] = $"{socio.Nombre} {socio.Apellido}"
         };
 
@@ -147,7 +147,7 @@
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters
         {
-            ["Socio"] = socio,
+            ["SocioId"] = socio.Id,
             ["ContentText"] = $"¿Seguro que querés eliminar el Socio \"{socio.Nombre} {socio.Apellido}\"?",
             ["ButtonText"] = "Eliminar",
             ["Color"] = Color.Error

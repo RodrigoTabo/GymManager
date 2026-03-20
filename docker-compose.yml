@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gymmanager_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=TuPasswordSuperSeguro123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile.api
+    container_name: gymmanager_api
+    restart: always
+    ports:
+      - "7093:8080" # Tu puerto de API de siempre
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Conexión a la base de datos interna de Docker
+      - ConnectionStrings__GymManagerDbContext=Server=db;Database=GymManagerDb;User Id=sa;Password=TuPasswordSuperSeguro123!;TrustServerCertificate=True;
+    depends_on:
+      - db
+
+  frontend: # <-- ESTO TIENE QUE TENER 2 ESPACIOS DE SANGRÍA
+    build:
+      context: ./
+      dockerfile: Dockerfile.client
+    container_name: gymmanager_blazor
+    restart: always
+    ports:
+      - "7083:80"
+    depends_on:
+      - api
+
+volumes:
+  sqlvolume:

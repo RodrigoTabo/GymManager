@@ -198,10 +198,11 @@ namespace GymManager.Api.Application.Services
                     p.SocioId,
                     p.FechaPago,
                     p.CubreHasta,
-                    p.Importe,
+                    p.Socio.Plan.Precio,
                     Nombre = p.Socio.Nombre,
                     Apellido = p.Socio.Apellido,
                     Plan = p.Socio.Plan.Nombre,
+                    Importe = p.Socio.Plan.Precio,
                     Telefono = p.Socio.Telefono
                 })
                 .ToListAsync();
@@ -213,7 +214,7 @@ namespace GymManager.Api.Application.Services
                     .OrderByDescending(x => x.FechaPago)
                     .ThenByDescending(x => x.Id)
                     .First())
-                 .Where(p => p.CubreHasta < semana)
+                .Where(p => p.CubreHasta < semana)
                 .OrderBy(x => x.CubreHasta)
                 .Select(x => new VencidoResponse
                 {
@@ -221,7 +222,7 @@ namespace GymManager.Api.Application.Services
                     SocioId = x.SocioId,
                     Plan = x.Plan,
                     VenceEn = x.CubreHasta,
-                    Importe = x.Importe,
+                    Importe = x.Precio,
                     Telefono = x.Telefono
                 })
                 .ToList();
