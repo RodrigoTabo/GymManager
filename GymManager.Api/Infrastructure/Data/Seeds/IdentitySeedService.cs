@@ -25,7 +25,7 @@ namespace GymManager.Api.Infrastructure.Data.Seeds
         public async Task SeedAsync()
         {
             const string roleName = "OwnerAdmin";
-            const string email = "owner@gymmanager.com";
+            const string email = "rodri@hotmail.com";
             const string password = "Admin1234";
 
             // 1) Crear rol si no existe

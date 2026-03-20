@@ -7,7 +7,7 @@
 @using GymManager.Shared.Contracts.IntentosAcceso
 @using GymManager.Shared.Enums
 
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
     <IntentosAccesoFilterSection Filtro="Filtro"
                                  LimpiarFiltros="LimpiarFiltros"
                                  OnDesdeChanged="OnDesdeChanged"
@@ -18,7 +18,7 @@
                                  OnResultadoChanged="OnResultadoChanged" />
 </MudPaper>
 
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
     <IntentosAccesoTable Items="@intentosAccesos"
                          Loading="@loading" />
 </MudPaper>

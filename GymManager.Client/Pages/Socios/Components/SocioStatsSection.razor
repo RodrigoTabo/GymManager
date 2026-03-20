@@ -1,30 +1,40 @@
 ﻿@using GymManager.Client.Components
 @using GymManager.Shared.Contracts.Socios
 
-<MudGrid Spacing="2" Class="mb-4">
-    <KpiCard Titulo="Activos"
-             Valor="@(Stats.ActivosCount.ToString())"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.People"
-             Color="Color.Success" />
+<MudGrid Spacing="3" Class="mb-4">
 
-    <KpiCard Titulo="Inactivos"
-             Valor="@(Stats.InactivosCount.ToString())"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.PersonOff"
-             Color="Color.Error" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Activos"
+                 Valor="@(Stats.ActivosCount.ToString())"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.People"
+                 Color="Color.Success" />
+    </MudItem>
 
-    <KpiCard Titulo="Altas del mes"
-             Valor="@(Stats.AltasMesCount.ToString())"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.TrendingUp"
-             Color="Color.Info" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Inactivos"
+                 Valor="@(Stats.InactivosCount.ToString())"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.PersonOff"
+                 Color="Color.Error" />
+    </MudItem>
 
-    <KpiCard Titulo="Bajas del mes"
-             Valor="@(Stats.BajasMesCount.ToString())"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.TrendingDown"
-             Color="Color.Error" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Altas del mes"
+                 Valor="@(Stats.AltasMesCount.ToString())"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.TrendingUp"
+                 Color="Color.Info" />
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Bajas del mes"
+                 Valor="@(Stats.BajasMesCount.ToString())"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.TrendingDown"
+                 Color="Color.Error" />
+    </MudItem>
+
 </MudGrid>
 
 @* <SocioActividadChartSection Stats="Stats"

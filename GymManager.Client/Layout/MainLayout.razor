@@ -8,70 +8,67 @@
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
-<MudAppBar Elevation="1" Dense="true">
+<MudAppBar Elevation="4" Color="Color.Primary" Dense="true">
+    <MudText Typo="Typo.h6" Class="white-text mx-4">GymManager</MudText>
 </MudAppBar>
 
 <MudLayout>
     <MudDrawer Open="true"
                Anchor="Anchor.Left"
                Variant="DrawerVariant.Persistent"
-               Elevation="1"
+               Elevation="2"
                Width="260px"
-               Class="pt-16 d-flex flex-column">
+               Class="pt-16 d-flex flex-column mud-theme-background">
 
-        <MudDrawerHeader Class="pb-1">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Primary" />
-                <MudText Typo="Typo.h6">GymManager</MudText>
+        <!-- Logo -->
+        <MudDrawerHeader Class="pb-3">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Primary" Size="Size.Large" />
+                <MudText Typo="Typo.h6" Class="font-weight-bold">GymManager</MudText>
             </MudStack>
         </MudDrawerHeader>
 
-        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">DASHBOARD</MudText>
+        <!-- Secciones -->
+        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-2 mud-text-secondary font-weight-bold">DASHBOARD</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/general")"
-                        Match="NavLinkMatch.All"
-                        Icon="@Icons.Material.Filled.Dashboard">
+            <MudNavLink Href="/general" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
                 General
             </MudNavLink>
-            <MudNavLink Href="@($"/asistencias")"
-                        Icon="@Icons.Material.Filled.FactCheck">
+            <MudNavLink Href="/asistencias" Icon="@Icons.Material.Filled.FactCheck">
                 Asistencias
             </MudNavLink>
         </MudNavMenu>
 
-        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">REPORTES</MudText>
+        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-2 mud-text-secondary font-weight-bold">REPORTES</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/registro-de-accesos")"
-                        Icon="@Icons.Material.Filled.Login">
+            <MudNavLink Href="/registro-de-accesos" Icon="@Icons.Material.Filled.Login">
                 Registro de Accesos
             </MudNavLink>
         </MudNavMenu>
 
-        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">COBRANZAS</MudText>
+        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-2 mud-text-secondary font-weight-bold">COBRANZAS</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/control-de-pagos")"
-                        Icon="@Icons.Material.Filled.Payments">
+            <MudNavLink Href="/control-de-pagos" Icon="@Icons.Material.Filled.Payments">
                 Control de Pagos
             </MudNavLink>
         </MudNavMenu>
 
-        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-1 mud-text-secondary">ADMINISTRACIÓN</MudText>
+        <MudText Typo="Typo.caption" Class="px-3 mt-5 mb-2 mud-text-secondary font-weight-bold">ADMINISTRACIÓN</MudText>
         <MudNavMenu Dense="true">
-            <MudNavLink Href="@($"/socios")"
-                        Icon="@Icons.Material.Filled.Group">
+            <MudNavLink Href="/socios" Icon="@Icons.Material.Filled.Group">
                 Socios
             </MudNavLink>
-            <MudNavLink Href="@($"/panel-administrativo")"
-                        Icon="@Icons.Material.Filled.Settings">
+            <MudNavLink Href="/panel-administrativo" Icon="@Icons.Material.Filled.Settings">
                 Panel Administrativo
             </MudNavLink>
         </MudNavMenu>
 
         <MudSpacer />
 
-        <MudStack Class="pa-2 pt-1" Spacing="0">
+        <!-- Botones de acción -->
+        <MudStack Class="pa-2 pt-1" Spacing="1">
             <MudButton OnClick="CambiarSucursal"
-                       Variant="Variant.Text"
+                       Variant="Variant.Outlined"
                        Color="Color.Primary"
                        FullWidth="true"
                        StartIcon="@Icons.Material.Filled.SyncAlt">
@@ -79,7 +76,7 @@
             </MudButton>
 
             <MudButton OnClick="Logout"
-                       Variant="Variant.Text"
+                       Variant="Variant.Outlined"
                        Color="Color.Error"
                        FullWidth="true"
                        StartIcon="@Icons.Material.Filled.Logout">

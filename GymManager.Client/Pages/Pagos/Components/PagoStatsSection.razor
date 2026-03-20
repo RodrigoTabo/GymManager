@@ -2,45 +2,53 @@
 @using GymManager.Client.Pages.Panel_Administrativo.MetodosPagoComponents
 @using GymManager.Shared.Contracts.Pagos
 
-<MudGrid Spacing="2" Class="mb-4">
+<MudGrid Spacing="3" Class="mb-4">
 
-    <KpiCard Titulo="Transacciones del mes"
-             Valor="@(Stats.PagosMensualesCount.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.CalendarMonth"
-             Color="Color.Primary" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Transacciones de hoy"
+                 Valor="@(Stats.PagosDiariosCount.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.Event"
+                 Color="Color.Secondary" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Transacciones del mes"
+                 Valor="@(Stats.PagosMensualesCount.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.CalendarMonth"
+                 Color="Color.Primary" />
+    </MudItem>
 
-    <KpiCard Titulo="Transacciones de hoy"
-             Valor="@(Stats.PagosDiariosCount.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.Event"
-             Color="Color.Secondary" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Total recaudado (hoy)"
+                 Valor="@(Stats.TotalPagoDiario.ToString("N2"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.Payments"
+                 Color="Color.Info" />
+    </MudItem>
 
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Total recaudado (mes)"
+                 Valor="@(Stats.TotalPagoMensual.ToString("N2"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.AttachMoney"
+                 Color="Color.Success" />
+    </MudItem>
 
-    <KpiCard Titulo="Total recaudado (mes)"
-             Valor="@(Stats.TotalPagoMensual.ToString("N2"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.AttachMoney"
-             Color="Color.Success" />
-
-    <KpiCard Titulo="Total recaudado (hoy)"
-             Valor="@(Stats.TotalPagoDiario.ToString("N2"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.Payments"
-             Color="Color.Info" />
-
-
-    <KpiCard Titulo="Efectivo (hoy)"
-             Valor="@("$" + Stats.TotalDiariosPagoEfectivo.ToString("N2"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.LocalAtm"
-             Color="Color.Warning" />
-
-    <KpiCard Titulo="Transferencia (hoy)"
-             Valor="@("$" + Stats.TotalDiariosPagoTransferencia.ToString("N2"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.SwapHoriz"
-             Color="Color.Tertiary" />
+    <MudItem xs="12" md="3">
+        <KpiCard Titulo="Efectivo (hoy)"
+                 Valor="@("$" + Stats.TotalDiariosPagoEfectivo.ToString("N2"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.LocalAtm"
+                 Color="Color.Warning" />
+    </MudItem>
+    <MudItem xs="12" md="3">
+        <KpiCard Titulo="Transferencia (hoy)"
+                 Valor="@("$" + Stats.TotalDiariosPagoTransferencia.ToString("N2"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.SwapHoriz"
+                 Color="Color.Tertiary" />
+    </MudItem>
 
 </MudGrid>
 

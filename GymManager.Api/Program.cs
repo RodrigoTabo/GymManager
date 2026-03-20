@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -24,9 +23,7 @@ namespace GymManager.Api
 
             var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
 
-            // ------------------------------
             // SERVICIOS GENERALES
-            // ------------------------------
             builder.Services.AddScoped<IdentitySeedService>();
             builder.Services.AddHttpContextAccessor();
 
@@ -50,9 +47,7 @@ namespace GymManager.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddApiExceptionHandling();
 
-            // ------------------------------
             // CORS
-            // ------------------------------
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("Client", policy =>
@@ -61,9 +56,7 @@ namespace GymManager.Api
                           .AllowAnyMethod());
             });
 
-            // ------------------------------
             // SWAGGER
-            // ------------------------------
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -97,16 +90,13 @@ namespace GymManager.Api
                     }
                 });
 
-                // Ignorar endpoints que no sean de controladores
                 options.DocInclusionPredicate((docName, apiDesc) =>
                 {
                     return apiDesc.ActionDescriptor is ControllerActionDescriptor;
                 });
-                });
+            });
 
-            // ------------------------------
             // IDENTITY CORE
-            // ------------------------------
             builder.Services
                 .AddIdentityCore<AppUser>(options =>
                 {
@@ -121,9 +111,8 @@ namespace GymManager.Api
                 .AddEntityFrameworkStores<GymManagerDbContext>()
                 .AddApiEndpoints();
 
-            // ------------------------------
+
             // JWT AUTHENTICATION
-            // ------------------------------
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -143,18 +132,15 @@ namespace GymManager.Api
              Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
      };
 
-     // Este evento mapea claims personalizados
      options.Events = new JwtBearerEvents
      {
          OnTokenValidated = context =>
          {
-             // Leer "SucursalId" del claim y ponerlo como ClaimType.NameIdentifier (opcional)
              var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
 
              var sucursalClaim = claimsIdentity?.FindFirst("SucursalId");
              if (sucursalClaim != null)
              {
-                 // Ojo: si querés puedes mapearlo a otro tipo de claim
                  claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, sucursalClaim.Value));
              }
 
@@ -165,9 +151,6 @@ namespace GymManager.Api
 
             builder.Services.AddAuthorization();
 
-            // ------------------------------
-            // BUILD APP
-            // ------------------------------
             var app = builder.Build();
 
             app.UseApiExceptionHandling();

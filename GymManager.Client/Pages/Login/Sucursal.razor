@@ -1,20 +1,24 @@
 ﻿@page "/sucursales"
+@layout AuthLayout
 @attribute [Authorize]
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.Sucursal
 @using GymManager.Web.ApiClients
 @using GymManager.Web.Security
 @using Microsoft.AspNetCore.Authorization
+@inject GymManager.Web.Security.JwtAuthStateProvider JwtAuthStateProvider
+@inject GymManager.Web.Security.ApiHttpClientProvider ApiHttpClientProvider
+@inject NavigationManager Navigation
 @inject SucursalApi SucursalApi
 @inject AuthApi AuthApi
 
 <MudContainer MaxWidth="MaxWidth.False"
-              Class="pa-0 d-flex align-center justify-center"
-              Style="min-height: 75vh;">
+              Class="pa-0 d-flex flex-column align-center justify-center"
+              Style="min-height: 75vh; gap:16px;">
 
     <MudPaper Elevation="6"
               Class="pa-6"
-              Style="width: 100%; max-width: 620px; border-radius: 20px;">
+              Style="width: 100%; max-width: 620px; border-radius: 5px;">
 
         <MudStack Spacing="3">
 
@@ -27,7 +31,7 @@
 
             @foreach (var sucursal in Sucursales)
             {
-                <MudPaper Outlined="true" Class="pa-4">
+                <MudPaper Outlined="true" Class="pa-4" Elevation="2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         
                         <MudStack Spacing="0">
@@ -51,6 +55,13 @@
                 </MudPaper>
             }
 
+            <MudButton OnClick="Logout"
+                       Variant="Variant.Filled"
+                       Color="Color.Error"
+                       FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Logout">
+                Salir
+            </MudButton>
         </MudStack>
     </MudPaper>
 </MudContainer>
@@ -61,11 +72,15 @@
     private string? Error;
     private bool Loading;
 
-    [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private JwtAuthStateProvider JwtAuthStateProvider { get; set; } = default!;
-
     protected override async Task OnInitializedAsync()
     => await LoadSucursalesAsync();
+
+    private async Task Logout()
+    {
+        await JwtAuthStateProvider.MarkUserAsLoggedOutAsync();
+        ApiHttpClientProvider.ClearAuthorization();
+        Navigation.NavigateTo("/login");
+    }
 
     private async Task LoadSucursalesAsync()
     {
@@ -98,7 +113,7 @@
             await JwtAuthStateProvider.MarkUserAsAuthenticatedAsync(result.Token);
 
             // 3. Navegamos al panel general
-            Nav.NavigateTo("/general");
+            Navigation.NavigateTo("/general");
         }
         catch (Exception ex)
         {

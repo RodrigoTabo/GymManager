@@ -38,7 +38,13 @@
         <MudTd DataLabel="Telefono">@context.Telefono</MudTd>
         <MudTd DataLabel="Acciones">
             <MudStack Row="true" Spacing="1">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" />
+                @if (context.VenceEn < DateTime.Today)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OnDelete.InvokeAsync(context))" />
+                }
                 @if (context.VenceEn >= DateTime.Today && context.VenceEn.Date <= DateTime.Today.AddDays(7))
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.PhoneIphone"
@@ -74,6 +80,9 @@
 
     [Parameter]
     public EventCallback<VencidoResponse> OnPago { get; set; }
+
+    [Parameter]
+    public EventCallback<VencidoResponse> OnDelete { get; set; }
 
     [Parameter]
     public bool Loading { get; set; }

@@ -21,7 +21,7 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@Error</MudAlert>
     }
 
-    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
             <MudStack Spacing="0">
                 <MudText Typo="Typo.h5">Vencimientos</MudText>
@@ -30,11 +30,12 @@
         </MudStack>
     </MudPaper>
 
-    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <VencidoTable Items="Items"
                       Loading="Loading"
                       OnWhatsApp="MensajeWhatsapp"
-                      OnPago="OpenPago" />
+                      OnPago="OpenPago" 
+                      OnDelete="ConfirmDelete"/>
     </MudPaper>
 
     <VencimientosStatsSection Loading="loadingStats"
@@ -126,6 +127,24 @@
         };
 
         var dialog = await DialogService.ShowAsync<PagoDialog>("Agregar Pago", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await ReloadAsync();
+    }
+
+    private async Task ConfirmDelete(VencidoResponse socio)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+        {
+            ["SocioId"] = socio.SocioId,
+            ["ContentText"] = $"¿Seguro que querés eliminar el Socio \"{socio.NombreCompleto}\"?",
+            ["ButtonText"] = "Eliminar",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<SocioDialogDelete>("Eliminar Socio", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

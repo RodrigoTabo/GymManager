@@ -16,6 +16,7 @@ namespace GymManager.Api.Application.Services
 
         public async Task<List<AsistenciaResponse>> ListarAsync(AsistenciaFiltro filtro)
         {
+
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             var query = _context.Asistencias

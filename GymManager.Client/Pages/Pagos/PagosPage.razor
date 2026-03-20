@@ -17,16 +17,13 @@
     <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">@errorPagos</MudAlert>
 }
 
-<!-- KPI Cards + Graficos + Tabla -->
-<!-- Ya tenemos separado una sección para un futuro filtro. -->
-
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
     <PagoFiltersSection LoadingStats="loadingStats"
                         Loading="loading"
                         ReloadAsync="ReloadAsync" />
 </MudPaper>
 
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
 
     <PagoTable Items="@pagos"
                Loading="@loading"

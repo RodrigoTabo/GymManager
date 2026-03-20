@@ -1,132 +1,98 @@
 ﻿@attribute [Authorize]
 @page "/general"
+@using GymManager.Client.Components
 @using GymManager.Client.Pages.General.Components
+@using GymManager.Client.Pages.Pagos.Components
 @using GymManager.Shared.Contracts.Pagos
 @using Microsoft.AspNetCore.Authorization
 @using GymManager.Client.ApiClients
 @using GymManager.Shared.Contracts.General
 @inject GeneralApi GeneralApi
+@inject PagoApi PagoApi
 
 <MudContainer MaxWidth="MaxWidth.Large"
               Class="mx-auto pa-0"
               Style="background-color: #f7f8fc;">
-    <MudGrid Spacing="2" Class="mb-4">
+
+    <MudGrid Spacing="3" Class="mb-4">
 
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" />
-                    </MudAvatar>
-
-                    <MudText Typo="Typo.caption" Align="Align.Center">
-                        Asistidos diarios
-                    </MudText>
-
-                    <MudText Typo="Typo.subtitle1" Align="Align.Center">
-                        @(loadingStats ? "—" : stats.AsistidosHoyCount.ToString())
-                    </MudText>
-                </MudStack>
-            </MudPaper>
+            <KpiCard Color="@Color.Success"
+                     Icon="@Icons.Material.Filled.People"
+                     Titulo="Asistidos diarios (Exitosos)"
+                     Loading="@loadingStats"
+                     Valor="@stats.AsistidosHoyCount.ToString()" />
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.Beenhere" />
-                    </MudAvatar>
-
-                    <MudText Typo="Typo.caption" Align="Align.Center">
-                        Asistidos mensuales (Exitosos)
-                    </MudText>
-
-                    <MudText Typo="Typo.subtitle1" Align="Align.Center">
-                        @(loadingStats ? "—" : stats.AsistidosMesCount.ToString())
-                    </MudText>
-                </MudStack>
-            </MudPaper>
+            <KpiCard Color="@Color.Success"
+                     Icon="@Icons.Material.Filled.Beenhere"
+                     Titulo="Asistidos mensuales (Exitosos)"
+                     Loading="@loadingStats"
+                     Valor="@stats.AsistidosMesCount.ToString()" />
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Medium" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.PersonOff" />
-                    </MudAvatar>
-
-                    <MudText Typo="Typo.caption" Align="Align.Center">
-                        Intentos diarios (Denegados)
-                    </MudText>
-                    <MudText Typo="Typo.subtitle1" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosHoyCount.ToString())</MudText>
-                </MudStack>
-            </MudPaper>
+            <KpiCard Color="@Color.Warning"
+                     Icon="@Icons.Material.Filled.PersonOff"
+                     Titulo="Intentos diarios (Denegados)"
+                     Loading="@loadingStats"
+                     Valor="@stats.CantidadIntentosHoyCount.ToString()" />
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Error" Size="Size.Medium" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.Block" />
-                    </MudAvatar>
-                    <MudText Typo="Typo.caption" Align="Align.Center">Intentos mensuales(Denegados)</MudText>
-                    <MudText Typo="Typo.subtitle1" Align="Align.Center">@(loadingStats ? "—" : stats.CantidadIntentosMesCount.ToString())</MudText>
-                </MudStack>
-            </MudPaper>
+            <KpiCard Color="@Color.Error"
+                     Icon="@Icons.Material.Filled.Block"
+                     Titulo="Intentos mensuales (Denegados)"
+                     Loading="@loadingStats"
+                     Valor="@stats.CantidadIntentosMesCount.ToString()" />
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Success" Size="Size.Medium" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.Payments" />
-                    </MudAvatar>
-                    <MudStack Spacing="0" Class="flex-grow-1">
-                        <MudText Typo="Typo.caption">
-                            Pagos diarios (@(loadingStats ? "—" : stats.PagosDiariosCount.ToString("N0")))
-                        </MudText>
-                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.subtitle1">$@(loadingStats ? "—" : stats.TotalPagoDiario.ToString("N2"))</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
+        <MudItem xs="12" md="6">
+            <KpiCard Color="@Color.Success"
+                     Icon="@Icons.Material.Filled.Payment"
+                     Titulo="Pagos diarios"
+                     SubTitulo="@stats.PagosDiariosCount.ToString()"
+                     Loading="@loadingStats"
+                     Valor="@stats.TotalPagoDiario.ToString()" />
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-2" Elevation="2" Style="border-radius:18px;">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudAvatar Variant="Variant.Filled" Color="Color.Info" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.LocalAtm" />
-                    </MudAvatar>
-
-                    <MudStack Spacing="0" Class="flex-grow-1">
-                        <MudText Typo="Typo.caption">Pagos mensuales (@(loadingStats ? "—" : stats.PagosMensualesCount.ToString("N0")))</MudText>
-                        <MudStack Row="true" AlignItems="AlignItems.Baseline" JustifyContent="Justify.SpaceBetween">
-                            <MudText Typo="Typo.subtitle1">$@(loadingStats ? "—" : stats.TotalPagoMensual.ToString("N2"))</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
+        <MudItem xs="12" md="6">
+            <KpiCard Color="@Color.Info"
+                     Icon="@Icons.Material.Filled.LocalAtm"
+                     Titulo="Pagos mensuales"
+                     SubTitulo="@stats.PagosMensualesCount.ToString()"
+                     Loading="@loadingStats"
+                     Valor="@stats.TotalPagoMensual.ToString()" />
         </MudItem>
 
+        <MudItem xs="12" md="6">
+            <TopVencimientosCard Titulo="Top 3 de hoy"
+                                 ColorBar="background:#e53935;"
+                                 SubTitulo="Vencimientos"
+                                 Items="stats.TopVencenHoy"
+                                 Loading="loadingStats"
+                                 CantidadMostrar="3"
+                                 Color="Color.Error"
+                                 TextoVacio="Todo está al día por ahora." />
+        </MudItem>
 
-        <TopVencimientosCard Titulo="Top 3 de hoy"
-                             SubTitulo="Vencimientos"
-                             Items="stats.TopVencenHoy"
-                             Loading="loadingStats"
-                             CantidadMostrar="3"
-                             Color="Color.Error"
-                             TextoVacio="Todo está al día por ahora." />
+        <MudItem xs="12" md="6">
+            <TopVencimientosCard Titulo="Top 3 del mes"
+                                 ColorBar="background:#ffc107;"
+                                 SubTitulo="Vencimientos"
+                                 Items="stats.TopVencenMes"
+                                 Loading="loadingStats"
+                                 Color="Color.Warning"
+                                 CantidadMostrar="3"
+                                 TextoVacio="Todo está al día por ahora." />
+        </MudItem>
 
-        <TopVencimientosCard Titulo="Top 3 del mes"
-                             SubTitulo="Vencimientos"
-                             Items="stats.TopVencenMes"
-                             Loading="loadingStats"
-                             Color="Color.Warning"
-                             CantidadMostrar="3"
-                             TextoVacio="Todo está al día por ahora." />
-     
+        <MudItem xs="12">
+            <PagoActividadChartSection Stats="StatsPagos"
+                                       Loading="loadingStats" />
+        </MudItem>
+
     </MudGrid>
 </MudContainer>
 @code {
@@ -138,10 +104,44 @@
     };
 
 
+    private PagosStatsResponse StatsPagos = new()
+    {
+        TotalPorMes = new List<PagoMesSerie>()
+    };
+
     private bool loadingStats;
+    private string? errorStats;
 
     protected override async Task OnInitializedAsync()
-        => await LoadStatsAsync();
+        => await ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        await LoadStatsPagosAsync();
+        await LoadStatsAsync();
+    }
+
+    private async Task LoadStatsPagosAsync()
+    {
+        loadingStats = true;
+        errorStats = null;
+
+        try
+        {
+            StatsPagos = await PagoApi.GetPagosStatsAsync();
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorStats = ex.Message;
+            StatsPagos = new() { TotalPorMes = new List<PagoMesSerie>() };
+        }
+        finally
+        {
+            loadingStats = false;
+        }
+    }
 
     private async Task LoadStatsAsync()
     {

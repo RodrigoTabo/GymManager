@@ -2,38 +2,48 @@
 @using GymManager.Shared.Contracts.Pagos
 
 
-<MudGrid Spacing="2" Class="mb-4">
+<MudGrid Spacing="3" Class="mb-4">
 
-    <KpiCard Titulo="Vencen hoy"
-             Valor="@(Stats.VencenHoy.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.MoneyOff"
-             Color="Color.Error" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Vencen hoy"
+                 Valor="@(Stats.VencenHoy.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.MoneyOff"
+                 Color="Color.Error" />
+    </MudItem>
 
-    <KpiCard Titulo="Vencen esta semana"
-             Valor="@(Stats.VencenEstaSemana.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.MoneyOff"
-             Color="Color.Warning" />
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Vencen esta semana"
+                 Valor="@(Stats.VencenEstaSemana.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.MoneyOff"
+                 Color="Color.Warning" />
+    </MudItem>
+  
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Total abono diario"
+                 Valor="@(Stats.TotalCobrarHoy.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.AttachMoney"
+                 Color="Color.Success" />
+    </MudItem>
 
-    <KpiCard Titulo="Total estimado a cobrar hoy"
-             Valor="@(Stats.TotalCobrarHoy.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.AttachMoney"
-             Color="Color.Success" />
-
-    <KpiCard Titulo="Total estimado a cobrar esta semana"
-             Valor="@(Stats.TotalCobrarSemana.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.MonetizationOn"
-             Color="Color.Info" />
-
-    <KpiCard Titulo="Cantidad de vencidos"
-             Valor="@(Stats.Vencidos.ToString("N0"))"
-             Loading="@Loading"
-             Icon="@Icons.Material.Filled.PersonOff"
-             Color="Color.Error" />
-
+    
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Total abono semanal"
+                 Valor="@(Stats.TotalCobrarSemana.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.MonetizationOn"
+                 Color="Color.Info" />
+    </MudItem>
+    
+    <MudItem xs="12" sm="6" md="3">
+        <KpiCard Titulo="Cantidad de vencidos"
+                 Valor="@(Stats.Vencidos.ToString("N0"))"
+                 Loading="@Loading"
+                 Icon="@Icons.Material.Filled.PersonOff"
+                 Color="Color.Error" />
+    </MudItem>
 </MudGrid>
 
 @code {

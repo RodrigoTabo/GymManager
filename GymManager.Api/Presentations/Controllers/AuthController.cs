@@ -65,7 +65,6 @@ public class AuthController : ControllerBase
     private async Task<string> GenerateJwtToken(AppUser user, string? sucursalIdSeleccionada)
     {
         // 1. Buscamos todas las sucursales del usuario para incluirlas en el claim "Sucursales"
-        // Esto es lo que necesita tu CurrentUserService para no devolver 0
         var sucursalesIds = await _context.UsuarioSucursales
             .Where(us => us.UsuarioId == user.Id)
             .Select(us => us.SucursalId.ToString())
@@ -74,7 +73,7 @@ public class AuthController : ControllerBase
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // 'sub' para compatibilidad
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             // Guardamos la lista separada por comas

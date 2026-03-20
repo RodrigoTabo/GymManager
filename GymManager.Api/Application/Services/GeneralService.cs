@@ -81,24 +81,26 @@ namespace GymManager.Api.Application.Services
                 .Where(i => i.FechaRegistro >= inicioMes && i.FechaRegistro <= inicioMesSiguiente && i.Resultado == ResultadoAcceso.Denegada && i.SucursalId == sucursalId)
                 .CountAsync();
 
-
-
-
             //Listamos los que vencen hoy
             var ListaHoy = await _context.Pagos
                 .AsNoTracking()
                 .Include(p => p.Socio)
                     .ThenInclude(s => s.Plan)
                 .Where(p =>
-                    p.CubreHasta >= hoy &&
-                    p.CubreHasta <= mañana &&
-                    p.EliminadoEn == null &&
-                    p.SucursalId == sucursalId)
+                p.Socio.EliminadoEn == null &&
+                p.EliminadoEn == null &&
+                p.SucursalId == sucursalId)
                 .ToListAsync();
 
             var TopVencenHoy = ListaHoy
                 .GroupBy(p => p.SocioId)
-                .Select(g => g.OrderBy(p => p.CubreHasta).First())
+                .Select(g => g
+                    .OrderByDescending(x => x.FechaPago)
+                    .ThenByDescending(x => x.Id)
+                    .First())
+                .Where(p =>
+                    p.CubreHasta >= hoy &&
+                    p.CubreHasta <= mañana)
                 .OrderByDescending(p => p.FechaPago)
                 .ThenByDescending(p => p.Importe)
                 .Take(3)
@@ -112,22 +114,26 @@ namespace GymManager.Api.Application.Services
                 })
                 .ToList();
 
+            //Listamos los que vencen en todo el mes
             var ListaMes = await _context.Pagos
             .AsNoTracking()
             .Include(p => p.Socio)
                 .ThenInclude(s => s.Plan)
             .Where(p =>
-            p.CubreDesde >= inicioMes &&
-            p.CubreHasta <= inicioMesSiguiente &&
+            p.Socio.EliminadoEn == null &&
             p.EliminadoEn == null &&
             p.SucursalId == sucursalId)
             .ToListAsync();
 
-
-            //Listamos los que vencen en todo el mes
             var TotalVencenMes = ListaMes
             .GroupBy(p => p.SocioId)
-            .Select(g => g.OrderBy(p=> p.CubreHasta).First())
+            .Select(g => g
+                .OrderByDescending(x => x.FechaPago)
+                .ThenByDescending(x => x.Id)
+                .First())
+            .Where(p =>
+                p.CubreDesde >= inicioMes &&
+                p.CubreHasta <= inicioMesSiguiente)
             .OrderByDescending(p => p.FechaPago)
             .ThenByDescending(x => x.Importe)
             .Take(3)

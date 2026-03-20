@@ -71,7 +71,7 @@
 
 
     [Parameter]
-    public SocioResponse? Socio { get; set; }
+    public int SocioId { get; set; }
 
     private string? Error;
     private bool Guardando;
@@ -81,7 +81,7 @@
     {
         Error = null;
 
-        if (Socio is null || Socio.Id <= 0)
+        if (SocioId <= 0)
         {
             Error = "El Socio no existe.";
             return;
@@ -91,7 +91,7 @@
 
         try
         {
-            await SocioApi.SoftDeleteAsync(Socio.Id);
+            await SocioApi.SoftDeleteAsync(SocioId);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)

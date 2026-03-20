@@ -191,9 +191,7 @@ namespace GymManager.Api.Application.Services
                 .AsNoTracking()
                 .Where(p => p.Socio.EliminadoEn == null)
                 .Where(p => p.EliminadoEn == null
-                    && p.SucursalId == sucursalId
-                    && p.CubreHasta >= hoy
-                    && p.CubreHasta < semana)
+                    && p.SucursalId == sucursalId)
                 .Select(p => new
                 {
                     p.Id,
@@ -208,12 +206,14 @@ namespace GymManager.Api.Application.Services
                 })
                 .ToListAsync();
 
+            // Resuelvo en memoria porque E.F no "soportaba" la consulta
             var listar = pagosFiltrados
                 .GroupBy(p => p.SocioId)
                 .Select(g => g
                     .OrderByDescending(x => x.FechaPago)
                     .ThenByDescending(x => x.Id)
                     .First())
+                 .Where(p => p.CubreHasta < semana)
                 .OrderBy(x => x.CubreHasta)
                 .Select(x => new VencidoResponse
                 {

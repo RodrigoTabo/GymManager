@@ -1,5 +1,6 @@
 ﻿@attribute [Authorize]
 @page "/asistencias"
+@layout AuthLayout
 @using Microsoft.AspNetCore.Authorization
 @using GymManager.Client.ApiClients
 @using GymManager.Client.ApiClients.Common
@@ -7,20 +8,38 @@
 @using System.Net
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Nav
 @inject AsistenciaApi AsistenciaApi;
 
 <MudContainer MaxWidth="MaxWidth.False"
-              Class="pa-0 d-flex align-center justify-center"
-              Style="min-height: 75vh;">
+              Class="pa-0 d-flex flex-column align-center justify-center"
+              Style="min-height: 75vh; gap:16px;">
 
+    <!-- CARD DE ASISTENCIA -->
     <AsistenciaCard Error="@Error"
                     Guardando="@Guardando"
                     enviarDNI="MarcarAsistencia" />
+
+    <!-- BOTÓN VOLVER DEBAJO -->
+    <MudButton Variant="Variant.Text"
+               Color="Color.Default"
+               Style="opacity:0.7; font-weight:500;"
+               StartIcon="@Icons.Material.Filled.ArrowBack"
+               OnClick="VolverAGeneral">
+        Volver
+    </MudButton>
+
 </MudContainer>
 @code {
 
     private string? Error;
     private bool Guardando;
+
+    private void VolverAGeneral()
+    {
+        Nav.NavigateTo("/general");
+    }
+
 
     private async Task MarcarAsistencia(string dni)
     {

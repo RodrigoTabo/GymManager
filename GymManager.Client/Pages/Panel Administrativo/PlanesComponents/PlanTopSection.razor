@@ -1,71 +1,94 @@
 ﻿@using GymManager.Shared.Contracts.Planes
 
-<MudItem xs="12" sm="6" md="9">
-    <MudPaper Class="pa-3" Elevation="2" Style="border-radius: 18px;">
-        <MudStack Spacing="2">
+<MudPaper Class="pa-0 h-100" Elevation="2" Style="border-radius:5px; overflow:hidden;">
 
-            <!-- Header -->
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                <MudAvatar Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small">
-                    <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Size="Size.Small" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle1" Style="font-weight: 700;">Top 3 Planes</MudText>
+    <MudStack Class="pa-3" Style="background:#00c853;">
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+            <MudAvatar Variant="Variant.Filled" Style="background:#00c853;" Size="Size.Small">
+                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Size="Size.Small" Style="color:#ffc107;" />
+            </MudAvatar>
+
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.subtitle2" Style="color:white;">
+                    Top 3 Planes
+                </MudText>
+                <MudText Typo="Typo.caption" Style="color:white;">
+                    Más vendidos
+                </MudText>
             </MudStack>
+        </MudStack>
 
-            @if (Loading)
+    </MudStack>
+
+    <MudStack Class="pa-3" Spacing="2">
+
+        @if (Loading)
+        {
+            <MudStack Spacing="1">
+                <MudSkeleton Height="18px" Width="70%" />
+                <MudSkeleton Height="18px" Width="60%" />
+                <MudSkeleton Height="18px" Width="50%" />
+            </MudStack>
+        }
+        else if (Stats.TopPlanes is not null && Stats.TopPlanes.Any())
+        {
+            @for (int i = 0; i < Stats.TopPlanes.Count; i++)
             {
-                <MudPaper Class="pa-2 d-flex justify-center" Outlined="true" Style="border-radius: 10px;">
-                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
-                </MudPaper>
-            }
-            else if (Stats.TopPlanes is not null && Stats.TopPlanes.Any())
-            {
-                @for (int i = 0; i < Stats.TopPlanes.Count; i++)
+                var plan = Stats.TopPlanes[i];
+                var posicion = i + 1;
+
+                <MudStack Row="true"
+                          AlignItems="AlignItems.Center"
+                          Justify="Justify.SpaceBetween"
+                          Class="py-1">
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+
+                        <MudAvatar Variant="Variant.Filled"
+                                   Style="background:#00c853;"
+                                   Size="Size.Small">
+                            @posicion
+                        </MudAvatar>
+
+                        <MudText Typo="Typo.body2" Style="font-weight:500;">
+                            @plan.NombrePlan
+                        </MudText>
+
+                    </MudStack>
+
+                    <MudText Typo="Typo.body2"
+                             Style="font-weight:600; color:#00c853;">
+                        @plan.Cantidad
+                    </MudText>
+
+                </MudStack>
+
+                @if (posicion < Stats.TopPlanes.Count)
                 {
-                    var plan = Stats.TopPlanes[i];
-                    var posicion = i + 1;
-
-                    <MudPaper Class="pa-2" Outlined="true" Style="border-radius: 10px;">
-                        <MudStack Row="true"
-                                  AlignItems="AlignItems.Center"
-                                  Justify="Justify.SpaceBetween">
-
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudAvatar Variant="Variant.Filled"
-                                           Color="@(posicion == 1 ? Color.Warning : posicion == 2 ? Color.Info : Color.Secondary)"
-                                           Size="Size.Small">
-                                    @posicion
-                                </MudAvatar>
-
-                                <MudText Typo="Typo.body1" Style="font-weight: 600;">
-                                    @plan.NombrePlan
-                                </MudText>
-                            </MudStack>
-
-                            <MudChip T="int"
-                                     Color="Color.Primary"
-                                     Variant="Variant.Outlined"
-                                     Size="Size.Small">
-                                @plan.Cantidad
-                            </MudChip>
-
-                        </MudStack>
-                    </MudPaper>
+                    <MudDivider />
                 }
             }
-            else
-            {
-                <MudPaper Class="pa-2" Outlined="true" Style="border-radius: 10px;">
-                    <MudText Typo="Typo.body2" Class="text-muted">
-                        No hay datos para mostrar.
-                    </MudText>
-                </MudPaper>
-            }
+        }
+        else
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="py-4" Spacing="1">
+                <MudIcon Icon="@Icons.Material.Filled.EmojiEvents"
+                         Size="Size.Medium"
+                         Style="color:#00c853;" />
 
-        </MudStack>
-    </MudPaper>
-</MudItem>
+                <MudText Typo="Typo.subtitle2">
+                    No hay datos
+                </MudText>
 
+                <MudText Typo="Typo.caption" Style="opacity:0.7;">
+                    No hay planes registrados.
+                </MudText>
+            </MudStack>
+        }
+
+    </MudStack>
+</MudPaper>
 @code {
 
     [Parameter]

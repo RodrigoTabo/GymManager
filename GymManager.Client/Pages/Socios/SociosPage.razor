@@ -9,7 +9,7 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-0">
     
-    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
         
             <MudStack Spacing="0">
@@ -29,14 +29,14 @@
 
 
     <!-- Barra de filtro -->
-    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <SocioFiltersSection Filtro="@Filtro"
                              OnFiltroChanged="HandleFiltroChanged"
                              OnCrear="OpenCrear" />
     </MudPaper>
 
     <!-- Tabla -->
-    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <SocioTable Items="@socios"
                     Loading="@loading"
                     OnEdit="OpenEdit"

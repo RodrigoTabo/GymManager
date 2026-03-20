@@ -20,7 +20,7 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
         {
             var token = await _tokenStorage.GetTokenAsync();
 
-            // Si no hay token o no parece un JWT (mínimo 2 puntos), es anónimo
+            // Si no hay token o no parece un JWT (minimo 2 puntos), es anonimo
             if (string.IsNullOrWhiteSpace(token) || !token.Contains("."))
             {
                 return new AuthenticationState(_anonymous);

@@ -5,7 +5,7 @@
 @inject AsistenciaApi AsistenciaApi
 
 <!-- Filtros -->
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
     <AsistenciaFiltersSection Filtro="Filtro"
                               LimpiarFiltros="LimpiarFiltros"
                               OnDesdeChanged="OnDesdeChanged"
@@ -14,7 +14,7 @@
                               OnNombreChanged="OnNombreChanged" />
 </MudPaper>
 <!-- Tabla -->
-<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:18px;">
+<MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
     <AsistenciaTable Items="@Asistencias"
                      Loading="@loading" />
 </MudPaper>
