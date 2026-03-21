@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Security.Claims;
 using System.Text;
 
@@ -20,6 +21,10 @@ namespace GymManager.Api
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //SERVICIO DE SERILOG.
+            builder.Host.UseSerilog((context, logConfg) => logConfg.ReadFrom.Configuration(context.Configuration));
+
 
             var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
 
@@ -204,7 +209,9 @@ namespace GymManager.Api
                 Console.WriteLine($" >>> OJO: No se pudo conectar/migrar la DB todavía: {ex.Message}");
             }
 
+            Log.Information("API funcionando correctamente");
             app.Run();
+
         }
     }
 }

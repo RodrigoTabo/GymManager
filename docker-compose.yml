@@ -1,3 +1,5 @@
+version: "3.9" # o '3.8'
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -17,15 +19,14 @@ services:
     container_name: gymmanager_api
     restart: always
     ports:
-      - "7093:8080" # Tu puerto de API de siempre
+      - "7093:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      # Conexión a la base de datos interna de Docker
       - ConnectionStrings__GymManagerDbContext=Server=db;Database=GymManagerDb;User Id=sa;Password=TuPasswordSuperSeguro123!;TrustServerCertificate=True;
     depends_on:
       - db
 
-  frontend: # <-- ESTO TIENE QUE TENER 2 ESPACIOS DE SANGRÍA
+  frontend:
     build:
       context: ./
       dockerfile: Dockerfile.client
@@ -36,5 +37,18 @@ services:
     depends_on:
       - api
 
+  seq:
+    image: datalust/seq:latest
+    container_name: gymmanager_seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    volumes:
+      - seq-data:/data
+
 volumes:
   sqlvolume:
+  seq-data:

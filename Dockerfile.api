@@ -1,19 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copiamos los archivos de proyecto manteniendo la estructura
-COPY ["GymManager.Api/GymManager.Api.csproj", "GymManager.Api/"]
-COPY ["GymManager.Shared/GymManager.Shared.csproj", "GymManager.Shared/"]
+COPY GymManager.Api/GymManager.Api.csproj GymManager.Api/
+COPY GymManager.Shared/GymManager.Shared.csproj GymManager.Shared/
 
-# Restauramos
-RUN dotnet restore "GymManager.Api/GymManager.Api.csproj"
+RUN dotnet restore GymManager.Api/GymManager.Api.csproj
 
-# Copiamos todo el resto del código
 COPY . .
-WORKDIR "/src/GymManager.Api"
-RUN dotnet publish "GymManager.Api.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+RUN dotnet publish GymManager.Api/GymManager.Api.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
