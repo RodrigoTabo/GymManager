@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
+using FluentValidation;
 
 namespace GymManager.Api
 {
@@ -25,6 +26,8 @@ namespace GymManager.Api
             //SERVICIO DE SERILOG.
             builder.Host.UseSerilog((context, logConfg) => logConfg.ReadFrom.Configuration(context.Configuration));
 
+            //SERVUCIO FLUENTVALIDATIO
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
             var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
 
