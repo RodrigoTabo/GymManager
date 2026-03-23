@@ -2,4 +2,5 @@
   <Project Path="GymManager.Api/GymManager.Api.csproj" />
   <Project Path="GymManager.Client/GymManager.Client.csproj" />
   <Project Path="GymManager.Shared/GymManager.Shared.csproj" />
+  <Project Path="TestxUnitApi/TestxUnitApi.csproj" Id="e4d37eb0-93d0-43f9-bd31-72b27f6db07f" />
 </Solution>

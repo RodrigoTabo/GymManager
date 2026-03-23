@@ -102,11 +102,7 @@ namespace GymManager.Api.Application.Services
             //Obtengo el metodo valido
             var metodoPago = await ObtenerMetodoPagoValidoAsync(request.MetodoPagoId, sucursalId);
 
-            //Obtengo ValidarFecha
-            ValidarFecha(request.FechaPago);
-
             pago.MetodoPagoId = request.MetodoPagoId;
-            pago.FechaPago = request.FechaPago;
 
             await _context.SaveChangesAsync();
 
@@ -241,13 +237,6 @@ namespace GymManager.Api.Application.Services
 
             return pago;
 
-        }
-
-        private void ValidarFecha(DateTime fecha)
-        {
-            //Validamos si ingreso fecha.
-            if (fecha == default)
-                throw new BadRequestException("Fecha inválida.");
         }
 
         private (DateTime desde, DateTime hasta) CalcularCobertura(int duracionDias)
