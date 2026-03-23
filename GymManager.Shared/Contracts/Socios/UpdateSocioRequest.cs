@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace GymManager.Shared.Contracts.Socios
 {
-    public record UpdateSocioRequest(string DNI, string Nombre, string Apellido, uint Telefono, DateTime? FechaNacimiento, int PlanId, int? documentoId);
+    public record UpdateSocioRequest(string DNI, string Nombre, string Apellido, string Telefono, DateTime? FechaNacimiento, int PlanId, int? documentoId);
 }

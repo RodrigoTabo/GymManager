@@ -16,70 +16,31 @@ namespace GymManager.Api.Application.Services
 
         public async Task<int> CrearAsync(CreatePagoRequest request)
         {
-
+            //Traer sucursal siempre traer sucursal
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            //Buscamos un Socio que coincida con el ingresado
-            var socio = await _context.Socios
-                .FirstOrDefaultAsync(s => s.Id == request.SocioId && s.SucursalId == sucursalId);
+            //Obtengo el socio valido
+            var socio = await ObtenerSocioValidoAsync(request.SocioId, sucursalId);
 
-            //Si no coincide => Not Found (404).
-            if (socio is null)
-                throw new NotFoundException("El Socio no existe.");
-            //Coincide pero esta deshabilitado =>  Conflic (409)
-            if (socio.EliminadoEn != null)
-                throw new ConflictException("El socio está deshabilitado.");
+            //Obtengo el metodo valido
+            await ObtenerMetodoPagoValidoAsync(request.MetodoPagoId, sucursalId);
 
-            //Buscamos un MetodoPago que coincida con el ingresado
-            var metodoExiste = await _context.MetodosPago
-                .FirstOrDefaultAsync(m => m.Id == request.MetodoPagoId && m.SucursalId == sucursalId);
+            //Obtenemos el plan valido
+            var plan = await ObtenerPlanValidoAsync(socio, sucursalId);
 
-            //Si no existe => Not Found (404)
-            if (metodoExiste is null)
-                throw new NotFoundException("El Metodo de Pago no existe.");
-            //Si existe, esta deshabiltado => Conflicto(409)
-            if (metodoExiste.EliminadoEn != null)
-                throw new ConflictException("El Metodo de Pago esta deshabilitado.");
+            //Obtenemos calcular cobertura.
+            var (cubreDesde, cubreHasta) = CalcularCobertura(plan.DuracionDias);
 
-            //Guardamos el importe dependiendo el plan del usuario.
-            var plan = await _context.Planes
-                .FirstOrDefaultAsync(p => p.Id == socio.PlanId && p.SucursalId == sucursalId);
-
-            //Si el importe es menor o 0, entonces el socio no tiene ningun Plan asignado.
-            if (plan is null)
-                throw new BadRequestException("El Socio no tiene ningun Plan asignado.");
-
-            //Si eliminado esta cargado.
-            if (plan.EliminadoEn != null)
-                throw new ConflictException("El plan está deshabilitado.");
-
-            //Si quieren romper aproposito
-            if (plan.DuracionDias <= 0)
-                throw new ConflictException("Hubo un problema con la duración de días del plan");
-
-            //Calculamos desde cuando cubre el dia, hasta cuando.
-            var CubreDesde = DateTime.UtcNow;
-            var CubreHasta = CubreDesde.AddDays(plan.DuracionDias);
             // Si eligio un plan, colocamos el precio del plan y lo que pago.
             var importe = plan.Precio;
 
-            var crearPago = new Pago
-            {
-                Importe = importe,
-                FechaPago = DateTime.UtcNow,
-                CubreDesde = CubreDesde,
-                CubreHasta = CubreHasta,
-                MetodoPagoId = request.MetodoPagoId,
-                SocioId = request.SocioId,
-                EliminadoEn = null,
-                SucursalId = sucursalId
-            };
+            var pago = CrearEntidadPago(request, sucursalId, importe, cubreDesde, cubreHasta);
 
-            _context.Pagos.Add(crearPago);
+            _context.Pagos.Add(pago);
 
             await _context.SaveChangesAsync();
 
-            return crearPago.Id;
+            return pago.Id;
         }
 
         public async Task<List<PagoResponse>> ListarAsync()
@@ -114,26 +75,17 @@ namespace GymManager.Api.Application.Services
 
         }
 
-
         public async Task SoftDeleteAsync(int id)
         {
 
+            //Traemos sucursales para comparar
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            //Buscamos el Pago
-            var pagosExiste = await _context.Pagos.FindAsync(id);
-            //Existe?
-            if (pagosExiste == null)
-                throw new NotFoundException("El Pago no existe.");
-            //Existe, ya esta eliminado?
-            if (pagosExiste.EliminadoEn != null)
-                throw new ConflictException("El Pago ya esta eliminado.");
-
-            if (pagosExiste.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            //Obtenemos el pago valido
+            var pago = await ObtenerPagoValidoAsync(id, sucursalId);
 
             //Lo eliminamos
-            pagosExiste.EliminadoEn = DateTime.UtcNow;
+            pago.EliminadoEn = DateTime.UtcNow;
             //Guardamos.
             await _context.SaveChangesAsync();
         }
@@ -141,34 +93,17 @@ namespace GymManager.Api.Application.Services
         public async Task UpdateAsync(UpdatePagoRequest request, int id)
         {
 
+            //Traemos la sucursal para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            var pago = await _context.Pagos.FindAsync(id);
+            //Obtenemos el pago valido
+            var pago = await ObtenerPagoValidoAsync(id, sucursalId);
 
-            if (pago is null)
-                throw new NotFoundException("El Pago que queres editar no existe.");
+            //Obtengo el metodo valido
+            var metodoPago = await ObtenerMetodoPagoValidoAsync(request.MetodoPagoId, sucursalId);
 
-            if (pago.EliminadoEn != null)
-                throw new ConflictException("El Pago que queres editar esta eliminado.");
-
-            if (pago.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            //Buscamos un MetodoPago que coincida con el ingresado
-            var metodoExiste = await _context.MetodosPago
-                .FirstOrDefaultAsync(m => m.Id == request.MetodoPagoId && m.SucursalId == sucursalId);
-
-            //Si no existe => Not Found (404)
-            if (metodoExiste is null)
-                throw new NotFoundException("El Metodo de Pago no existe.");
-            //Si existe, esta deshabiltado => Conflicto(409)
-            if (metodoExiste.EliminadoEn != null)
-                throw new ConflictException("El Metodo de Pago esta deshabilitado.");
-
-            // Fecha válida 
-            if (request.FechaPago == default)
-                throw new BadRequestException("La fecha de pago es inválida.");
-
+            //Obtengo ValidarFecha
+            ValidarFecha(request.FechaPago);
 
             pago.MetodoPagoId = request.MetodoPagoId;
             pago.FechaPago = request.FechaPago;
@@ -180,10 +115,10 @@ namespace GymManager.Api.Application.Services
         public async Task<List<VencidoResponse>> GetVencidosAsync()
         {
 
+            //Traemos la sucursal para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             DateTime hoy = DateTime.UtcNow.Date;
-            DateTime mañana = hoy.AddDays(1);
             DateTime semana = hoy.AddDays(+7);
 
 
@@ -229,6 +164,114 @@ namespace GymManager.Api.Application.Services
 
             return listar;
 
+        }
+
+        // METODOS PRIVADOS
+        //Aprendiendo a desacoplar perfectamente
+        private async Task<Socio> ObtenerSocioValidoAsync(int socioId, Guid sucursalId)
+        {
+            //Buscamos un Socio que coincida con el ingresado
+            var socio = await _context.Socios
+                .FirstOrDefaultAsync(s => s.Id == socioId && s.SucursalId == sucursalId);
+
+            //Si no coincide => Not Found (404).
+            if (socio is null)
+                throw new NotFoundException("El Socio no existe.");
+
+            //Coincide pero esta deshabilitado =>  Conflic (409)
+            if (socio.EliminadoEn != null)
+                throw new ConflictException("El socio está deshabilitado.");
+
+            return socio;
+        }
+
+        private async Task<MetodoPago> ObtenerMetodoPagoValidoAsync(int metodoPagoId, Guid sucursalId)
+        {
+
+            //Buscamos un MetodoPago que coincida con el ingresado
+            var metodo = await _context.MetodosPago
+                .FirstOrDefaultAsync(m => m.Id == metodoPagoId && m.SucursalId == sucursalId);
+
+            //Si no existe => Not Found (404)
+            if (metodo is null)
+                throw new NotFoundException("El Metodo de Pago no existe.");
+
+            //Si existe, esta deshabiltado => Conflicto(409)
+            if (metodo.EliminadoEn != null)
+                throw new ConflictException("El Metodo de Pago esta deshabilitado.");
+
+            return metodo;
+        }
+
+        private async Task<Plan> ObtenerPlanValidoAsync(Socio socio, Guid sucursalId)
+        {
+
+            //Guardamos el importe dependiendo el plan del usuario.
+            var plan = await _context.Planes
+                .FirstOrDefaultAsync(p => p.Id == socio.PlanId && p.SucursalId == sucursalId);
+
+            //Si el importe es menor o 0, entonces el socio no tiene ningun Plan asignado.
+            if (plan is null)
+                throw new BadRequestException("El Socio no tiene ningun Plan asignado.");
+
+            //Si eliminado esta cargado.
+            if (plan.EliminadoEn != null)
+                throw new ConflictException("El plan está deshabilitado.");
+
+            //Si quieren romper aproposito
+            if (plan.DuracionDias <= 0)
+                throw new ConflictException("Hubo un problema con la duración de días del plan");
+
+            return plan;
+
+        }
+
+        private async Task<Pago> ObtenerPagoValidoAsync(int id, Guid sucursalId)
+        {
+
+            //Buscamos el Pago y filtramos por sucursalId
+            var pago = await _context.Pagos
+                .FirstOrDefaultAsync(p => p.Id == id && p.SucursalId == sucursalId);
+            //Si es null...
+            if (pago is null)
+                throw new NotFoundException("El Pago que queres editar no existe.");
+            //Si existe pero esta eliminado...
+            if (pago.EliminadoEn != null)
+                throw new ConflictException("El Pago que queres editar esta eliminado.");
+
+            return pago;
+
+        }
+
+        private void ValidarFecha(DateTime fecha)
+        {
+            //Validamos si ingreso fecha.
+            if (fecha == default)
+                throw new BadRequestException("Fecha inválida.");
+        }
+
+        private (DateTime desde, DateTime hasta) CalcularCobertura(int duracionDias)
+        {
+            //Calculamos la fecha ingresada para su cobertura.
+            var desde = DateTime.UtcNow;
+            var hasta = desde.AddDays(duracionDias);
+
+            return (desde, hasta);
+        }
+
+        private Pago CrearEntidadPago(CreatePagoRequest request, Guid sucursalId, decimal importe, DateTime cubreDesde, DateTime cubreHasta)
+        {
+            return new Pago
+            {
+                Importe = importe,
+                FechaPago = DateTime.UtcNow,
+                CubreDesde = cubreDesde,
+                CubreHasta = cubreHasta,
+                MetodoPagoId = request.MetodoPagoId,
+                SocioId = request.SocioId,
+                EliminadoEn = null,
+                SucursalId = sucursalId
+            };
         }
 
     }

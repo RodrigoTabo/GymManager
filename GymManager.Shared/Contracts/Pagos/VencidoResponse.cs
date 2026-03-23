@@ -13,7 +13,7 @@ namespace GymManager.Shared.Contracts.Pagos
         public string Plan { get; set; }
         public DateTime VenceEn { get; set; }
         public decimal Importe { get; set; }
-        public uint Telefono { get; set; }
+        public string Telefono { get; set; }
 
     }
 }

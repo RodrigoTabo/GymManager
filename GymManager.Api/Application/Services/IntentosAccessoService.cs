@@ -1,5 +1,4 @@
 ﻿using GymManager.Api.Application.Interfaces;
-using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.IntentosAcceso;
 using Microsoft.EntityFrameworkCore;

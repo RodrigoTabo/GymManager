@@ -76,19 +76,11 @@ namespace GymManager.Api.Application.Services
 
         public async Task UpdateAsync(UpdateMetodoPagoRequest request, int id)
         {
-
+            //Traemos la sucursal para comparar
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            var metodo = await _context.MetodosPago.FindAsync(id);
-
-            if (metodo is null)
-                throw new NotFoundException("El Metodo de pago que deseas editar no existe");
-
-            if (metodo.EliminadoEn != null)
-                throw new ConflictException("El metodo que deseas editar, esta deshabilitado");
-
-            if (metodo.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+            //Filtramos lo necesario.
+            var metodo = await ObtenerMetodoAsync(id, sucursalId);
 
             var nombre = (request.Nombre ?? "").Trim();
             if (string.IsNullOrWhiteSpace(nombre))
@@ -109,24 +101,33 @@ namespace GymManager.Api.Application.Services
 
         public async Task SoftDeleteAsync(int id)
         {
-
+            //Traemos la sucursal para comparar
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            var metodo = await _context.MetodosPago.FindAsync(id);
-
-            if (metodo is null)
-                throw new NotFoundException("El Metodo de pago que deseas elimiar no existe");
-
-            if (metodo.EliminadoEn != null)
-                throw new ConflictException("El Metodo ya esta eliminado");
-
-            if (metodo.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada no coincide con la sucursal activa.");
+            //Filtramos
+            var metodo = await ObtenerMetodoAsync(id, sucursalId);
 
             metodo.EliminadoEn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
+        }
+
+
+        //Metodos privados
+
+        private async Task <MetodoPago> ObtenerMetodoAsync(int Id, Guid sucursalId)
+        {
+            var metodo = await _context.MetodosPago
+                .FirstOrDefaultAsync(m => m.Id == Id && m.SucursalId == sucursalId);
+
+            if (metodo is null)
+                throw new NotFoundException("El Metodo de pago que deseas eliminar no existe");
+
+            if (metodo.EliminadoEn != null)
+                throw new ConflictException("El Metodo ya esta eliminado");
+
+            return metodo;
         }
 
     }

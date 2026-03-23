@@ -1,4 +1,5 @@
-﻿using GymManager.Api.Application.Interfaces;
+﻿using Azure.Core;
+using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Socios;
@@ -7,55 +8,29 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class SocioService(GymManagerDbContext context,
-        ICurrentUserService currentUserService) : ISocioService
+    public class SocioService(GymManagerDbContext context, ICurrentUserService currentUserService) : ISocioService
     {
+
         private readonly GymManagerDbContext _context = context;
         private readonly ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<int> CrearAsync(CreateSocioRequest request)
         {
-
+            //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            //Carga DNI
-            var dni = (request.DNI ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(dni))
-                throw new BadRequestException("El DNI es obligatorio");
-            //Carga Nombre
-            var nombre = (request.Nombre ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new BadRequestException("El Nombre es obligatorio");
-            //Carga Apellido
-            var apellido = (request.Apellido ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(apellido))
-                throw new BadRequestException("El Apellido es obligatorio");
+            //Llamamos al metodo que valida si ya existe un socio con ese DNI.
+            await ValidarSocioUnicoAsync(request.DNI, sucursalId);
 
-            //Existe? Existe Deshabilitado?
-            var socio = await _context.Socios
-                .AnyAsync(s => s.DNI == dni && s.SucursalId == sucursalId);
-
-            if (socio)
-                throw new ConflictException("El Socio ya existe.");
-
-            //Existe? Existe Deshabilitado?
-            var plan = await _context.Planes.FindAsync(request.PlanId);
-
-            if (plan is null)
-                throw new NotFoundException("Debes agregar un Plan.");
-
-            if (plan.EliminadoEn is not null)
-                throw new ConflictException("El plan existe, pero está deshabilitado.");
-
-            if (plan.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            //Llamamos al metodo que valida si existe un plan
+            await ValidarPlanAsync(request.PlanId, sucursalId);
 
             //Creamos socio
             var crearSocio = new Socio
             {
-                DNI = dni,
-                Nombre = nombre,
-                Apellido = apellido,
+                DNI = request.DNI,
+                Nombre = request.Nombre,
+                Apellido = request.Apellido,
                 Telefono = request.Telefono,
                 PlanId = request.PlanId,
                 FechaAlta = DateTime.UtcNow,
@@ -75,57 +50,62 @@ namespace GymManager.Api.Application.Services
 
         public async Task<SocioResponse> GetByIdAsync(int id)
         {
+
+            //Traemos la sucursal para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            //Optimizamos query, buscamos el socio, filtramos y pedimos los datos.
-            var socio = await _context.Socios.AsNoTracking()
+            // Traemos el socio ya filtrando eliminado y sucursal
+            var socio = await _context.Socios
+                .AsNoTracking()
                 .Where(s => s.Id == id && s.EliminadoEn == null && s.SucursalId == sucursalId)
-                .Select(s => new SocioResponse
-                (
-                 s.Id,
-                 s.DNI,
-                 s.Nombre,
-                 s.Apellido,
-                 s.Telefono,
-                 s.FechaNacimiento,
-                 s.FechaAlta,
-                 s.FechaBaja,
-                 s.PlanId,
-                 s.Plan.Nombre
-                    ))
+                .Select(s => new SocioResponse(
+                    s.Id,
+                    s.DNI,
+                    s.Nombre,
+                    s.Apellido,
+                    s.Telefono,
+                    s.FechaNacimiento,
+                    s.FechaAlta,
+                    s.FechaBaja,
+                    s.PlanId,
+                    s.Plan.Nombre
+                ))
                 .FirstOrDefaultAsync();
 
-            //Validamos existencia.
+            //Si el socio no existe...
             if (socio is null)
-                throw new NotFoundException("El Socio no existe.");
-            //Retornamos el socio.
+                throw new NotFoundException("El socio no existe.");
+
+            //Retornamos el objeto.
             return socio;
         }
 
         public async Task<List<SocioResponse>> ListarAsync(SocioQuery query)
         {
+
+            //Traemos la sucursalId para comparar
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Optimizamos la query y filtramos.
-            var consulta = _context.Socios.AsNoTracking().Where(s => s.SucursalId == sucursalId);
+            var consulta = _context.Socios
+                .AsNoTracking()
+                .Where(s => s.SucursalId == sucursalId)
+                .Where(s => query.Inactivo ? s.EliminadoEn != null : s.EliminadoEn == null);
 
-            consulta = query.Inactivo
-                ? consulta.Where(s => s.EliminadoEn != null)   // solo inactivos
-                : consulta.Where(s => s.EliminadoEn == null);  // solo activos
-
+            //Normalizamos el texto.
             var texto = (query.Texto ?? "").Trim();
 
+            //Utilizamos el switch para filtrar las opciones que selecciono el usuario.
             if (!string.IsNullOrWhiteSpace(texto))
             {
-                if (query.BuscarPor == "DNI")
-                    consulta = consulta.Where(s => s.DNI.Contains(texto));
-                else if (query.BuscarPor == "NombreCompleto")
-                    consulta = consulta.Where(s => (s.Nombre + " " + s.Apellido).Contains(texto));
-                else
-                    consulta = consulta.Where(s => s.Plan.Nombre.Contains(texto));
+                consulta = query.BuscarPor switch
+                {
+                    "DNI" => consulta.Where(s => s.DNI.Contains(texto)),
+                    "NombreCompleto" => consulta.Where(s => (s.Nombre + " " + s.Apellido).Contains(texto)),
+                    "Plan" => consulta.Where(s => s.Plan.Nombre.Contains(texto)),
+                    _ => consulta
+                };
             }
-
-
             //Pedimos datos.
             var listar = await consulta
                 .OrderByDescending(s => s.FechaAlta)
@@ -150,82 +130,93 @@ namespace GymManager.Api.Application.Services
 
         public async Task SoftDeleteAsync(int id)
         {
+            //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            //Buscamos el socio
-            var socio = await _context.Socios.FindAsync(id);
+            //Optimizamos la consulta y filtramos el socio.
+            var socio = await ObtenerSocioActivoAsync(id, sucursalId);
 
-            //Existe Socio?
-            if (socio is null)
-                throw new NotFoundException("El socio no existe.");
-            //Existe socio deshabilitado?
-            if (socio.EliminadoEn != null)
-                throw new ConflictException("El socio ya está deshabilitado");
-            if (socio.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            //Actualizamos
             socio.EliminadoEn = DateTime.UtcNow;
-            //Impactamos Db.
-            await _context.SaveChangesAsync();
 
+            //Guardamos los cambios.
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(int id, UpdateSocioRequest request)
         {
+
+            //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            var socio = await _context.Socios.FindAsync(id);
+            //Llamamos al metodo de validacion de socio
+            var socio = await ObtenerSocioActivoAsync(id, sucursalId);
 
-            if (socio is null)
-                throw new NotFoundException("El Socio que desea modificar no existe.");
+            //Buscamos si el DNI registrado ya existe.
+            var socioExiste = await _context.Socios.AnyAsync(s => s.DNI == request.DNI && s.Id != id && s.SucursalId == sucursalId);
 
-            if (socio.EliminadoEn != null)
-                throw new ConflictException("El Socio está deshabilitado.");
-
-            if (socio.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            //Carga DNI
-            var dni = (request.DNI ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(dni))
-                throw new BadRequestException("El DNI es obligatorio");
-            //Carga Nombre
-            var nombre = (request.Nombre ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new BadRequestException("El Nombre es obligatorio");
-            //Carga Apellido
-            var apellido = (request.Apellido ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(apellido))
-                throw new BadRequestException("El Apellido es obligatorio");
-
-            //Existe? Existe Deshabilitado?
-            var socioExiste = await _context.Socios.AnyAsync(s => s.DNI == dni && s.Id != id && s.SucursalId == sucursalId);
+            //El socio existe?
             if (socioExiste)
                 throw new ConflictException("El Socio ya existe.");
 
-            //Existe? Existe Deshabilitado?
-            var plan = await _context.Planes.FindAsync(request.PlanId);
+            //Buscamos el plan mediante Id
+            await ValidarPlanAsync(request.PlanId, sucursalId);
 
-            if (plan is null)
-                throw new NotFoundException("Debes agregar un Plan.");
-
-            if (plan.EliminadoEn is not null)
-                throw new ConflictException("El plan existe, pero está deshabilitado.");
-
-            if (plan.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            socio.DNI = dni;
-            socio.Nombre = nombre;
-            socio.Apellido = apellido;
+            socio.DNI = request.DNI;
+            socio.Nombre = request.Nombre;
+            socio.Apellido = request.Apellido;
             socio.Telefono = request.Telefono;
             socio.FechaNacimiento = request.FechaNacimiento;
             socio.PlanId = request.PlanId;
             socio.DocumentoId = request.documentoId;
 
+            //Guardamos los cambios.
             await _context.SaveChangesAsync();
 
         }
+
+        //METODOS PRIVADOS
+
+        private async Task<Socio> ObtenerSocioActivoAsync(int id, Guid sucursalId)
+        {
+            var socio = await _context.Socios
+                .FirstOrDefaultAsync(s => s.Id == id && s.SucursalId == sucursalId && s.EliminadoEn == null);
+
+            if (socio == null)
+                throw new NotFoundException("El socio no existe.");
+
+            return socio;
+        }
+
+        // Valida que no exista un socio con el mismo DNI
+        private async Task ValidarSocioUnicoAsync(string dni, Guid sucursalId)
+        {
+            var socio = await _context.Socios
+                .FirstOrDefaultAsync(s => s.DNI == dni && s.SucursalId == sucursalId);
+
+            if (socio != null)
+            {
+                if (socio.EliminadoEn != null)
+                    throw new ConflictException("El Socio ya existe pero está eliminado.");
+
+                throw new ConflictException("El Socio ya existe.");
+            }
+        }
+
+        private async Task ValidarPlanAsync(int id, Guid sucursalId)
+        {
+            // Busamos si existe un plan con ese Id en la sucursal
+            var plan = await _context.Planes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id && p.SucursalId == sucursalId);
+
+            //Si no existe...
+            if (plan == null)
+                throw new ConflictException("Debes elegir un plan.");
+
+            //Esta eliminado?
+            if (plan.EliminadoEn != null)
+                throw new ConflictException("El Plan ya existe pero está eliminado.");
+        }
+
     }
 }

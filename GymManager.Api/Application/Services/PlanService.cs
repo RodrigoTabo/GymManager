@@ -40,36 +40,21 @@ namespace GymManager.Api.Application.Services
 
         public async Task<int> CrearAsync(CreatePlanRequest request)
         {
+
+            //Traemos la sucursal para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
-
-            //Validamos que haya cargado el nombre
-            var nombre = (request.Nombre ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new BadRequestException("El nombre es obligatorio.");
-
-            //Validamos que haya colocado duración de dias
-            if (request.DuracionDias <= 0)
-                throw new BadRequestException("Tenes que agregar los días de duración del plan.");
-            //Validamos que haya colocado precio al plan
-            if (request.Precio <= 0)
-                throw new BadRequestException("Tenes que agregar un precio al plan.");
 
             //Validamos si existe pero esta eliminado.
             var existe = await _context.Planes
-                .FirstOrDefaultAsync(p => p.Nombre == nombre && p.SucursalId == sucursalId);
+                .FirstOrDefaultAsync(p => p.Nombre == request.Nombre && p.SucursalId == sucursalId);
 
-            if (existe is not null)
-            {
-                if (existe.EliminadoEn != null)
-                    throw new ConflictException("El plan ya existe, pero está deshabilitado.");
-
-                throw new ConflictException("El plan ya existe.");
-            }
+            //Si existe
+            await ValidarPlanExistenteAsync(request.Nombre, sucursalId);
 
             //Creamos el plan
             var nuevoPlan = new Plan
             {
-                Nombre = nombre,
+                Nombre = request.Nombre,
                 DuracionDias = request.DuracionDias,
                 Precio = request.Precio,
                 SucursalId = sucursalId,
@@ -86,41 +71,16 @@ namespace GymManager.Api.Application.Services
 
         public async Task UpdateAsync(int id, UpdatePlanRequest request)
         {
+            //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             //Validamos que exista el Id que queremos modificar.
-            var plan = await _context.Planes.FindAsync(id);
-            if (plan is null)
-                throw new NotFoundException("El Plan que desea modificar no existe.");
-
-            if (plan.EliminadoEn != null)
-                throw new ConflictException("El plan ya está deshabilitado.");
-
-            if (plan.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
-
-            //Validamos que haya completado los campos
-            var nombre = (request.Nombre ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new BadRequestException("El nombre es obligatorio.");
-            if (request.DuracionDias <= 0)
-                throw new BadRequestException("Tenes que agregar los días de duración del plan");
-            if (request.Precio <= 0)
-                throw new BadRequestException("Tenes que agregar un precio al plan");
+            var plan = await ObtenerPlanAsync (id, sucursalId);
 
             //Validamos que el plan no exista
-            var existe = await _context.Planes
-                .FirstOrDefaultAsync(p => p.Nombre == nombre && p.Id != id && p.SucursalId == sucursalId);
+            await ValidarPlanExistenteAsync(request.Nombre, sucursalId, id);
 
-            if (existe is not null)
-            {
-                if (existe.EliminadoEn != null)
-                    throw new ConflictException("El plan ya existe, pero está deshabilitado.");
-
-                throw new ConflictException("El plan ya existe.");
-            }
-
-            plan.Nombre = nombre;
+            plan.Nombre = request.Nombre;
             plan.DuracionDias = request.DuracionDias;
             plan.Precio = request.Precio;
             await _context.SaveChangesAsync();
@@ -129,6 +89,7 @@ namespace GymManager.Api.Application.Services
 
         public async Task<PlanResponse> GetByIdAsync(int id)
         {
+            //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
             ///Buscamos el plan.
@@ -154,22 +115,56 @@ namespace GymManager.Api.Application.Services
         {
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
-            var plan = await _context.Planes.FindAsync(id);
-
-            ///Existe el plan?
-            if (plan is null)
-                throw new NotFoundException("El plan no existe.");
-            ///Esta deshabilitado?
-            if (plan.EliminadoEn != null)
-                throw new ConflictException("El plan ya está deshabilitado.");
-
-            if (plan.SucursalId != sucursalId)
-                throw new UnauthorizedAccessException("La sucursal solicitada, no coincide con la sucursal activa.");
+            //Buscamos dentro de la sucursal, un Id igual.
+            var plan = await ObtenerPlanAsync(id, sucursalId);
 
             plan.EliminadoEn = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
         }
+
+        //METODOS PRIVADOS
+
+        private async Task<Plan> ObtenerPlanAsync(int id, Guid sucursalId)
+        {
+            //Validamos que exista el Id que queremos modificar.
+            var plan = await _context.Planes
+                .FirstOrDefaultAsync(p => p.Id == id && p.SucursalId == sucursalId);
+
+            //Si el plan no existe..
+            if (plan is null)
+                throw new NotFoundException("El Plan que desea modificar no existe.");
+
+            //Si el plan existe, esta eliminado?
+            if (plan.EliminadoEn != null)
+                throw new ConflictException("El plan ya está deshabilitado.");
+
+            return plan;
+        }
+
+        private async Task ValidarPlanExistenteAsync(string nombre, Guid sucursalId, int? id = null)
+        {
+            //Armamos uan query.
+            var query = _context.Planes
+                .AsQueryable()
+                .Where(p => p.Nombre == nombre && p.SucursalId == sucursalId);
+
+            //Si Id es diferente a null, lo agregamos a la query
+            if (id != null)
+                query.Where(p => p.Id != id.Value);
+
+            var existe = await query.FirstOrDefaultAsync();
+
+            if (existe is not null)
+            {
+                if (existe.EliminadoEn != null)
+                    throw new ConflictException("El plan ya existe, pero está deshabilitado.");
+
+                throw new ConflictException("El plan ya existe.");
+            }
+
+        }
+
 
     }
 }
