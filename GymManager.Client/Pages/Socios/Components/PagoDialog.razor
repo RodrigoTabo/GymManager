@@ -40,7 +40,7 @@
 
     [Parameter]
     public int SocioId { get; set; }
- 
+
     [Parameter]
     public string? SocioNombre { get; set; }
 
@@ -51,8 +51,12 @@
     protected override async Task OnInitializedAsync()
     {
         if (SocioId > 0)
+        {
             Model.SocioId = SocioId;
+            Model.MetodoPagoId = 1;
+        }
 
+            
         await LoadMetodosPagosAsync();
     }
 

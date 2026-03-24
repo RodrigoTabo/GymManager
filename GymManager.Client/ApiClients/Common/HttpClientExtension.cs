@@ -73,5 +73,15 @@ namespace GymManager.Client.ApiClients.Common
             throw await HttpApiException.FromHttpResponse(resp);
         }
 
+        public static async Task PatchOrThrowAsync(this HttpClient http, string url)
+        {
+            var resp = await http.PatchAsync(url, null);
+
+            if (resp.IsSuccessStatusCode)
+                return;
+
+            throw await HttpApiException.FromHttpResponse(resp);
+        }
+
     }
 }

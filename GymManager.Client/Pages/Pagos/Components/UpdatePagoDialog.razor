@@ -28,7 +28,6 @@
             }
         </MudSelect>
 
-        <!-- Método: editable -->
         <MudSelect T="int" Label="Metodo de pago"
                    @bind-Value="Model.MetodoPagoId"
                    Disabled="Guardando">
@@ -40,12 +39,10 @@
             }
         </MudSelect>
 
-        <!-- FechaPago: editable -->
         <MudDatePicker Label="Fecha de pago"
                        @bind-Date="Model.FechaPago"
-                       Disabled="Guardando" />
+                       Disabled="true" />
 
-        <!-- Derivados: solo lectura (pueden quedar nulos) -->
         <MudNumericField T="decimal?" Label="Importe"
                          @bind-Value="Model.Importe"
                          Disabled="true" />
@@ -182,8 +179,7 @@
         try
         {
             var request = new UpdatePagoRequest(
-                MetodoPagoId: Model.MetodoPagoId,
-                FechaPago: Model.FechaPago.Value
+                MetodoPagoId: Model.MetodoPagoId
             );
 
             await PagoApi.UpdateAsync(request, Pago.Id);

@@ -1,6 +1,7 @@
 ﻿using GymManager.Client.ApiClients.Common;
 using GymManager.Shared.Contracts.Socios;
 using GymManager.Web.Security;
+using System.Net.Http.Json;
 
 namespace GymManager.Client.ApiClients
 {
@@ -61,6 +62,14 @@ namespace GymManager.Client.ApiClients
             var client = await _clientProvider.GetClientAsync();
 
             await client.DeleteOrThrowAsync(
+                $"api/socios/{id}");
+        }
+
+        public async Task DarAltaAsync(int id)
+        {
+            var client = await _clientProvider.GetClientAsync();
+
+            await client.PatchOrThrowAsync(
                 $"api/socios/{id}");
         }
 

@@ -26,7 +26,7 @@ namespace GymManager.Api
             //SERVICIO DE SERILOG.
             builder.Host.UseSerilog((context, logConfg) => logConfg.ReadFrom.Configuration(context.Configuration));
 
-            //SERVUCIO FLUENTVALIDATIO
+            //SERVICIO FLUENTVALIDATOR
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
             var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);

@@ -1,0 +1,108 @@
+﻿@using GymManager.Client.ApiClients
+@using GymManager.Shared.Contracts.Socios
+@inject SocioApi SocioApi
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3" Class="pt-2">
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudAvatar Variant="Variant.Filled" Color="@Color" Size="Size.Medium">
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowCircleUp" />
+                </MudAvatar>
+
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h6">Confirmar acción</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Esta acción requiere tu confirmación.
+                    </MudText>
+                </MudStack>
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <MudAlert Severity="Severity.Success"
+                          Dense="true"
+                          Variant="Variant.Filled"
+                          Elevation="0">
+                    @Error
+                </MudAlert>
+            }
+
+            <MudPaper Class="pa-4" Outlined="true">
+                <MudText Typo="Typo.body1">
+                    @ContentText
+                </MudText>
+            </MudPaper>
+
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="w-100">
+            <MudButton OnClick="Cancel"
+                       Disabled="@Guardando"
+                       Variant="Variant.Text"
+                       Color="Color.Default">
+                Cancelar
+            </MudButton>
+
+            <MudButton Color="@Color"
+                       Variant="Variant.Filled"
+                       OnClick="Alta"
+                       Disabled="@Guardando"
+                       StartIcon=@Icons.Material.Filled.GroupAdd>
+                @(Guardando ? "Procesando..." : ButtonText)
+            </MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public string ContentText { get; set; } = "";
+    [Parameter]
+    public string ButtonText { get; set; } = "Confirmar";
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
+
+
+    [Parameter]
+    public int SocioId { get; set; }
+
+    private string? Error;
+    private bool Guardando;
+
+
+    public async Task Alta()
+    {
+        Error = null;
+
+        if (SocioId <= 0)
+        {
+            Error = "El Socio no existe.";
+            return;
+        }
+
+        Guardando = true;
+
+        try
+        {
+            await SocioApi.DarAltaAsync(SocioId);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

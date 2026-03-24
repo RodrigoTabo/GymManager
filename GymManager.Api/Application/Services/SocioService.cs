@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using FluentValidation;
 using GymManager.Api.Application.Interfaces;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
@@ -8,16 +9,33 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 
 namespace GymManager.Api.Application.Services
 {
-    public class SocioService(GymManagerDbContext context, ICurrentUserService currentUserService) : ISocioService
+    public class SocioService(GymManagerDbContext context,
+        ICurrentUserService currentUserService,
+        IValidator<CreateSocioRequest> createvalidator,
+        IValidator<UpdateSocioRequest> updateValidator,
+        IValidator<SocioQuery> queryValidator
+        ) : ISocioService
     {
 
         private readonly GymManagerDbContext _context = context;
         private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly IValidator<CreateSocioRequest> _createvalidator = createvalidator;
+        private readonly IValidator<UpdateSocioRequest> _updateValidator = updateValidator;
+        private readonly IValidator<SocioQuery> _queryValidator = queryValidator;
+
 
         public async Task<int> CrearAsync(CreateSocioRequest request)
         {
+
             //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
+
+            var result = await _createvalidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
 
             //Llamamos al metodo que valida si ya existe un socio con ese DNI.
             await ValidarSocioUnicoAsync(request.DNI, sucursalId);
@@ -86,6 +104,13 @@ namespace GymManager.Api.Application.Services
             //Traemos la sucursalId para comparar
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 
+            var result = await _queryValidator.ValidateAsync(query);
+
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
+
             //Optimizamos la query y filtramos.
             var consulta = _context.Socios
                 .AsNoTracking()
@@ -142,8 +167,32 @@ namespace GymManager.Api.Application.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task DarAltaAsync(int id)
+        {
+            //Traemos la sucursalId para comparar.
+            var sucursalId = _currentUserService.SucursalIdOrThrow;
+
+
+            //Optimizamos la consulta y filtramos el socio.
+            var socio = await ObtenerSocioInactivoAsync(id, sucursalId);
+
+            //Cambiamos
+            socio.EliminadoEn = null;
+
+            //Guardamos los cambios.
+            await _context.SaveChangesAsync();
+
+        }
+
         public async Task UpdateAsync(int id, UpdateSocioRequest request)
         {
+
+            var result = await _updateValidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
 
             //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
@@ -183,6 +232,20 @@ namespace GymManager.Api.Application.Services
 
             if (socio == null)
                 throw new NotFoundException("El socio no existe.");
+
+            return socio;
+        }
+
+        private async Task<Socio> ObtenerSocioInactivoAsync(int id, Guid sucursalId)
+        {
+            var socio = await _context.Socios
+                .FirstOrDefaultAsync(s => s.Id == id && s.SucursalId == sucursalId);
+
+            if (socio == null)
+                throw new NotFoundException("El socio no existe.");
+
+            if (socio.EliminadoEn == null)
+                throw new ConflictException("El socio no esta dado de baja..");
 
             return socio;
         }

@@ -39,9 +39,11 @@
     <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:5px;">
         <SocioTable Items="@socios"
                     Loading="@loading"
+                    Inactivo ="@Filtro.Inactivo"
                     OnEdit="OpenEdit"
                     OnDelete="ConfirmDelete"
-                    OnPago="OpenPago" />
+                    OnPago="OpenPago" 
+                    OnAlta="confirmAlta"/>
     </MudPaper>
 
 
@@ -59,12 +61,6 @@
     private bool loadingStats;
     private bool loading;
 
-    private SocioQuery Filtro { get; set; } = new SocioQuery
-    {
-        BuscarPor = "NombreCompleto",
-        Texto = "",
-        Inactivo = false
-    };
 
     protected override async Task OnInitializedAsync()
         => await ReloadAsync();
@@ -74,6 +70,13 @@
         await LoadStatsAsync();
         await LoadSociosAsync();
     }
+
+    private SocioQuery Filtro { get; set; } = new SocioQuery
+    {
+        BuscarPor = "NombreCompleto",
+        Texto = "",
+        Inactivo = false
+    };
 
     private async Task LoadSociosAsync()
     {
@@ -160,6 +163,24 @@
             await ReloadAsync();
     }
 
+    private async Task confirmAlta(SocioResponse socio)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters
+        {
+            ["SocioId"] = socio.Id,
+            ["ContentText"] = $"¿Seguro que querés dar de alta el Socio \"{socio.Nombre} {socio.Apellido}\"?",
+            ["ButtonText"] = "Alta",
+            ["Color"] = Color.Success
+        };
+
+        var dialog = await DialogService.ShowAsync<SocioDialogUpdate>("Dar Alta Socio", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            await ReloadAsync();
+    }
+
     private async Task HandleFiltroChanged(SocioQuery nuevo)
     {
         Filtro = new SocioQuery
@@ -171,4 +192,5 @@
 
         await LoadSociosAsync();
     }
+
 }

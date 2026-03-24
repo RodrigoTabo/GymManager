@@ -1,4 +1,6 @@
-﻿using GymManager.Api.Application.Interfaces;
+﻿using FluentValidation;
+using GymManager.Api.Application.Interfaces;
+using GymManager.Api.Application.Validators.Plan;
 using GymManager.Api.Domain.Entities;
 using GymManager.Api.Infrastructure.Data;
 using GymManager.Shared.Contracts.Planes;
@@ -8,10 +10,15 @@ using static GymManager.Api.Application.Middleware.ApiExceptionHandling;
 namespace GymManager.Api.Application.Services
 {
     public class PlanService(GymManagerDbContext context,
-        ICurrentUserService currentUserService) : IPlanService
+        ICurrentUserService currentUserService,
+        IValidator<CreatePlanRequest> createvalidator,
+        IValidator<UpdatePlanRequest> updatevalidator
+        ) : IPlanService
     {
         private readonly GymManagerDbContext _context = context;
         private readonly ICurrentUserService _currentUserService = currentUserService;
+        private readonly IValidator<CreatePlanRequest> _createvalidator = createvalidator;
+        private readonly IValidator<UpdatePlanRequest> _updatevalidator = updatevalidator;
 
         public async Task<List<PlanResponse>> ListarAsync()
         {
@@ -40,6 +47,13 @@ namespace GymManager.Api.Application.Services
 
         public async Task<int> CrearAsync(CreatePlanRequest request)
         {
+
+            var result = await _createvalidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
 
             //Traemos la sucursal para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
@@ -71,6 +85,13 @@ namespace GymManager.Api.Application.Services
 
         public async Task UpdateAsync(int id, UpdatePlanRequest request)
         {
+            var result = await _updatevalidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
+
             //Traemos la sucursalId para comparar.
             var sucursalId = _currentUserService.SucursalIdOrThrow;
 

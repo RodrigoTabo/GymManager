@@ -14,11 +14,15 @@ namespace GymManager.Api.Application.Validators.Socio
 
             RuleFor(x => x.Nombre)
                 .NotEmpty().WithMessage("El Nombre es obligatorio.")
-                .MaximumLength(15).WithMessage("El Nombre no puede superar los 15 caracteres.");
+                .MaximumLength(15).WithMessage("El Nombre no puede superar los 15 caracteres.")
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithMessage("El Nombre solo puede contener letras.");
 
             RuleFor(x => x.Apellido)
                 .NotEmpty().WithMessage("El Apellido es obligatorio.")
-                .MaximumLength(30).WithMessage("El Apellido no puede superar los 30 caracteres.");
+                .MaximumLength(30).WithMessage("El Apellido no puede superar los 30 caracteres.")
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithMessage("El Apellido solo puede contener letras.");
 
             RuleFor(x => x.PlanId)
                 .GreaterThan(0).WithMessage("Debes seleccionar un Plan válido");

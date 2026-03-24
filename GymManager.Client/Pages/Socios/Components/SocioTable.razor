@@ -68,12 +68,20 @@
 
         <MudTd DataLabel="Acciones">
             <MudStack Row="true" Spacing="1">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
-                               OnClick="@(() => OnEdit.InvokeAsync(context))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Payments" Color="Color.Success" Size="Size.Small"
-                               OnClick="@(() => OnPago.InvokeAsync(context))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-                               OnClick="@(() => OnDelete.InvokeAsync(context))" />
+                @if (!Inactivo)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                   OnClick="@(() => OnEdit.InvokeAsync(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Payments" Color="Color.Success" Size="Size.Small"
+                                   OnClick="@(() => OnPago.InvokeAsync(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(() => OnDelete.InvokeAsync(context))" />
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Upgrade" Color="Color.Success" Size="Size.Small"
+                                   OnClick="@(() => OnAlta.InvokeAsync(context))" />
+                }
             </MudStack>
         </MudTd>
     </RowTemplate>
@@ -94,8 +102,10 @@
     [Parameter] public List<SocioResponse> Items { get; set; } = new();
     [Parameter] public bool Loading { get; set; }
 
+    [Parameter] public bool Inactivo { get; set; }
     [Parameter] public EventCallback<SocioResponse> OnEdit { get; set; }
     [Parameter] public EventCallback<SocioResponse> OnDelete { get; set; }
+    [Parameter] public EventCallback<SocioResponse> OnAlta { get; set; }
     [Parameter] public EventCallback<SocioResponse> OnPago { get; set; }
 
 

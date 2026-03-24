@@ -80,5 +80,18 @@ namespace GymManager.Api.Presentations.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        ///Damos de alta el socio
+        /// </summary>
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> DarAltaAsync([FromRoute] int id)
+        {
+            await _socioService.DarAltaAsync(id);
+            return NoContent();
+        }
+
     }
 }

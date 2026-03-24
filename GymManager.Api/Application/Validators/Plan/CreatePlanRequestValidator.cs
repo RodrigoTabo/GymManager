@@ -11,7 +11,9 @@ namespace GymManager.Api.Application.Validators.Plan
             //No hace falta documentar que hace cada linea, literalmente lo esta diciendo.
             RuleFor(x => x.Nombre)
                 .NotEmpty().WithMessage("El Nombre es requerido.")
-                .MaximumLength(20).WithMessage("El Nombre no puede superar los 20 caracteres.");
+                .MaximumLength(20).WithMessage("El Nombre no puede superar los 20 caracteres.")
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithMessage("El Nombre solo puede contener letras.");
 
             RuleFor(x => x.DuracionDias)
                 .GreaterThan(0).WithMessage("La Duración de Días debe ser mayor a 0.")
