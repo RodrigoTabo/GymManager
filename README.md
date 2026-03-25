@@ -1,83 +1,122 @@
-# GymManager
+* GymManager
 
-Aplicación web para la gestión básica de un gimnasio (V1 en progreso), con arquitectura separada:
-**Client (Blazor WebAssembly + MudBlazor)** + **API REST (ASP.NET Core)** + **Shared (contratos/DTOs)**.
+Sistema de gestion de gimnasio desarrollado con .NET, enfocado en backend, buenas practicas de arquitectura y simulacion de un entorno real de produccion.
 
----
+* Descripcion
 
-## Stack
+GymManager es una aplicacion que permite gestionar socios, pagos y asistencias dentro de un gimnasio.
+El objetivo principal del proyecto fue aplicar buenas practicas de desarrollo backend, priorizando la mantenibilidad, escalabilidad y observabilidad del sistema.
 
-- .NET / ASP.NET Core Web API
-- Blazor WebAssembly (Client)
-- MudBlazor (UI)
-- Swagger / OpenAPI
-- (Próximamente) EF Core + SQL Server
-- (Próximamente) Docker + Azure
+* Funcionalidades principales
 
----
+- Gestion de socios (alta, baja logica y reactivacion)
+- Gestion de planes (alta, baja logica)
+- Registro de pagos con calculo automatico de cobertura
+- Registro de asistencias mediante DNI
+- Auditoria de intentos de acceso (exitos y fallos)
+- Filtros dinamicos de busqueda (DNI, nombre, plan)
 
-## Estructura del repositorio
+* Arquitectura
 
-- `GymManager.Client` → UI (Blazor WASM + MudBlazor)
-- `GymManager.Api` → API REST (ASP.NET Core)
-- `GymManager.Shared` → Contratos compartidos (DTOs, requests/responses, modelos comunes)
+El proyecto sigue una arquitectura por capas con separacion de responsabilidades:
 
----
+- API (ASP.NET Core) - exposicion de endpoints HTTP
+- Application Services - logica de negocio
+- Infrastructure (Entity Framework Core) - acceso a datos
+- Client (Blazor) - interfaz de usuario
 
-## URLs (Development)
+- Se priorizo mantener la logica desacoplada del frontend y centralizada en los servicios de aplicacion.
 
-- **Client (UI):** `https://localhost:7083/` (HTTP: `http://localhost:5269/`)
-- **API:** `https://localhost:7093/` (HTTP: `http://localhost:5239/`)
-- **Swagger:** `https://localhost:7093/swagger`
+* Autenticacion y Autorizacion
 
----
+- Implementacion basada en Identity
+- Uso de JWT para autenticacion
+- Relacion de usuarios con multiples sucursales
+- Control de acceso a datos mediante SucursalId
 
-## Ejecutar en local (2 terminales)
+* Buenas practicas implementadas
 
-> Se levantan **dos apps distintas**: el Client (UI) y la API (backend).  
-> Cada `dotnet run` queda ejecutándose, por eso se usan dos terminales.
+- V alidaciones desacopladas con FluentValidation
+- Ejecución manual de validaciones en services (no dependiente del controller)
+- Manejo global de errores mediante middleware
+- Logging estructurado en eventos criticos
+- Soft delete (baja logica de entidades)
+- Multi-tenant (filtrado por sucursal)
+- Uso de DTOs para desacoplar capas
+- Separacion de responsabilidades en metodos pequeños y claros
 
-### Terminal 1 — API
+* Observabilidad
 
-```bash
-cd GymManager.Api
-dotnet run --launch-profile https
-```
+Se implemento logging estructurado utilizando:
 
-- **Verificación rápida:**
-- Swagger: https://localhost:7093/swagger
-- Endpoint de ejemplo: https://localhost:7093/WeatherForecast
+- Serilog
+- Seq
 
-### Terminal 2 — Client (Frontend)
+Se registran eventos clave como:
 
-```bash
-cd GymManager.Client
-dotnet run --launch-profile https
-```
+- Creacion de pagos
+- Alta y baja de socios
+- Manejo de excepciones en middleware
 
-**Verificación rápida:**
+Esto permite tener trazabilidad y facilitar el debugging en entornos productivos.
 
-- `https://localhost:7083/`
+* Manejo de errores
 
-### Prueba rápida de conectividad
+- Se implemento un middleware global que:
 
-El Client consume el endpoint de ejemplo del API:
+- Centraliza el manejo de excepciones
+- Devuelve respuestas HTTP consistentes
+- Registra errores mediante logging
 
-- `GET /WeatherForecast`
+* Testing
 
-Si todo está OK:
+- Implementacion inicial de tests unitarios con xUnit
+- Enfocados en la logica de negocio de los servicios
 
-- Swagger: `https://localhost:7093/swagger`
-- Navegador (directo): `https://localhost:7093/WeatherForecast`
+* Infraestructura (Docker)
 
-### Notas de arquitectura
+La aplicacion se encuentra completamente containerizada utilizando Docker, simulando un entorno real de produccion:
 
-- `GymManager.Shared` contiene **DTOs/contratos** compartidos entre Client y API.
-- Las **entidades** y la **persistencia** (EF Core, DbContext, migraciones) viven solo en `GymManager.Api`.
+- API (.NET)
+- Cliente (Blazor)
+- Base de datos (SQL Server)
+- Sistema de logging (Serilog + Seq)
 
-### Roadmap (V1)
+Esto permite levantar todo el sistema de forma consistente y reproducible.
 
-- Socios: alta / edición / listado + búsqueda
-- Pagos: registrar pago + cálculo de vencimiento
-- Asistencias: check-in + validación de estado
-- Dashboard básico
+* Tecnologias utilizadas
+- .NET / ASP.NET Core
+- Entity Framework Core
+- Identity Core
+- Blazor
+- FluentValidation
+- Serilog
+- Seq
+- Docker
+- xUnit
+
+* Estado del proyecto
+
+Versión inicial (V1) completa y funcional.
+
+Se priorizo:
+
+- Correcto diseño de arquitectura
+- Implementación de buenas prácticas
+- Base solida para futuras mejoras
+
+* Objetivo del proyecto
+
+Este proyecto fue desarrollado como parte de mi formación como desarrollador backend, con foco en:
+
+- Construccion de APIs reales
+- Aplicacion de buenas practicas
+- Simulacion de entornos productivos
+- Preparacion para entornos profesionales
+
+* Proximas mejoras
+
+- Ampliacion de cobertura de tests
+- Mejoras en logging y monitoreo
+- Optimizacion de queries
+- Implementacion de nuevas funcionalidades
